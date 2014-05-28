@@ -1,0 +1,42 @@
+<ScheduleMessage xmlns="urn:entsoe.eu:wgedi:ess:schedulemessage:3:3" DtdRelease="3" DtdVersion="3">
+	<MessageIdentification v="schedules_i7_REE_20140326"/>
+	<MessageVersion v="1"/>
+	<MessageType v="A04"/>
+	<ProcessType v="A18"/>
+	<ScheduleClassificationType v="A01"/>
+	<SenderIdentification codingScheme="A01" v="10XES-REE-s----E"/>
+	<SenderRole v="A04"/>
+	<ReceiverIdentification codingScheme="A01" v="10XFR-RTE------Q"/>
+	<ReceiverRole v="A04"/>
+	<MessageDateTime v="2014-03-26T18:33:17Z"/>
+	<ScheduleTimeInterval v="2014-03-25T23:00Z/2014-03-26T23:00Z"/>
+	<Domain codingScheme="A01" v="10YDOM--ES-FR--D"/>
+	<MatchingPeriod v="2014-03-26T20:00Z/2014-03-26T23:00Z"/>
+	<ScheduleTimeSeries>
+		<SendersTimeSeriesIdentification v="STS20"/>
+		<SendersTimeSeriesVersion v="1"/>
+		<BusinessType v="A03"/>
+		<Product v="8716867000016"/>
+		<ObjectAggregation v="A03"/>
+		<InArea codingScheme="A01" v="10YES-REE------0"/>
+		<OutArea codingScheme="A01" v="10YFR-RTE------C"/>
+		<InParty codingScheme="A01" v="18XETFD-23456-0S"/>
+		<OutParty codingScheme="A01" v="18XETFD-23456-0S"/>
+		<CapacityContractType v="A05"/>
+		<CapacityAgreementIdentification v="0"/>
+		<MeasurementUnit v="MAW"/>
+		<Period>
+			<TimeInterval v="2014-03-25T23:00Z/2014-03-26T23:00Z"/>
+			<Resolution v="PT60M"/>
+			<Interval>
+				<Pos v="1"/>
+				<Qty v="0"/>
+			</Interval>
+			<Interval>
+				<Pos v="2"/>
+				<Qty v="0"/>
+			</Interval>
+		</Period>
+	</ScheduleTimeSeries>
+</ScheduleMessage>
+	

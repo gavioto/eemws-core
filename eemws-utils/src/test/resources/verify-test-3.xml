@@ -1,0 +1,62 @@
+<msg:RequestMessage xmlns:msg="http://iec.ch/TC57/2011/schema/message">
+	<msg:Header>
+		<msg:Verb>create</msg:Verb>
+		<msg:Noun>ScheduleMessage</msg:Noun>
+		<msg:Context>PRODUCTION</msg:Context>
+		<msg:AckRequired>true</msg:AckRequired>
+	<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>g2IFXCD8sU3bo7smksm0OuzeY70=</DigestValue></Reference></SignedInfo><SignatureValue>KAf3JOu52KXnkqXJgTbDOH6RPX8r2ljIFiMwbLJNPr+/j+l3waIFKgS24NyjXM46CchwcZHWgkXh
+G1HzMNI/9tbuYGm437RWD4ENRZh1hudBzrpQwXiThJjXlcteHlu25MztdzVoiJtGBdDKejr0fX5A
+RWcrNE/uvrzrTmR59pY=</SignatureValue><KeyInfo><X509Data><X509IssuerSerial><X509IssuerName>CN=test, OU=test, O=test, L=test, ST=test</X509IssuerName><X509SerialNumber>1396361744</X509SerialNumber></X509IssuerSerial><X509SubjectName>CN=test,OU=test,O=test,L=test,ST=test</X509SubjectName><X509Certificate>MIICDzCCAXigAwIBAAIEUzvTSzANBgkqhkiG9w0BAQUFADBMMQ0wCwYDVQQIEwRjb2RlMQ8wDQYD
+VQQHEwZzZWNyZXQxDDAKBgNVBAoTA3RoZTEOMAwGA1UECxMFZm91ZG4xDDAKBgNVBAMTA1lvdTAe
+Fw0xNDA0MDIwOTA3MjNaFw0xNTA4MTUwOTA3MjNaMEwxDTALBgNVBAgTBGNvZGUxDzANBgNVBAcT
+BnNlY3JldDEMMAoGA1UEChMDdGhlMQ4wDAYDVQQLEwVmb3VkbjEMMAoGA1UEAxMDWW91MIGfMA0G
+CSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDhE9qkkgb7mU6uRa/HRRXkxNKroIonnQJql06rMr+U3oq
+Ycj41dMxW66wN+9krGfmA5ZFvt4qdKjTnO2IBtFIQtXr38jqA5c2JjMM04CXU5neCA5fDbtU/fI3
+uJFPfteJBAsc7Q/aARS5aoATdh4E5QXjDB+SvlQ1S4naR9xrAQIDAQABMA0GCSqGSIb3DQEBBQUA
+A4GBABHbMMuNm+6CEFTnHfuRG31vPemR0JeXKIzbcwMz6AlZQgYAIc+nOxCVNsJ1ZsuZfEQJ/Gk1
+Z4E1gCy7ohqWV+OAmY4/UbxbUDSdqp9k2wA9Yjo7/vH+KiV1kw4pTfIcqE8KjADpna9Qm0bH1OjR
+tlnRZ+XGYD6TEdaY2KYWk1PE</X509Certificate></X509Data></KeyInfo></Signature></msg:Header>
+	<msg:Payload>
+		<ScheduleMessage xmlns="urn:entsoe.eu:wgedi:ess:schedulemessage:3:3" DtdRelease="3" DtdVersion="3">
+			<MessageIdentification v="schedules_i7_REE_20140326"/>
+			<MessageVersion v="1"/>
+			<MessageType v="A04"/>
+			<ProcessType v="A18"/>
+			<ScheduleClassificationType v="A01"/>
+			<SenderIdentification codingScheme="A01" v="10XES-REE-s----E"/>
+			<SenderRole v="A04"/>
+			<ReceiverIdentification codingScheme="A01" v="10XFR-RTE------Q"/>
+			<ReceiverRole v="A04"/>
+			<MessageDateTime v="2014-03-26T18:33:17Z"/>
+			<ScheduleTimeInterval v="2014-03-25T23:00Z/2014-03-26T23:00Z"/>
+			<Domain codingScheme="A01" v="10YDOM--ES-FR--D"/>
+			<MatchingPeriod v="2014-03-26T20:00Z/2014-03-26T23:00Z"/>
+			<ScheduleTimeSeries>
+				<SendersTimeSeriesIdentification v="STS20"/>
+				<SendersTimeSeriesVersion v="1"/>
+				<BusinessType v="A03"/>
+				<Product v="8716867000016"/>
+				<ObjectAggregation v="A03"/>
+				<InArea codingScheme="A01" v="10YES-REE------0"/>
+				<OutArea codingScheme="A01" v="10YFR-RTE------C"/>
+				<InParty codingScheme="A01" v="18XETFD-23456-0S"/>
+				<OutParty codingScheme="A01" v="18XETFD-23456-0S"/>
+				<CapacityContractType v="A05"/>
+				<CapacityAgreementIdentification v="0"/>
+				<MeasurementUnit v="MAW"/>
+				<Period>
+					<TimeInterval v="2014-03-25T23:00Z/2014-03-26T23:00Z"/>
+					<Resolution v="PT60M"/>
+					<Interval>
+						<Pos v="1"/>
+						<Qty v="0"/>
+					</Interval>
+					<Interval>
+						<Pos v="2"/>
+						<Qty v="0"/>
+					</Interval>
+				</Period>
+			</ScheduleTimeSeries>
+		</ScheduleMessage>
+	</msg:Payload>
+</msg:RequestMessage>

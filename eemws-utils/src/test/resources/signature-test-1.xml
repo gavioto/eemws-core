@@ -1,0 +1,51 @@
+<msg:RequestMessage xmlns:msg="http://iec.ch/TC57/2011/schema/message">
+	<msg:Header>
+		<msg:Verb>create</msg:Verb>
+		<msg:Noun>ScheduleMessage</msg:Noun>
+		<msg:Context>PRODUCTION</msg:Context>
+		<msg:AckRequired>true</msg:AckRequired>
+	</msg:Header>
+	<msg:Payload>
+		<ScheduleMessage xmlns="urn:entsoe.eu:wgedi:ess:schedulemessage:3:3" DtdVersion="3" DtdRelease="3">
+			<MessageIdentification v="schedules_i7_REE_20140326"/>
+			<MessageVersion v="1"/>
+			<MessageType v="A04"/>
+			<ProcessType v="A18"/>
+			<ScheduleClassificationType v="A01"/>
+			<SenderIdentification v="10XES-REE-s----E" codingScheme="A01"/>
+			<SenderRole v="A04"/>
+			<ReceiverIdentification v="10XFR-RTE------Q" codingScheme="A01"/>
+			<ReceiverRole v="A04"/>
+			<MessageDateTime v="2014-03-26T18:33:17Z"/>
+			<ScheduleTimeInterval v="2014-03-25T23:00Z/2014-03-26T23:00Z"/>
+			<Domain v="10YDOM--ES-FR--D" codingScheme="A01"/>
+			<MatchingPeriod v="2014-03-26T20:00Z/2014-03-26T23:00Z"/>
+			<ScheduleTimeSeries>
+				<SendersTimeSeriesIdentification v="STS20"/>
+				<SendersTimeSeriesVersion v="1"/>
+				<BusinessType v="A03"/>
+				<Product v="8716867000016"/>
+				<ObjectAggregation v="A03"/>
+				<InArea v="10YES-REE------0" codingScheme="A01"/>
+				<OutArea v="10YFR-RTE------C" codingScheme="A01"/>
+				<InParty v="18XETFD-23456-0S" codingScheme="A01"/>
+				<OutParty v="18XETFD-23456-0S" codingScheme="A01"/>
+				<CapacityContractType v="A05"/>
+				<CapacityAgreementIdentification v="0"/>
+				<MeasurementUnit v="MAW"/>
+				<Period>
+					<TimeInterval v="2014-03-25T23:00Z/2014-03-26T23:00Z"/>
+					<Resolution v="PT60M"/>
+					<Interval>
+						<Pos v="1"/>
+						<Qty v="0"/>
+					</Interval>
+					<Interval>
+						<Pos v="2"/>
+						<Qty v="0"/>
+					</Interval>
+				</Period>
+			</ScheduleTimeSeries>
+		</ScheduleMessage>
+	</msg:Payload>
+</msg:RequestMessage>									
