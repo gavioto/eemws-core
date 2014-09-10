@@ -20,6 +20,7 @@
  */
 package es.ree.eemws.core.utils.xml;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -69,8 +70,22 @@ public final class XMLElementUtil {
      * @return Element class.
      * @throws JAXBException Exception marshal the object.
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static Element obj2Element(final Object obj) throws JAXBException {
+
+        return obj2Element(obj, null, null);
+    }
+
+    /**
+     * This method transforms an Object in an Element class.
+     * @param obj Object to transform.
+     * @param rootTag Root tag for the element (@XmlRootElement not given).
+     * @param nameSpace Name space for the element.
+     * @return Element class.
+     * @throws JAXBException Exception marshal the object.
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static Element obj2Element(final Object obj, final String rootTag, final String nameSpace)
+            throws JAXBException {
 
         JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
@@ -84,7 +99,11 @@ public final class XMLElementUtil {
         } catch (JAXBException e) {
 
             /* Tries to get an object if the given element has no @XmlRootElement. */
-            QName qName = new QName(null, obj.getClass().getSimpleName());
+            QName qName = new QName(nameSpace, obj.getClass().getSimpleName());
+            if (rootTag != null) {
+                qName = new QName(nameSpace, rootTag);
+            }
+
             JAXBElement<?> root = new JAXBElement(qName, obj.getClass(), obj);
             jaxbMarshaller.marshal(root, res);
         }
@@ -150,10 +169,59 @@ public final class XMLElementUtil {
         Transformer transformer = tFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8"); 
 
         transformer.transform(domSource, result);
         return stringWriter.toString();
+    }
+
+    /**
+     * This method transforms an Object into a String.
+     * @param obj Object to transform.
+     * @return StringBuilder String with the object.
+     * @throws JAXBException Exception marshal the object.
+     */
+    public static StringBuilder object2StringBuilder(final Object obj) throws JAXBException {
+
+        return object2StringBuilder(obj, null, null);
+    }
+
+
+    /**
+     * This method transforms an Object into a String.
+     * @param obj Object to transform.
+     * @param rootTag Root tag for the element (@XmlRootElement not given).
+     * @param nameSpace Name space for the element.
+     * @return StringBuilder String with the object.
+     * @throws JAXBException Exception marshal the object.
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static StringBuilder object2StringBuilder(final Object obj,
+            final String rootTag, final String nameSpace) throws JAXBException {
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass().getPackage().getName());
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, false);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+
+            jaxbMarshaller.marshal(obj, baos);
+
+        } catch (JAXBException e) {
+
+            /* Tries to get an object if the given element has no @XmlRootElement. */
+            QName qName = new QName(nameSpace, obj.getClass().getSimpleName());
+            if (rootTag != null) {
+                qName = new QName(nameSpace, rootTag);
+            }
+
+            JAXBElement<?> root = new JAXBElement(qName, obj.getClass(), obj);
+            jaxbMarshaller.marshal(root, baos);
+        }
+
+        return new StringBuilder(baos.toString());
     }
 }

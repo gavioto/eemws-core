@@ -24,13 +24,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 import es.ree.eemws.core.utils.file.FileUtil;
 import es.ree.eemws.core.utils.security.CryptoException;
@@ -111,10 +117,11 @@ public final class ConfigManager {
                 boolean shouldCypherFile = clearPasswords();
                 loadAndCheckSecurityConfig();
                 setSystem();
+                setConfigSSL();
 
                 if (shouldCypherFile) {
 
-                    File configFile = new File(loader.getResource(configFileName).getFile());
+                    File configFile = new File(FileUtil.getFullPathOfResoruce(configFileName));
                     if (configFile.canWrite()) {
 
                         cypherFile(configFile);
@@ -245,10 +252,6 @@ public final class ConfigManager {
      */
     private void loadAndCheckSecurityConfig() throws ConfigException {
 
-        if (config.getProperty(KEY_STORE_PASSWORD) == null) {
-            config.setProperty(KEY_STORE_PASSWORD, DEFAULT_KEY_STORE_PASSWORD);
-        }
-
         if (config.getProperty(KEY_STORE_TYPE) == null) {
             config.setProperty(KEY_STORE_TYPE, DEFAULT_KEY_STORE_TYPE);
         }
@@ -308,6 +311,39 @@ public final class ConfigManager {
 
                 System.setProperty(key, value);
             }
+        }
+    }
+
+    /**
+     * Sets the user certificate in the SSL socket factory.
+     * This method does not make sense in windows, but communication will not work in AIX
+     * @throws ConfigException If you can not set the SSL environment.
+     */
+    private static void setConfigSSL() throws ConfigException {
+
+        try {
+
+            String keyStore = System.getProperty(KEY_STORE);
+            String keyType = System.getProperty(KEY_STORE_TYPE);
+            String keyPassword = System.getProperty(KEY_STORE_PASSWORD);
+
+            if (keyStore != null && keyType != null && keyPassword != null) {
+
+                KeyStore ksKeys = KeyStore.getInstance(keyType);
+                ksKeys.load(new FileInputStream(keyStore), keyPassword.toCharArray());
+
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                kmf.init(ksKeys, keyPassword.toCharArray());
+
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(kmf.getKeyManagers(), null, null);
+
+                HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            }
+
+        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | UnrecoverableKeyException | KeyManagementException e) {
+
+            throw new ConfigException("Unable to load SSL configuration.");
         }
     }
 }
