@@ -27,12 +27,34 @@
 							<wsdlFiles>
 								<wsdlFile>urn-iec62325-504-wss-1-0.wsdl</wsdlFile>
 							</wsdlFiles>
+							<wsdlLocation>file://urn-iec62325-504-wss-1-0.wsdl</wsdlLocation>
 						</configuration>
 						<id>wsimport-generate-classes</id>
 						<phase>generate-sources</phase>
 					</execution>
 				</executions>
 			</plugin>
+			 <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.5</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+              <resources>          
+                <resource>
+                  <directory>${basedir}/src/wsdl</directory>
+                </resource>
+              </resources>              
+            </configuration>            
+          </execution>
+        </executions>
+      </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -44,8 +66,7 @@
 					<showWarnings>true</showWarnings>
 					<showDeprecation>true</showDeprecation>
 					<optimize>true</optimize>
-					<debug>true</debug>
-					<debuglevel>lines,vars,source</debuglevel>
+					<debug>false</debug>
 				</configuration>
 			</plugin>
 			<plugin>

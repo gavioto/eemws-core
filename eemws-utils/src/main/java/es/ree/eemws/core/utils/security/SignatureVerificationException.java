@@ -78,6 +78,62 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         details = new SignatureVerificationExceptionDetails();
         return details;
     }
+    
+    /**
+     * Keeps detail information about the signature's references
+     */
+    public final class ReferenceStatus {
+    	
+    	/** Status of the reference. */
+    	private Boolean refValid;
+    	
+    	/** Expected digest value. */
+    	private String calculatedDigestValue;
+    	
+    	/** Provided digest value. */
+    	private String providedDigestValue;
+    	
+    	/**
+    	 * Constructor. Creates a new detail information.
+    	 * @param refV Validation status.
+    	 * @param calcu Expected digest value.
+    	 * @param prov Calculated digest value.
+    	 */
+    	public ReferenceStatus(Boolean refV, String calcu, String prov) {
+			refValid = refV;
+			calculatedDigestValue = calcu;
+			providedDigestValue = prov;
+		}
+    	
+    	/**
+    	 * Returns whether  this reference is valid.
+    	 * @return <code>True</code> if the reference is valid.
+    	 */
+    	public Boolean isValid() {
+    		return refValid;
+    	}
+    	
+    	/*
+    	 * Returns a human readable version of the reference.
+    	 */
+    	@Override
+    	public String toString() {
+    		StringBuilder sb = new StringBuilder();
+    		sb.append("[Valid=");
+    		if (refValid) {
+    			sb.append("YES");
+    		} else {
+    			sb.append("NO");
+    			sb.append("][Provided Digest=");
+        		sb.append(providedDigestValue);
+        		sb.append("][Expected Digest=");
+        		sb.append(calculatedDigestValue);
+        		sb.append("]");
+    		}
+    		
+    		return sb.toString();
+    	}
+    }
 
     /**
      * Implements a simple detail structure to give more details about the signaturevalidation error.
@@ -91,8 +147,38 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         private boolean certificateValid = false;
 
         /** Status of the document's reference. */
-        private List<Boolean> references = new ArrayList<Boolean>();
+        private List<ReferenceStatus> references = new ArrayList<ReferenceStatus>();
 
+        @Override
+        public String toString() {
+        	StringBuilder sb = new StringBuilder();
+        	sb.append("[Signature valid=");
+        	if (signatureStatus) {
+        		sb.append("YES");
+        	} else {
+        		sb.append("NO");
+        	}
+        	sb.append("][Certificate valid=");
+        	if (certificateValid) {
+        		sb.append("YES");
+        	} else {
+        		sb.append("NO");
+        	}        	
+        	sb.append("]");
+        	
+        	int cont = 0;
+        	for (ReferenceStatus rs: references) {
+        		sb.append("[Ref ");
+        		sb.append(cont);
+        		sb.append("={");
+        		sb.append(rs.toString());
+        		sb.append("}]");
+        		cont ++;
+        	}
+        	
+        	return sb.toString();
+        }
+        
         /**
          * Set the status of the signature.
          * @param status <code>true</code> if the signature validation is OK.
@@ -115,19 +201,19 @@ public final class SignatureVerificationException extends SignatureManagerExcept
 
         /**
          * Set the reference status.
-         * @param refValid Reference value <code>true</code> if the reference is ok.
+         * @param ref Reference value <code>true</code> if the reference is ok.
          * <code>false</code> otherwise.
          */
-        public void addReferenceStatus(final Boolean refValid) {
+        public void addReferenceStatus(Boolean refValid, String calculated, String provided) {
 
-            references.add(refValid);
+        	references.add(new ReferenceStatus(refValid, calculated, provided));
         }
 
         /**
          * Get the complete list of reference status.
          * @return A list with the reference status.
          */
-        public List<Boolean> getReferencesStatus() {
+        public List<ReferenceStatus> getReferencesStatus() {
 
             return references;
         }
@@ -140,7 +226,7 @@ public final class SignatureVerificationException extends SignatureManagerExcept
          */
         public Boolean isRefereceValid(final int index) {
 
-            return references.get(index);
+            return references.get(index).isValid();
         }
 
         /**

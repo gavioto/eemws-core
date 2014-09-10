@@ -28,6 +28,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
@@ -42,6 +43,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.DigestMethod;
@@ -69,7 +71,6 @@ import org.xml.sax.SAXException;
 
 import es.ree.eemws.core.utils.security.SignatureVerificationException.SignatureVerificationExceptionDetails;
 import es.ree.eemws.core.utils.xml.XMLUtil;
-
 
 /**
  * Simple class to deal with xml signature.
@@ -213,8 +214,12 @@ public final class SignatureManager {
 
                 Iterator<?> iter = signature.getSignedInfo().getReferences().iterator();
                 while (iter.hasNext()) {
-                    Boolean refValid = Boolean.valueOf(((Reference) iter.next()).validate(valContext));
-                    details.addReferenceStatus(refValid);
+                	Reference ref = (Reference) iter.next();
+                    Boolean refValid = Boolean.valueOf((ref.validate(valContext)));
+                    String calculated = DatatypeConverter.printBase64Binary(ref.getCalculatedDigestValue());
+                    String provided = DatatypeConverter.printBase64Binary(ref.getDigestValue());
+                    details.addReferenceStatus(refValid, calculated, provided);
+                    
                 }
 
                 throw sve;
@@ -392,6 +397,84 @@ public final class SignatureManager {
         } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
 
             throw new SignatureManagerException("The given message seems to an invalid XML", e);
+        }
+    }
+
+    /**
+     * Signs the given xml document expressed as String (StringBuilder) usign the given private key and certificate.
+     * @param msgAsString The document to be signed, the result of the process will be returned in this parameter.
+     * @param privateKey The private key to be used for signature.
+     * @param cert The certificate to be used for signature.
+     * @throws SignatureManagerException If it's impossible to sign the document.
+     * @see #signDocument(Document, RSAPrivateKey, X509Certificate)
+     */
+    public static void signString(final StringBuilder msgAsString, final PrivateKey privateKey, final X509Certificate cert)
+            throws SignatureManagerException {
+
+        try {
+
+            Document doc = XMLUtil.string2Document(msgAsString);
+            signDocument(doc, privateKey, cert);
+
+            msgAsString.setLength(0);
+            msgAsString.append(XMLUtil.document2String(doc));
+            msgAsString.trimToSize();
+
+        } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
+
+            throw new SignatureManagerException("The given message seems to be an invalid XML", e);
+        }
+    }
+
+    /**
+     * Signs the given xml document usign the given private key and certificate.
+     * @param msgAsDocument The document to be signed, the result of the process will be returned in this parameter.
+     * @param privateKey The private key to be used for signature.
+     * @param cert The certificate to be used for signature.
+     * @throws SignatureManagerException If it's impossible to sign the document.
+     * @see #signString(StringBuilder, RSAPrivateKey, X509Certificate)
+     */
+    public static void signDocument(final Document msgAsDocument, final PrivateKey privateKey, final X509Certificate cert) throws SignatureManagerException {
+
+        try {
+
+            XMLSignatureFactory fac = XMLSignatureFactory.getInstance(SIGNATURE_FACTORY_TYPE);
+
+            Reference ref = fac.newReference(SIGNATURE_URI, fac.newDigestMethod(DIGEST_METHOD, null), Collections.singletonList(fac.newTransform(TRANSFORM, (TransformParameterSpec) null)), null, null);
+            SignedInfo si = fac.newSignedInfo(fac.newCanonicalizationMethod(CANONICALIZATION_METHOD, (C14NMethodParameterSpec) null), fac.newSignatureMethod(SIGNATURE_METHOD, null), Collections.singletonList(ref));
+
+            Node headerNode = null;
+            NodeList nl = msgAsDocument.getElementsByTagNameNS(HEADER_NAME_SPACE, HEADER_TAG);
+            if (nl.getLength() == 1) {
+
+                headerNode = nl.item(0);
+
+            } else {
+
+                throw new SignatureManagerException("Invalid document. The given document has no [" + HEADER_TAG + ":" + HEADER_NAME_SPACE + "] tag to place the signature.");
+            }
+
+            DOMSignContext dsc = new DOMSignContext(privateKey, headerNode);
+
+            KeyInfoFactory keyInfoFactory = fac.getKeyInfoFactory();
+            List<Object> x509Content = new ArrayList<>();
+            x509Content.add(keyInfoFactory.newX509IssuerSerial(cert.getIssuerDN().getName(), cert.getSerialNumber()));
+            x509Content.add(cert.getSubjectX500Principal().getName());
+            x509Content.add(cert);
+            X509Data xd = keyInfoFactory.newX509Data(x509Content);
+
+            KeyInfo keyInfo = keyInfoFactory.newKeyInfo(Collections.singletonList(xd));
+
+            XMLSignature signature = fac.newXMLSignature(si, keyInfo);
+            signature.sign(dsc);
+
+        } catch (GeneralSecurityException e) {
+
+            throw new SignatureManagerException("Invalid signature algorithm / parameters.", e);
+
+        } catch (MarshalException | XMLSignatureException e) {
+
+            throw new SignatureManagerException("Unable to sign the given document. Check document and exception details.", e);
         }
     }
 }

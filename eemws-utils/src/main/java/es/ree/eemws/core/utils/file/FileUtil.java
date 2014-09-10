@@ -20,7 +20,12 @@
  */
 package es.ree.eemws.core.utils.file;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -28,6 +33,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+
+import es.ree.eemws.core.utils.config.ConfigException;
 
 
 /**
@@ -40,7 +47,7 @@ public final class FileUtil {
 
     /** UTF-8 BOM header (should be removed to use the content as string). */
     private static final int UTF8_BOM_HEADER = 65279;
-
+    
     /**
      * Constructor.
      */
@@ -91,7 +98,18 @@ public final class FileUtil {
 
         return encoding.decode(ByteBuffer.wrap(Files.readAllBytes(Paths.get(fullFileName)))).toString();
     }
+    
+    /**
+     * This method reads a binary file.
+     * NOTE: This is not intended for reading in large files.
+     * @param fullFileName Path of the file.
+     * @return Byte[] with the content of the file.
+     * @throws IOException Exception with the error.
+     */
+    public static byte[] readBinary(final String fullFileName)  throws IOException {
 
+        return Files.readAllBytes(Paths.get(fullFileName));
+    }
     /**
      * This method writes a text file using the default platform char set.
      * NOTE: This is not intended for writing out large files.
@@ -128,4 +146,62 @@ public final class FileUtil {
 
         Files.write(Paths.get(fullFileName), content.getBytes(encoding), StandardOpenOption.CREATE);
     }
+
+    /**
+     * This method tests whether a file exists.
+     * @param fullFileName Path of the file.
+     * @return true if the file exists; false if the file does not exist or its existence cannot be determined.
+     */
+    public static boolean exists(final String fullFileName) {
+
+        return Files.exists(Paths.get(fullFileName));
+    }
+
+    /**
+     * This method creates a backup file. Uses extension .bak_N. N is a number from 1 to the max version create.
+     * @param fullFileName Path of the file.
+     * @return Name of the file backup.
+     */
+    public static String createBackup(final String fullFileName) {
+
+        File f = new File(fullFileName);
+        File f2 = new File(fullFileName);
+        boolean isRename = false;
+
+        if (f.exists()) {
+
+            for (int n = 1; !isRename; n++) {
+
+                f2 = new File(fullFileName + ".bak_" + n);
+                isRename = f.renameTo(f2);
+            }
+        }
+
+        return f2.getAbsolutePath();
+    }
+
+
+    /**
+     * Return full path of a resource file of the application.
+     * @param configPath file name
+     * @return Full path of the settings file,
+     * @throws ConfigException Exception with the error.
+     */
+    public static String getFullPathOfResoruce(final String resorucePath) throws ConfigException {
+
+        String fullPath = "";
+
+        try {
+
+            fullPath = Thread.currentThread().getContextClassLoader().getResource(resorucePath).toURI().toURL().toString().replace("file:/", "");
+            fullPath = URLDecoder.decode(fullPath, "UTF-8");
+
+        } catch (URISyntaxException | MalformedURLException | UnsupportedEncodingException e) {
+
+            throw new ConfigException(e);
+        }
+
+        return fullPath;
+    }
+
 }
