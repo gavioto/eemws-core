@@ -56,6 +56,12 @@ public final class XMLUtil {
     /** Do not add xml declaration, the xml will be included into another!. */
     private static final String STRING_XML_OMIT_DECLARATION = "yes";
 
+    /** Tab size. */
+    private static final int TAB_SIZE = 4;
+
+    /** Size of header where namespaces are searched. */
+    private static final int TNSNAME_SEARCH_SIZE = 3000;
+
     /**
      * Constructor.
      */
@@ -78,7 +84,7 @@ public final class XMLUtil {
         int pos1 = doc.indexOf(tag1);
         int pos2 = doc.indexOf(tag2);
         int pos = 0;
-        String etFinal = "";
+        String finalTag = "";
 
         if ((pos1 == -1) && (pos2 == -1)) {
             return null;
@@ -86,12 +92,12 @@ public final class XMLUtil {
 
         if ((pos1 != -1) && (pos2 != -1)) {
             pos = pos2;
-            etFinal = ">";
+            finalTag = ">";
         }
 
         if ((pos1 == -1) && (pos2 != -1)) {
             pos = pos2;
-            etFinal = ">";
+            finalTag = ">";
         }
 
         if ((pos1 != -1) && (pos2 == -1)) {
@@ -99,65 +105,14 @@ public final class XMLUtil {
             len++;
         }
 
-        int fin = doc.indexOf(">", pos) + 1;
-        int posBeg = pos - 1;
-        while (doc.charAt(posBeg) != '<' && posBeg > 0) {
-            posBeg--;
+        int end = doc.indexOf(">", pos) + 1;
+        int posBegin = pos - 1;
+        while (doc.charAt(posBegin) != '<' && posBegin > 0) {
+            posBegin--;
         }
 
-        String etiquetaFin = "</" + doc.substring(posBeg + 1, pos + len) + etFinal;
-
-        return inclusiveXml(doc, doc.substring(fin, doc.indexOf(etiquetaFin)));
-    }
-
-    /**
-     * This method copy the name space from the XML document to the XML sub-document.
-     * @param holeXml XML document with all the name spaces.
-     * @param subXml XML sub-document.
-     * @return XML sub-document with all the name spaces.
-     */
-    private static String inclusiveXml(final String holeXml, String subXml) {
-
-        boolean loop = true;
-
-        while (loop) {
-
-            try {
-
-                string2Document(subXml);
-                loop = false;
-
-            } catch (Exception p) {
-
-                loop = false;
-                String msg = p.getMessage();
-
-                int pos = msg.indexOf("The prefix");
-                if (pos == -1) {
-                    pos = msg.indexOf("The namespace prefix");
-                }
-
-                if (pos != -1) {
-
-                    loop = true;
-
-                    pos = msg.indexOf("\"", pos);
-
-                    int pos2 = msg.indexOf("\"", pos + 1);
-                    String prefix = msg.substring(pos + 1, pos2).trim();
-
-                    pos = holeXml.indexOf("xmlns:" + prefix);
-                    pos2 = holeXml.indexOf("\"", pos);
-                    pos2 = holeXml.indexOf("\"", pos2 + 1);
-                    String nameSpace = holeXml.substring(pos, pos2 + 1);
-
-                    pos = subXml.indexOf(">");
-                    subXml = subXml.substring(0, pos) + " " + nameSpace + subXml.substring(pos);
-                }
-            }
-        }
-
-        return subXml;
+        String endTag = "</" + doc.substring(posBegin + 1, pos + len) + finalTag;
+        return doc.substring(end, doc.indexOf(endTag));
     }
 
     /**
@@ -212,5 +167,304 @@ public final class XMLUtil {
         transformer.transform(domSource, result);
 
         return stringWriter.toString();
+    }
+
+    /**
+     * This method tabulates the document reference given using the format of the opening and closing tags.
+     * @param whatToPretty Text formatting.
+     * @return Document formatted as.
+     */
+    public static StringBuffer prettyPrint(final String whatToPretty) {
+
+        StringBuffer output = new StringBuffer();
+
+        String tab = "\n";
+
+        String tabBlanks = "";
+        StringBuffer buf = new StringBuffer();
+        for (int cont = 0; cont < TAB_SIZE; cont++) {
+            buf.append(' ');
+        }
+        tabBlanks = buf.toString();
+
+        String[] text = whatToPretty.trim().split(">");
+
+        String current = "";
+        String previous = " ";
+        int pos = 0;
+
+        for (int cont = 0; cont < text.length; cont++) {
+
+            current = text[cont].trim().replaceAll("\n", " ");
+
+            if (!current.endsWith("/") && !current.startsWith("</")) {
+
+                if (current.startsWith("<")) {
+
+                    tab += tabBlanks;
+
+                } else {
+
+                    int k = output.length();
+                    output.delete(k - tab.length(), k);
+                    tab = tab.substring(0, tab.length() - TAB_SIZE);
+                }
+
+            } else if (current.startsWith("</")) {
+
+                tab = tab.substring(0, tab.length() - TAB_SIZE);
+                int k = output.length();
+                output.delete(k - TAB_SIZE, k);
+
+                if (isSameTag(previous, current)) {
+
+                    output.setLength(pos - 1);
+                    current = "/";
+                }
+            }
+
+            previous = current;
+            output.append(current);
+            output.append('>');
+            pos = output.length();
+            output.append(tab);
+        }
+
+        return output;
+    }
+
+    /**
+     * This method checks whether two XML tags are equal.
+     * @param previousTag Previous tag.
+     * @param currentTag Current tag.
+     * @return true if both labels are equal.
+     */
+    private static boolean isSameTag(final String previousTag, final String currentTag) {
+
+        String tag1 = previousTag.substring(1);
+        if (tag1.indexOf(" ") > 0) {
+
+            tag1 = tag1.substring(0, tag1.indexOf(" "));
+        }
+
+        String tag2 = currentTag.substring(2);
+        if (tag2.indexOf(" ") > 0) {
+
+            tag2 = tag2.substring(0, tag2.indexOf(" "));
+        }
+
+        return tag1.equals(tag2);
+    }
+
+    /**
+     * This method removes namespace prefixes of a given document with leaving this default namespace.
+     * Example:
+     * input
+     * <code>
+     *   <n1:Tag xmnls:n1="http...." xmnls:n2="http...." xmnls:n3="http..." >
+     *      <n1:OtherTag>
+     *      ...
+     *   </n1:Tag>
+     * </code>
+     *
+     * output
+     * <code>
+     *   <Tag xmnls="http....">
+     *      <OtherTag>
+     *      ...
+     *   </Tag>
+     * </code>
+     *
+     * @param xml XML document to remove references to prefixes of namespaces.
+     * @return XML document without namespaces.
+     */
+    public static StringBuilder removeNameSpaces(final String xml) {
+
+        StringBuilder xmlOut = new StringBuilder(xml.trim());
+        xmlOut = removeExtraNS(xmlOut.toString());
+
+        String prefix = getTargetNameSpacePrefix(xmlOut);
+        if (prefix != null) {
+
+            String retXml = xmlOut.toString();
+            retXml = retXml.replaceAll(prefix + ":", "");
+            retXml = retXml.replaceFirst("xmlns:" + prefix, "xmlns");
+            xmlOut = new StringBuilder(retXml);
+        }
+
+        return xmlOut;
+    }
+
+    /**
+     * This method removes the given document, namespaces that are not referred to the document.
+     * Example:
+     *
+     * input
+     * <code>
+     *   <n1:Tag xmlns:n1="http...." xmlns:n2="http...." xmlns:n3="http...">
+     *   ...
+     *   </n1:Tag>
+     * </code>
+     *
+     * output
+     * <code>
+     * <n1:Tag xmlns:n1="http....">
+     *   ...
+     * </n1:Tag>
+     * </code>
+     *
+     * @param xml XML document.
+     * @return XML document without namespaces.
+     */
+    private static StringBuilder removeExtraNS(final String xml) {
+
+        StringBuilder xmlOut = new StringBuilder(xml.trim());
+
+        String ns = getTargetNameSpace(xmlOut);
+        String prefix = getTargetNameSpacePrefix(xmlOut);
+
+        if (prefix == null) {
+            prefix = "";
+        } else {
+            prefix = ":" + prefix;
+        }
+
+        String newDoc = xml.toString();
+
+        int posEndTag = newDoc.indexOf(">");
+        if (newDoc.charAt(posEndTag - 1) == '/') {
+            posEndTag--;
+        }
+
+        String rootTag = newDoc.substring(0, posEndTag);
+        String[] rootTags = rootTag.split("\\s");
+        StringBuilder sb = new StringBuilder(rootTags[0]);
+        sb.append(" xmlns" + prefix + "=\"" + ns + "\" ");
+
+        int len = rootTags.length;
+        for (int i = 1; i < len; i++) {
+            if (rootTags[i].indexOf("xmlns") == -1) {
+                sb.append(rootTags[i]);
+                sb.append(" ");
+            }
+        }
+        sb.setLength(sb.length() - 1);
+
+        return new StringBuilder(sb.toString() + xml.substring(posEndTag));
+    }
+
+    /**
+     * This method gets the namespace prefix of the given XML document.
+     * @param xml XML document.
+     * @return null if there is no prefix (default namespace).
+     * A string with the namespace prefix otherwise.
+     */
+    private static String getTargetNameSpacePrefix(final StringBuilder xml) {
+
+        String prefix = null;
+
+        String subXml;
+        if (xml.length() > TNSNAME_SEARCH_SIZE) {
+            subXml = xml.substring(0, TNSNAME_SEARCH_SIZE);
+        } else {
+            subXml = xml.toString();
+        }
+        subXml += ">";
+
+        int startPos = subXml.indexOf('<');
+        int endPos1 = subXml.indexOf(' ');
+        int endPos2 = subXml.indexOf('>');
+
+        if (endPos1 == -1) {
+            endPos1 = endPos2;
+        }
+
+        if (endPos2 == -1) {
+            endPos2 = endPos1;
+        }
+
+        try {
+
+            String tag = subXml.substring(startPos, Math.min(endPos1, endPos2));
+            if (tag.indexOf(":") != -1) {
+                prefix = tag.substring(tag.indexOf("<") + 1, tag.indexOf(":"));
+            }
+
+        } catch (IndexOutOfBoundsException e) {
+
+            prefix = null;
+        }
+
+        return prefix;
+    }
+
+    /**
+     * This method gets the "targetNamespace" XML document given.
+     * Find if the root tag has space prefixed names or default and returns the string that defines the namespace accordingly.
+     * @param xml XML document.
+     * @return null if no namespace is. The value of the "targetNamespace" otherwise.
+     */
+    private static String getTargetNameSpace(final StringBuilder xml) {
+
+        String targetNamespace = null;
+
+        String subXml;
+        if (xml.length() > TNSNAME_SEARCH_SIZE) {
+            subXml = xml.substring(0, TNSNAME_SEARCH_SIZE);
+        } else {
+            subXml = xml.toString();
+        }
+
+        String prefix = getTargetNameSpacePrefix(xml);
+        try {
+
+            if (prefix == null) {
+
+                int pos = subXml.indexOf("xmlns");
+                int pos2 = subXml.indexOf("xmlns:");
+
+                if (pos != -1) {
+
+                    while (pos == pos2 && pos != -1) {
+                        pos = subXml.indexOf("xmlns", pos + 1);
+                        pos2 = subXml.indexOf("xmlns:", pos2 + 1);
+                    }
+
+                    if (pos != -1) {
+
+                        pos = subXml.indexOf("\"", pos);
+                        pos2 = subXml.indexOf("\"", pos + 1);
+                        if (pos == -1) {
+
+                            pos = subXml.indexOf("'", pos);
+                            pos2 = subXml.indexOf("'", pos + 1);
+                        }
+
+                        targetNamespace = subXml.substring(pos + 1, pos2);
+                    }
+                }
+
+            } else {
+
+                prefix = "xmlns:" + prefix;
+                int posIni = subXml.indexOf(prefix) + prefix.length();
+                posIni = subXml.indexOf('"', posIni) + 1;
+                int posFin = subXml.indexOf('"', posIni);
+                if (posIni == -1) {
+
+                    posIni = subXml.indexOf(prefix) + prefix.length();
+                    posIni = subXml.indexOf("'", posIni) + 1;
+                    posFin = subXml.indexOf("'", posIni);
+                }
+
+                targetNamespace = subXml.substring(posIni, posFin);
+            }
+
+        } catch (IndexOutOfBoundsException e) {
+
+            targetNamespace = null;
+        }
+
+        return targetNamespace;
     }
 }
