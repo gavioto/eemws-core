@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Eléctrica de España, S.A.U.
+ * Copyright 2014 Red ElÃ©ctrica de EspaÃ±a, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -15,7 +15,7 @@
  * http://www.gnu.org/licenses/.
  *
  * Any redistribution and/or modification of this program has to make
- * reference to Red Eléctrica de España, S.A.U. as the copyright owner of
+ * reference to Red ElÃ©ctrica de EspaÃ±a, S.A.U. as the copyright owner of
  * the program.
  */
 package es.ree.eemws.core.utils.xml;
@@ -42,7 +42,7 @@ import org.xml.sax.SAXException;
 /**
  * Class that contains utilities for XML messages.
  *
- * @author Red Eléctrica de España S.A.U.
+ * @author Red ElÃ©ctrica de EspaÃ±a S.A.U.
  * @version 1.0 13/06/2014
  */
 public final class XMLUtil {
@@ -174,14 +174,14 @@ public final class XMLUtil {
      * @param whatToPretty Text formatting.
      * @return Document formatted as.
      */
-    public static StringBuffer prettyPrint(final String whatToPretty) {
+    public static StringBuilder prettyPrint(final String whatToPretty) {
 
-        StringBuffer output = new StringBuffer();
+    	StringBuilder output = new StringBuilder();
 
         String tab = "\n";
 
         String tabBlanks = "";
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int cont = 0; cont < TAB_SIZE; cont++) {
             buf.append(' ');
         }
