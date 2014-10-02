@@ -6,6 +6,10 @@
 	<version>1.0-m4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>eemws-utils</name>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -47,8 +51,7 @@
 					<showWarnings>true</showWarnings>
 					<showDeprecation>true</showDeprecation>
 					<optimize>true</optimize>
-					<debug>true</debug>
-					<debuglevel>lines,vars,source</debuglevel>
+					<debug>false</debug>
 				</configuration>
 			</plugin>
 			<plugin>
