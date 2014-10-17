@@ -188,20 +188,14 @@ public final class FileUtil {
      * @throws ConfigException Exception with the error.
      */
     public static String getFullPathOfResoruce(final String resorucePath) throws ConfigException {
-
-        String fullPath = "";
-
-        try {
-
-            fullPath = Thread.currentThread().getContextClassLoader().getResource(resorucePath).toURI().toURL().toString().replace("file:/", "");
-            fullPath = URLDecoder.decode(fullPath, "UTF-8");
-
-        } catch (URISyntaxException | MalformedURLException | UnsupportedEncodingException e) {
-
-            throw new ConfigException(e);
-        }
-
-        return fullPath;
+        String retValue;
+    	try {
+    		retValue = new File(Thread.currentThread().getContextClassLoader().getResource(resorucePath).toURI()).getAbsolutePath();
+		} catch (URISyntaxException e) {
+			retValue = null;
+		}
+    	
+    	return retValue;
     }
 
 }
