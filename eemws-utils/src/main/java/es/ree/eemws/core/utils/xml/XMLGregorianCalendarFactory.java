@@ -54,18 +54,26 @@ public final class XMLGregorianCalendarFactory {
      */
     public static XMLGregorianCalendar getGMTInstance(final Date date) {
 
+    	XMLGregorianCalendar retValue = getGMTInstanceMs(date);
+    	retValue.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
+    	
+    	return retValue;
+    }
+    
+    /**
+     * Gets an instance of a XMLGregorianCalendar GMT (with milliseconds) with date values given by the parameter.
+     * @param date Date to create a XMLGregorianCalendar.
+     * @return XMLGregorianCalendar GMT with date values given by the parameter.
+     */
+    public static XMLGregorianCalendar getGMTInstanceMs(final Date date) {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(date);
         XMLGregorianCalendar retValue = null;
 
         try {
-
             retValue = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal).normalize();
-            retValue.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
-
         } catch (DatatypeConfigurationException e) {
-
-            throw new RuntimeException("Error creating XMLGregorianCalendarFactory");
+            throw new RuntimeException("Error creating XMLGregorianCalendarFactory", e);
         }
 
         return retValue;
