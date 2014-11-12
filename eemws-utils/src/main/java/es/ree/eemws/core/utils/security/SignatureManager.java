@@ -211,7 +211,8 @@ public final class SignatureManager {
                 SignatureVerificationExceptionDetails details = sve.createDetails();
                 details.setSignatureValid(signature.getSignatureValue().validate(valContext));
                 details.setCertificateValid(certValidity);
-
+                details.setSignatureCertificate(x509);
+                
                 Iterator<?> iter = signature.getSignedInfo().getReferences().iterator();
                 while (iter.hasNext()) {
                 	Reference ref = (Reference) iter.next();
