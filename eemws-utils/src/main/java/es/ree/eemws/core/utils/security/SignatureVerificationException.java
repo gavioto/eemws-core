@@ -20,6 +20,7 @@
  */
 package es.ree.eemws.core.utils.security;
 
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -145,6 +146,9 @@ public final class SignatureVerificationException extends SignatureManagerExcept
 
         /** Status of the certificate. */
         private boolean certificateValid = false;
+        
+        /** Certificate used in the signature. */ 
+        private X509Certificate signatureCertificate = null;
 
         /** Status of the document's reference. */
         private List<ReferenceStatus> references = new ArrayList<ReferenceStatus>();
@@ -177,6 +181,23 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         	}
         	
         	return sb.toString();
+        }
+        
+        
+        /**
+         * Include the given certificate to this exception detail.
+         * @param x509Cert Certificate used for signature.
+         */
+		public void setSignatureCertificate(X509Certificate x509Cert) {
+			signatureCertificate = x509Cert;			
+		}
+        
+        /**
+         * Gets the certificate used in the signature. 
+         * @return Certificate used in the signature.
+         */
+        public X509Certificate getSignatureCertificate() {
+        	return signatureCertificate;
         }
         
         /**
@@ -247,6 +268,6 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         public boolean isCertificateValid() {
 
             return certificateValid;
-        }
+        }  
     }
 }
