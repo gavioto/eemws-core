@@ -1,6 +1,9 @@
 # README #
 
-Please use maven in order to compile.
+**News**
+
+
+Please use maven 3.x and java 7.x in order to compile.
 
 ### What is this repository for? ###
 
