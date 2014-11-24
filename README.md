@@ -1,7 +1,8 @@
 # README #
 
 **News**
-* 17-11-2014: The first draft of the user's manual is [https://bitbucket.org/smree/eemws-core/downloads/user's%20manual.pdf](https://bitbucket.org/smree/eemws-core/downloads/user's%20manual.pdf) (see Downloads section)
+
+* 17-11-2014: The first draft of the user's manual [is available](https://bitbucket.org/smree/eemws-core/downloads/user's%20manual.pdf) (see Downloads section)
 
 
 ----
