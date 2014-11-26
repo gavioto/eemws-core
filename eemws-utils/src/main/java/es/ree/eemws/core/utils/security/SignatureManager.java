@@ -208,7 +208,7 @@ public final class SignatureManager {
             if (!coreValidity || !certValidity) {
                 SignatureVerificationException sve = new SignatureVerificationException(msgError);
 
-                SignatureVerificationExceptionDetails details = sve.createDetails();
+                SignatureVerificationExceptionDetails details = sve.getDetails();
                 details.setSignatureValid(signature.getSignatureValue().validate(valContext));
                 details.setCertificateValid(certValidity);
                 details.setSignatureCertificate(x509);
@@ -243,47 +243,7 @@ public final class SignatureManager {
      * @see #signString(StringBuilder, RSAPrivateKey, X509Certificate)
      */
     public static void signDocument(final Document msgAsDocument, final RSAPrivateKey privateKey, final X509Certificate cert) throws SignatureManagerException {
-
-        try {
-
-            XMLSignatureFactory fac = XMLSignatureFactory.getInstance(SIGNATURE_FACTORY_TYPE);
-
-            Reference ref = fac.newReference(SIGNATURE_URI, fac.newDigestMethod(DIGEST_METHOD, null), Collections.singletonList(fac.newTransform(TRANSFORM, (TransformParameterSpec) null)), null, null);
-            SignedInfo si = fac.newSignedInfo(fac.newCanonicalizationMethod(CANONICALIZATION_METHOD, (C14NMethodParameterSpec) null), fac.newSignatureMethod(SIGNATURE_METHOD, null), Collections.singletonList(ref));
-
-            Node headerNode = null;
-            NodeList nl = msgAsDocument.getElementsByTagNameNS(HEADER_NAME_SPACE, HEADER_TAG);
-            if (nl.getLength() == 1) {
-
-                headerNode = nl.item(0);
-
-            } else {
-
-                throw new SignatureManagerException("Invalid document. The given document has no [" + HEADER_TAG + ":" + HEADER_NAME_SPACE + "] tag to place the signature.");
-            }
-
-            DOMSignContext dsc = new DOMSignContext(privateKey, headerNode);
-
-            KeyInfoFactory keyInfoFactory = fac.getKeyInfoFactory();
-            List<Object> x509Content = new ArrayList<>();
-            x509Content.add(keyInfoFactory.newX509IssuerSerial(cert.getIssuerDN().getName(), cert.getSerialNumber()));
-            x509Content.add(cert.getSubjectX500Principal().getName());
-            x509Content.add(cert);
-            X509Data xd = keyInfoFactory.newX509Data(x509Content);
-
-            KeyInfo keyInfo = keyInfoFactory.newKeyInfo(Collections.singletonList(xd));
-
-            XMLSignature signature = fac.newXMLSignature(si, keyInfo);
-            signature.sign(dsc);
-
-        } catch (GeneralSecurityException e) {
-
-            throw new SignatureManagerException("Invalid signature algorithm / parameters.", e);
-
-        } catch (MarshalException | XMLSignatureException e) {
-
-            throw new SignatureManagerException("Unable to sign the given document. Check document and exception details.", e);
-        }
+    	signDocument(msgAsDocument, (PrivateKey) privateKey, cert);
     }
 
     /**

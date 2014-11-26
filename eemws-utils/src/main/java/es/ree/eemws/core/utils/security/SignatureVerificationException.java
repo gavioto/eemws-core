@@ -38,7 +38,7 @@ public final class SignatureVerificationException extends SignatureManagerExcept
     private static final long serialVersionUID = -1610760793648350360L;
 
     /** Exception details. */
-    private SignatureVerificationExceptionDetails details = null;
+    private final SignatureVerificationExceptionDetails details = new SignatureVerificationExceptionDetails();
 
     /**
      * Constructor. Creates a new Verification Exception with the given text detail.
@@ -70,15 +70,6 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         return details;
     }
 
-    /**
-     * Creates a new detail structure.
-     * @return New detail structure.
-     */
-    public SignatureVerificationExceptionDetails createDetails() {
-
-        details = new SignatureVerificationExceptionDetails();
-        return details;
-    }
     
     /**
      * Keeps detail information about the signature's references
