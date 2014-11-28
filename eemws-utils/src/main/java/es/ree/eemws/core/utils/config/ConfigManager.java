@@ -240,7 +240,7 @@ public final class ConfigManager {
 
         } catch (CryptoException e) {
 
-            throw new ConfigException("Unable to decrypt value for key [" + failedKey + "]. Edit the configuration file and set its value as clear text.");
+            throw new ConfigException("Unable to decrypt value for key [" + failedKey + "]. Edit the configuration file and set its value as clear text.", e);
         }
 
         return hasPasswordEntryClear;
@@ -292,7 +292,7 @@ public final class ConfigManager {
 
             } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
 
-                throw new ConfigException("Unable to load the keystore [" + certFile + "]. Check keystore password and keystore type.");
+                throw new ConfigException("Unable to load the keystore [" + certFile + "]. Check keystore password and keystore type.", e);
             }
         }
     }
@@ -343,7 +343,7 @@ public final class ConfigManager {
 
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | UnrecoverableKeyException | KeyManagementException e) {
 
-            throw new ConfigException("Unable to load SSL configuration.");
+            throw new ConfigException("Unable to load SSL configuration.", e);
         }
     }
 }

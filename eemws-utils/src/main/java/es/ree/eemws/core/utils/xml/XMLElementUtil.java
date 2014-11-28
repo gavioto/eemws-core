@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Eléctrica de España, S.A.U.
+ * Copyright 2014 Red ElÃ©ctrica de EspaÃ±a, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -15,7 +15,7 @@
  * http://www.gnu.org/licenses/.
  *
  * Any redistribution and/or modification of this program has to make
- * reference to Red Eléctrica de España, S.A.U. as the copyright owner of
+ * reference to Red ElÃ©ctrica de EspaÃ±a, S.A.U. as the copyright owner of
  * the program.
  */
 package es.ree.eemws.core.utils.xml;
@@ -26,11 +26,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,7 +36,6 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -51,7 +48,7 @@ import org.xml.sax.SAXException;
 /**
  * Utilities to use the XML Element class.
  *
- * @author Red Eléctrica de España S.A.U.
+ * @author Red ElÃ©ctrica de EspaÃ±a S.A.U.
  * @version 1.0 13/06/2014
  */
 public final class XMLElementUtil {
@@ -64,52 +61,6 @@ public final class XMLElementUtil {
         /* This method should not be implemented. */
     }
 
-    /**
-     * This method transforms an Object in an Element class.
-     * @param obj Object to transform.
-     * @return Element class.
-     * @throws JAXBException Exception marshal the object.
-     */
-    public static Element obj2Element(final Object obj) throws JAXBException {
-
-        return obj2Element(obj, null, null);
-    }
-
-    /**
-     * This method transforms an Object in an Element class.
-     * @param obj Object to transform.
-     * @param rootTag Root tag for the element (@XmlRootElement not given).
-     * @param nameSpace Name space for the element.
-     * @return Element class.
-     * @throws JAXBException Exception marshal the object.
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Element obj2Element(final Object obj, final String rootTag, final String nameSpace)
-            throws JAXBException {
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-        DOMResult res = new DOMResult();
-
-        try {
-
-            jaxbMarshaller.marshal(obj, res);
-
-        } catch (JAXBException e) {
-
-            /* Tries to get an object if the given element has no @XmlRootElement. */
-            QName qName = new QName(nameSpace, obj.getClass().getSimpleName());
-            if (rootTag != null) {
-                qName = new QName(nameSpace, rootTag);
-            }
-
-            JAXBElement<?> root = new JAXBElement(qName, obj.getClass(), obj);
-            jaxbMarshaller.marshal(root, res);
-        }
-
-        return ((Document) res.getNode()).getDocumentElement();
-    }
 
     /**
      * This method transforms an Element class in an Object.
@@ -133,7 +84,7 @@ public final class XMLElementUtil {
      * @throws SAXException Exception parsing XML.
      * @throws IOException Exception reading XML.
      */
-    public static Element string2Element(final String xml)
+    public static Element string2Element(final String xml)  //NOSONAR - We do not want to encapsulate these exceptions
             throws ParserConfigurationException, SAXException, IOException  {
 
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -183,22 +134,6 @@ public final class XMLElementUtil {
      */
     public static StringBuilder object2StringBuilder(final Object obj) throws JAXBException {
 
-        return object2StringBuilder(obj, null, null);
-    }
-
-
-    /**
-     * This method transforms an Object into a String.
-     * @param obj Object to transform.
-     * @param rootTag Root tag for the element (@XmlRootElement not given).
-     * @param nameSpace Name space for the element.
-     * @return StringBuilder String with the object.
-     * @throws JAXBException Exception marshal the object.
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static StringBuilder object2StringBuilder(final Object obj,
-            final String rootTag, final String nameSpace) throws JAXBException {
-
         JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass().getPackage().getName());
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
@@ -206,21 +141,8 @@ public final class XMLElementUtil {
         jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, false);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
 
-            jaxbMarshaller.marshal(obj, baos);
-
-        } catch (JAXBException e) {
-
-            /* Tries to get an object if the given element has no @XmlRootElement. */
-            QName qName = new QName(nameSpace, obj.getClass().getSimpleName());
-            if (rootTag != null) {
-                qName = new QName(nameSpace, rootTag);
-            }
-
-            JAXBElement<?> root = new JAXBElement(qName, obj.getClass(), obj);
-            jaxbMarshaller.marshal(root, baos);
-        }
+        jaxbMarshaller.marshal(obj, baos);
 
         return new StringBuilder(baos.toString());
     }

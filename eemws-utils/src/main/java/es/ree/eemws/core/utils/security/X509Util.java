@@ -56,7 +56,7 @@ public final class X509Util {
         for (int cont = 0; tmf == null && cont < ALGORITHM_NAMES.length; cont++) {
             try {
                 tmf = TrustManagerFactory.getInstance(ALGORITHM_NAMES[cont]);
-            } catch (NoSuchAlgorithmException e) {
+            } catch (NoSuchAlgorithmException e) { //NOSONAR - We specifically do not want to propagate nor log this exception
 
                 /* No algorithm[i] available, try next one... */
             }
@@ -70,7 +70,7 @@ public final class X509Util {
                 tmf.init((KeyStore) null);
                 X509_TRUST_MANAGER = (X509TrustManager) tmf.getTrustManagers()[0];
             } catch (KeyStoreException e) {
-                throw new IllegalStateException("Unable to initialize the X509 Trust validator [" + tmf.getAlgorithm() + "]");
+                throw new IllegalStateException("Unable to initialize the X509 Trust validator [" + tmf.getAlgorithm() + "]", e);
             }
         }
     }

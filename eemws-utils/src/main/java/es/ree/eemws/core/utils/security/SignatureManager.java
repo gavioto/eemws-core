@@ -188,6 +188,7 @@ public final class SignatureManager {
             x509 = keySelector.getX509Certificate();
 
             String msgError = "Signature validation failed.";
+            Exception cause = null;
 
             if (x509 != null) {
                 try {
@@ -198,15 +199,17 @@ public final class SignatureManager {
                     SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
                     msgError = "The certificate signature is not valid [Today=" + sdf.format(new Date())
                             + "][" + sdf.format(x509.getNotBefore())   + " - " + sdf.format(x509.getNotAfter()) + "]";
+                    cause = e;
                 } catch (CertificateException e) {
                     certValidity = false;
                     msgError = "The certificate signature is not trusted";
+                    cause = e;
                 }
             }
 
 
             if (!coreValidity || !certValidity) {
-                SignatureVerificationException sve = new SignatureVerificationException(msgError);
+                SignatureVerificationException sve = new SignatureVerificationException(msgError, cause);
 
                 SignatureVerificationExceptionDetails details = sve.getDetails();
                 details.setSignatureValid(signature.getSignatureValue().validate(valContext));
@@ -274,6 +277,7 @@ public final class SignatureManager {
             Enumeration<String> keyAlias = ks.aliases();
             String entryAlias = null;
             boolean okAlias = false;
+            Exception cause = null;
 
             while (!okAlias && keyAlias.hasMoreElements()) {
 
@@ -288,12 +292,13 @@ public final class SignatureManager {
                 } catch (CertificateException | UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException e) {
 
                     okAlias = false;
+                    cause = e;
                 }
             }
 
             if (!okAlias) {
 
-                throw new SignatureManagerException("Unable to find a valid certificate in the system key store. Check system parameters.");
+                throw new SignatureManagerException("Unable to find a valid certificate in the system key store. Check system parameters.", cause);
             }
 
         } catch (FileNotFoundException e) {

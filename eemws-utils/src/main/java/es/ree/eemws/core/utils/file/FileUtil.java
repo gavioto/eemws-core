@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Eléctrica de España, S.A.U.
+ * Copyright 2014 Red ElÃ©ctrica de EspaÃ±a, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -15,7 +15,7 @@
  * http://www.gnu.org/licenses/.
  *
  * Any redistribution and/or modification of this program has to make
- * reference to Red Eléctrica de España, S.A.U. as the copyright owner of
+ * reference to Red ElÃ©ctrica de EspaÃ±a, S.A.U. as the copyright owner of
  * the program.
  */
 package es.ree.eemws.core.utils.file;
@@ -31,13 +31,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-import es.ree.eemws.core.utils.config.ConfigException;
-
 
 /**
  * Utilities to read and write files.
  *
- * @author Red Eléctrica de España S.A.U.
+ * @author Red ElÃ©ctrica de EspaÃ±a S.A.U.
  * @version 1.0 13/06/2014
  */
 public final class FileUtil {
@@ -179,18 +177,18 @@ public final class FileUtil {
 
 
     /**
-     * Return full path of a resource file of the application.
-     * @param configPath file name
-     * @return Full path of the settings file,
-     * @throws ConfigException Exception with the error.
+     * Return full path of a resource.
+     * @param resourceName Resource name
+     * @return Full path of the given resourceName.<br>
+     *   <code>null</code> if the given resourceName is not found in the current thread's ClassLoader.
      */
-    public static String getFullPathOfResoruce(final String resorucePath) throws ConfigException {
+    public static String getFullPathOfResoruce(final String resourceName) {
         String retValue;
-    	try {
-    		retValue = new File(Thread.currentThread().getContextClassLoader().getResource(resorucePath).toURI()).getAbsolutePath();
-		} catch (URISyntaxException e) {
-			retValue = null;
-		}
+        try {
+            retValue = new File(Thread.currentThread().getContextClassLoader().getResource(resourceName).toURI()).getAbsolutePath();
+        } catch (URISyntaxException e) { //NOSONAR - We specifically do not want to propagate nor log this exception
+            retValue = null;
+        }
     	
     	return retValue;
     }
