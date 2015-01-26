@@ -18,53 +18,41 @@
  * reference to Red Eléctrica de España, S.A.U. as the copyright owner of
  * the program.
  */
-package es.ree.eemws.core.utils.config;
+package es.ree.eemws.core.utils.messages;
+
+import java.util.ResourceBundle;
 
 
 /**
- * Exception class for configuration issues.
+ * Class to manage the messages of the application.
  *
  * @author Red Eléctrica de España S.A.U.
  * @version 1.0 13/06/2014
  */
-public final class ConfigException extends Exception {
+public final class Messages extends AbstractMessages {
 
-    /** Serial version UID. */
-    private static final long serialVersionUID = 1738083255122012738L;
+    /** Base name of the bundle. */
+    private static final String BUNDLE_NAME = "properties.utils_messages"; //$NON-NLS-1$
+
+    /** Resource bundle. */
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
     /**
      * Constructor.
      */
-    public ConfigException() {
+    private Messages() {
 
-        super();
+        /* This method should not be implemented. */
     }
-
+    
     /**
-     * Constructor.
-     * @param errorMessage Descriptive text for the exception.
+     * This method gets the message given its key.
+     * If there is no text for the given key the string <code>???KEY???</code> will be returned.
+     * @param key Key of the message.
+     * @param parameters parameters that will be replaced in the message.
+     * @return Message of the key.
      */
-    public ConfigException(final String errorMessage) {
-
-        super(errorMessage);
-    }
-
-    /**
-     * Constructor.
-     * @param cause Cause of the exception.
-     */
-    public ConfigException(final Throwable cause) {
-
-        super(cause);
-    }
-
-    /**
-     * Constructor.
-     * @param errorMessage Descriptive text for the exception.
-     * @param cause Exception.
-     */
-    public ConfigException(final String errorMessage, final Throwable cause) {
-
-        super(errorMessage, cause);
+    public static String getString(final String key, final Object... parameters) {
+        return AbstractMessages.getString(RESOURCE_BUNDLE, key, parameters);
     }
 }

@@ -37,6 +37,7 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import javax.xml.crypto.dsig.keyinfo.X509Data;
 
+import es.ree.eemws.core.utils.messages.Messages;
 
 /**
  * Finds and returns a key used in the signature <code>KeyInfo</code> object.
@@ -48,10 +49,10 @@ import javax.xml.crypto.dsig.keyinfo.X509Data;
 public final class KeyValueKeySelector extends KeySelector {
 
     /** Constant for algorithm DSA. */
-    private static final String ALGORITHM_DSA = "DSA";
+    private static final String ALGORITHM_DSA = "DSA"; //$NON-NLS-1$
 
     /** Constant for algorithm RSA. */
-    private static final String ALGORITHM_RSA = "RSA";
+    private static final String ALGORITHM_RSA = "RSA"; //$NON-NLS-1$
 
     /** Stores the signature's public key. */
     private SimpleKeySelectorResult sKeyResult = null;
@@ -76,7 +77,7 @@ public final class KeyValueKeySelector extends KeySelector {
             throws KeySelectorException {
 
         if (keyInfo == null) {
-            throw new KeySelectorException("Null KeyInfo object!");
+            throw new KeySelectorException(Messages.getString("SECURITY_NULL_KEY_INFO")); //$NON-NLS-1$
         }
 
         List<?> list = keyInfo.getContent();
@@ -113,7 +114,7 @@ public final class KeyValueKeySelector extends KeySelector {
         }
 
         if (sKeyResult == null) {
-            throw new KeySelectorException("No valid KeyValue element found!");
+            throw new KeySelectorException(Messages.getString("SECURITY_NO_VALID_KEY")); //$NON-NLS-1$
         }
 
         return sKeyResult;

@@ -35,7 +35,6 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -69,6 +68,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import es.ree.eemws.core.utils.messages.Messages;
 import es.ree.eemws.core.utils.security.SignatureVerificationException.SignatureVerificationExceptionDetails;
 import es.ree.eemws.core.utils.xml.XMLUtil;
 
@@ -84,10 +84,10 @@ import es.ree.eemws.core.utils.xml.XMLUtil;
 public final class SignatureManager {
 
     /** Signature URI ("" = means the whole document). */
-    private static final String SIGNATURE_URI = "";
+    private static final String SIGNATURE_URI = ""; //$NON-NLS-1$
 
     /** The type of the XML processing mechanism and representation. */
-    private static final String SIGNATURE_FACTORY_TYPE = "DOM";
+    private static final String SIGNATURE_FACTORY_TYPE = "DOM"; //$NON-NLS-1$
 
     /** Digest method. */
     private static final String DIGEST_METHOD = DigestMethod.SHA1;
@@ -102,32 +102,29 @@ public final class SignatureManager {
     private static final String TRANSFORM = Transform.ENVELOPED;
 
     /** Tag where the signature result is going to be placed. */
-    private static final String HEADER_TAG = "Header";
+    private static final String HEADER_TAG = "Header"; //$NON-NLS-1$
 
     /** Name space of the tag where the signature is going to be placed. */
-    private static final String HEADER_NAME_SPACE = "http://iec.ch/TC57/2011/schema/message";
+    private static final String HEADER_NAME_SPACE = "http://iec.ch/TC57/2011/schema/message"; //$NON-NLS-1$
 
     /** Java parameter name to set a key store type. */
-    private static final String SYSTEM_KEY_STORE_TYPE = "javax.net.ssl.keyStoreType";
+    private static final String SYSTEM_KEY_STORE_TYPE = "javax.net.ssl.keyStoreType"; //$NON-NLS-1$
 
     /** Default user's key store type. */
-    private static final String DEFAULT_KEY_STORE_TYPE = "PKCS12";
+    private static final String DEFAULT_KEY_STORE_TYPE = "PKCS12"; //$NON-NLS-1$
 
     /** Java parameter name to set the key store password. */
-    private static final String SYSTEM_KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword";
+    private static final String SYSTEM_KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword"; //$NON-NLS-1$
 
     /** Default user's key store password. */
-    private static final String DEFAULT_KEY_STORE_PASSWORD = "";
+    private static final String DEFAULT_KEY_STORE_PASSWORD = ""; //$NON-NLS-1$
 
     /** Java parameter name to set a key store file. */
-    private static final String SYSTEM_KEY_STORE_FILE = "javax.net.ssl.keyStore";
+    private static final String SYSTEM_KEY_STORE_FILE = "javax.net.ssl.keyStore"; //$NON-NLS-1$
 
     /** Signature tag. */
-    private static final String SIGNATURE_TAG = "Signature";
-
-    /** Date format for error details. */
-    private static final String DATE_FORMAT = "dd/MM/yyyy";
-
+    private static final String SIGNATURE_TAG = "Signature"; //$NON-NLS-1$
+    
     /**
      * Constructor.
      */
@@ -151,7 +148,7 @@ public final class SignatureManager {
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
 
-            throw new SignatureVerificationException("The given message seems to be an invalid XML", e);
+            throw new SignatureVerificationException(Messages.getString("SECURITY_INVALID_DOCUMENT"), e); //$NON-NLS-1$
         }
     }
 
@@ -162,7 +159,7 @@ public final class SignatureManager {
      * @throws SignatureVerificationException If the document cannot be validated or if its signature is invalid.
      * @see #verifyString(StringBuilder)
      */
-    public static X509Certificate verifyDocument(final Document msgAsDocument) throws SignatureVerificationException  {
+    public static X509Certificate verifyDocument(final Document msgAsDocument) throws SignatureVerificationException {
 
         X509Certificate x509 = null;
         try {
@@ -175,7 +172,7 @@ public final class SignatureManager {
 
             } else {
 
-                throw new SignatureVerificationException("Invalid document. The given document has no [" + SIGNATURE_TAG + ":" + XMLSignature.XMLNS + "] tag.");
+                throw new SignatureVerificationException(Messages.getString("SECURITY_INVALID_DOCUMENT", SIGNATURE_TAG, XMLSignature.XMLNS)); //$NON-NLS-1$
             }
 
             XMLSignatureFactory fac = XMLSignatureFactory.getInstance(SIGNATURE_FACTORY_TYPE);
@@ -187,7 +184,8 @@ public final class SignatureManager {
 
             x509 = keySelector.getX509Certificate();
 
-            String msgError = "Signature validation failed.";
+            String msgError = Messages.getString("SECURITY_SIGNATURE_VALIDATION_FAILED"); //$NON-NLS-1$
+            Exception cause = null;
 
             if (x509 != null) {
                 try {
@@ -195,32 +193,31 @@ public final class SignatureManager {
 
                 } catch (CertificateNotYetValidException | CertificateExpiredException e) {
                     certValidity = false;
-                    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-                    msgError = "The certificate signature is not valid [Today=" + sdf.format(new Date())
-                            + "][" + sdf.format(x509.getNotBefore())   + " - " + sdf.format(x509.getNotAfter()) + "]";
+                    msgError = Messages.getString("SECURITY_SIGNATURE_CERTIFICATE_NOT_VALID", new Date(), x509.getNotBefore(), x509.getNotAfter()); //$NON-NLS-1$
+                    cause = e;
                 } catch (CertificateException e) {
                     certValidity = false;
-                    msgError = "The certificate signature is not trusted";
+                    msgError = Messages.getString("SECURITY_SIGNATURE_NO_TRUSTED_CERT"); //$NON-NLS-1$
+                    cause = e;
                 }
             }
 
-
             if (!coreValidity || !certValidity) {
-                SignatureVerificationException sve = new SignatureVerificationException(msgError);
+                SignatureVerificationException sve = new SignatureVerificationException(msgError, cause);
 
-                SignatureVerificationExceptionDetails details = sve.createDetails();
+                SignatureVerificationExceptionDetails details = sve.getDetails();
                 details.setSignatureValid(signature.getSignatureValue().validate(valContext));
                 details.setCertificateValid(certValidity);
                 details.setSignatureCertificate(x509);
-                
+
                 Iterator<?> iter = signature.getSignedInfo().getReferences().iterator();
                 while (iter.hasNext()) {
-                	Reference ref = (Reference) iter.next();
-                    Boolean refValid = Boolean.valueOf((ref.validate(valContext)));
+                    Reference ref = (Reference) iter.next();
+                    Boolean refValid = Boolean.valueOf(ref.validate(valContext));
                     String calculated = DatatypeConverter.printBase64Binary(ref.getCalculatedDigestValue());
                     String provided = DatatypeConverter.printBase64Binary(ref.getDigestValue());
                     details.addReferenceStatus(refValid, calculated, provided);
-                    
+
                 }
 
                 throw sve;
@@ -228,7 +225,7 @@ public final class SignatureManager {
 
         } catch (XMLSignatureException | MarshalException e) {
 
-            throw new SignatureVerificationException("Unable to verify signature", e);
+            throw new SignatureVerificationException(Messages.getString("SECURITY_UNABLE_TO_VERIFY"), e); //$NON-NLS-1$
         }
 
         return x509;
@@ -243,47 +240,7 @@ public final class SignatureManager {
      * @see #signString(StringBuilder, RSAPrivateKey, X509Certificate)
      */
     public static void signDocument(final Document msgAsDocument, final RSAPrivateKey privateKey, final X509Certificate cert) throws SignatureManagerException {
-
-        try {
-
-            XMLSignatureFactory fac = XMLSignatureFactory.getInstance(SIGNATURE_FACTORY_TYPE);
-
-            Reference ref = fac.newReference(SIGNATURE_URI, fac.newDigestMethod(DIGEST_METHOD, null), Collections.singletonList(fac.newTransform(TRANSFORM, (TransformParameterSpec) null)), null, null);
-            SignedInfo si = fac.newSignedInfo(fac.newCanonicalizationMethod(CANONICALIZATION_METHOD, (C14NMethodParameterSpec) null), fac.newSignatureMethod(SIGNATURE_METHOD, null), Collections.singletonList(ref));
-
-            Node headerNode = null;
-            NodeList nl = msgAsDocument.getElementsByTagNameNS(HEADER_NAME_SPACE, HEADER_TAG);
-            if (nl.getLength() == 1) {
-
-                headerNode = nl.item(0);
-
-            } else {
-
-                throw new SignatureManagerException("Invalid document. The given document has no [" + HEADER_TAG + ":" + HEADER_NAME_SPACE + "] tag to place the signature.");
-            }
-
-            DOMSignContext dsc = new DOMSignContext(privateKey, headerNode);
-
-            KeyInfoFactory keyInfoFactory = fac.getKeyInfoFactory();
-            List<Object> x509Content = new ArrayList<>();
-            x509Content.add(keyInfoFactory.newX509IssuerSerial(cert.getIssuerDN().getName(), cert.getSerialNumber()));
-            x509Content.add(cert.getSubjectX500Principal().getName());
-            x509Content.add(cert);
-            X509Data xd = keyInfoFactory.newX509Data(x509Content);
-
-            KeyInfo keyInfo = keyInfoFactory.newKeyInfo(Collections.singletonList(xd));
-
-            XMLSignature signature = fac.newXMLSignature(si, keyInfo);
-            signature.sign(dsc);
-
-        } catch (GeneralSecurityException e) {
-
-            throw new SignatureManagerException("Invalid signature algorithm / parameters.", e);
-
-        } catch (MarshalException | XMLSignatureException e) {
-
-            throw new SignatureManagerException("Unable to sign the given document. Check document and exception details.", e);
-        }
+        signDocument(msgAsDocument, (PrivateKey) privateKey, cert);
     }
 
     /**
@@ -300,7 +257,7 @@ public final class SignatureManager {
         String keyStoreFile = System.getProperty(SYSTEM_KEY_STORE_FILE);
         if (keyStoreFile == null) {
 
-            throw new SignatureManagerException("The system key store is not defined. Set the system property [" + SYSTEM_KEY_STORE_FILE + "]");
+            throw new SignatureManagerException(Messages.getString("SECURITY_NO_SYSTEM_KEY_STORE",  SYSTEM_KEY_STORE_FILE)); //$NON-NLS-1$
         }
 
         String keyStorePasswd = System.getProperty(SYSTEM_KEY_STORE_PASSWORD, DEFAULT_KEY_STORE_PASSWORD);
@@ -314,6 +271,7 @@ public final class SignatureManager {
             Enumeration<String> keyAlias = ks.aliases();
             String entryAlias = null;
             boolean okAlias = false;
+            Exception cause = null;
 
             while (!okAlias && keyAlias.hasMoreElements()) {
 
@@ -323,32 +281,31 @@ public final class SignatureManager {
                     privateKey = (RSAPrivateKey) ks.getKey(entryAlias, keyStorePasswd.toCharArray());
                     certificate = (X509Certificate) ks.getCertificate(entryAlias);
                     certificate.checkValidity();
-                    okAlias = true;
+                    okAlias = (privateKey != null);                    
 
                 } catch (CertificateException | UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException e) {
 
                     okAlias = false;
+                    cause = e;
                 }
             }
 
             if (!okAlias) {
 
-                throw new SignatureManagerException("Unable to find a valid certificate in the system key store. Check system parameters.");
+                throw new SignatureManagerException(Messages.getString("SECURITY_NO_USABLE_CERTIFICATE_FOUND"), cause); //$NON-NLS-1$
             }
 
         } catch (FileNotFoundException e) {
 
-            throw new SignatureManagerException("Unable to read the specified system key store [" + keyStoreFile + "]. Check system parameter [" + SYSTEM_KEY_STORE_FILE
-                    + "], check file read permission.", e);
+            throw new SignatureManagerException(Messages.getString("SECURITY_UNABLE_TO_READ_KEY_STORE", keyStoreFile, SYSTEM_KEY_STORE_FILE), e); //$NON-NLS-1$ 
 
         } catch (IOException | CertificateException | NoSuchAlgorithmException e) {
 
-            throw new SignatureManagerException("Unable to load  the specified system key store [" + keyStoreFile + "]. Check parameters [" + SYSTEM_KEY_STORE_TYPE + ", " + SYSTEM_KEY_STORE_PASSWORD
-                    + "]", e);
+            throw new SignatureManagerException(Messages.getString("SECURITY_UNABLE_TO_LOAD_KEY_STORE", keyStoreFile, SYSTEM_KEY_STORE_TYPE, SYSTEM_KEY_STORE_PASSWORD), e); //$NON-NLS-1$
 
         } catch (KeyStoreException e) {
 
-            throw new SignatureManagerException("Unable to get an instance of the specified key store type [" + keyStoreType + "]. Check parameter [" + SYSTEM_KEY_STORE_TYPE + "]", e);
+            throw new SignatureManagerException(Messages.getString("SECURITY_UNABLE_TO_GET_KEY_STORE", keyStoreType, SYSTEM_KEY_STORE_TYPE), e); //$NON-NLS-1$
         }
 
         signDocument(msgAsDocument, privateKey, certificate);
@@ -375,7 +332,7 @@ public final class SignatureManager {
 
         } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
 
-            throw new SignatureManagerException("The given message seems to be an invalid XML", e);
+            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT"), e); //$NON-NLS-1$
         }
     }
 
@@ -397,7 +354,7 @@ public final class SignatureManager {
 
         } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
 
-            throw new SignatureManagerException("The given message seems to an invalid XML", e);
+            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT"), e); //$NON-NLS-1$
         }
     }
 
@@ -409,8 +366,7 @@ public final class SignatureManager {
      * @throws SignatureManagerException If it's impossible to sign the document.
      * @see #signDocument(Document, RSAPrivateKey, X509Certificate)
      */
-    public static void signString(final StringBuilder msgAsString, final PrivateKey privateKey, final X509Certificate cert)
-            throws SignatureManagerException {
+    public static void signString(final StringBuilder msgAsString, final PrivateKey privateKey, final X509Certificate cert) throws SignatureManagerException {
 
         try {
 
@@ -423,7 +379,7 @@ public final class SignatureManager {
 
         } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
 
-            throw new SignatureManagerException("The given message seems to be an invalid XML", e);
+            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT"), e); //$NON-NLS-1$
         }
     }
 
@@ -452,7 +408,7 @@ public final class SignatureManager {
 
             } else {
 
-                throw new SignatureManagerException("Invalid document. The given document has no [" + HEADER_TAG + ":" + HEADER_NAME_SPACE + "] tag to place the signature.");
+                throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT_NO_HEADER", HEADER_TAG, HEADER_NAME_SPACE)); //$NON-NLS-1$
             }
 
             DOMSignContext dsc = new DOMSignContext(privateKey, headerNode);
@@ -471,11 +427,11 @@ public final class SignatureManager {
 
         } catch (GeneralSecurityException e) {
 
-            throw new SignatureManagerException("Invalid signature algorithm / parameters.", e);
+            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_GENERAL_ERROR"), e); //$NON-NLS-1$
 
         } catch (MarshalException | XMLSignatureException e) {
 
-            throw new SignatureManagerException("Unable to sign the given document. Check document and exception details.", e);
+            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT_CANNOT_SIGN")); //$NON-NLS-1$
         }
     }
 }

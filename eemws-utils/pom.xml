@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>eemws</groupId>
 	<artifactId>eemws-utils</artifactId>
-	<version>1.0-m5</version>
+	<version>1.0-m6</version>
 	<packaging>jar</packaging>
 	<name>eemws-utils</name>
 	
@@ -12,6 +12,18 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>eemws</groupId>
+			<artifactId>eemws-core</artifactId>
+			<version>1.0-m6</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>6.0</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

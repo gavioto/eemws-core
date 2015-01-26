@@ -34,8 +34,8 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import es.ree.eemws.core.utils.messages.Messages;
 import es.ree.eemws.core.utils.xml.XMLUtil;
-
 
 /**
  * Class that contains utilities for SOAP messages management.
@@ -45,21 +45,27 @@ import es.ree.eemws.core.utils.xml.XMLUtil;
  */
 public final class SOAPUtil {
 
+    /** Soap body tag. */
+    public static final String SOAP_BODY_TAG = "Body"; //$NON-NLS-1$
+
     /** Name space SOAP Envelope. */
-    private static final String SOAP_NS_PREFIX = "SOAP-ENV";
+    private static final String SOAP_NS_PREFIX = "SOAP-ENV"; //$NON-NLS-1$
 
     /** Content type for soap 1.2. */
-    private static final String SOAP_12_CONTENT_TYPE = "application/soap+xml";
+    private static final String SOAP_12_CONTENT_TYPE = "application/soap+xml"; //$NON-NLS-1$
 
     /** Name space type for soap 1.2. */
-    private static final String SOAP_12_NAME_SPACE = "http://www.w3.org/2003/05/soap-envelope";
+    private static final String SOAP_12_NAME_SPACE = "http://www.w3.org/2003/05/soap-envelope"; //$NON-NLS-1$
 
     /** Name space type for soap 1.1. */
-    private static final String SOAP_11_NAME_SPACE = "http://schemas.xmlsoap.org/soap/envelope/";
+    private static final String SOAP_11_NAME_SPACE = "http://schemas.xmlsoap.org/soap/envelope/"; //$NON-NLS-1$
 
     /** Content type for the headers. */
-    private static final String[] CONTENT_TYPE_HEADERS = {"content-type", "accept"};
+    private static final String[] CONTENT_TYPE_HEADERS = { "content-type", "accept" }; //$NON-NLS-1$ //$NON-NLS-2$
 
+    /** UTF-8 char set. */
+    private static final String UTF_8_CHAR_SET = "UTF-8"; //$NON-NLS-1$
+    
     /**
      * Constructor.
      */
@@ -69,7 +75,7 @@ public final class SOAPUtil {
     }
 
     /**
-     * This method transform a SOAP message into a String.
+     * Transforms a SOAP message into a String.
      * @param message SOAP message.
      * @return String with the content of the SOAP message.
      * @throws SOAPException Exception transform the message.
@@ -80,16 +86,16 @@ public final class SOAPUtil {
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             message.writeTo(baos);
-            return baos.toString("UTF-8");
+            return baos.toString(UTF_8_CHAR_SET); 
 
         } catch (IOException e) {
 
-            throw new SOAPException("Unable to transform SOAP messagge to string", e);
+            throw new SOAPException(Messages.getString("SOAP_UNABLE_TO_TRANSFORM"), e); //$NON-NLS-1$
         }
     }
 
     /**
-     * This method sets the body text into a SOAPMessage.
+     * Sets the body text into a SOAPMessage.
      * @param message SOAPMessage to modify.
      * @param body Text with the new body part.
      * @throws SOAPException Exception with the problem.
@@ -114,12 +120,13 @@ public final class SOAPUtil {
     }
 
     /**
-     * This method create a SOAP message with the body content.
+     * Creates a SOAP message with the body content.
      * @param soap12 Check to indicate SOAP 1.2
      * @param message Message to include in the body part.
      * @return SOAP message with the body content.
      * @throws SOAPException Exception with the problem.
      */
+    @SuppressWarnings("nls")
     private static Document getDocumentSoap(final boolean soap12, final StringBuilder message) throws SOAPException {
 
         try {
@@ -158,7 +165,7 @@ public final class SOAPUtil {
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
 
-            throw new SOAPException("Unable to create the SOAP messagge", e);
+            throw new SOAPException(Messages.getString("SOAP_UNABLE_TO_CREATE_SOAP"), e);
         }
     }
 }

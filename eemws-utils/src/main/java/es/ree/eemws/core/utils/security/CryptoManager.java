@@ -30,9 +30,11 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import es.ree.eemws.core.utils.messages.Messages;
+
 
 /**
- * Utilities to encrypt / decrypt of string.
+ * Utilities to encrypt / decrypt strings.
  *
  * @author Red Eléctrica de España S.A.U.
  * @version 1.0 13/06/2014
@@ -40,13 +42,13 @@ import javax.xml.bind.DatatypeConverter;
 public final class CryptoManager {
 
     /** Algorithm. */
-    private static final String ALGORITHM = "AES";
+    private static final String ALGORITHM = "AES"; //$NON-NLS-1$
 
     /** Encode prefix. */
-    private static final String ALGORITHM_PREFIX = "{" + ALGORITHM + "}";
+    private static final String ALGORITHM_PREFIX = "{" + ALGORITHM + "}"; //$NON-NLS-1$ //$NON-NLS-2$
 
     /** Name of the cipher. */
-    private static final String CIPHER_NAME = "AES/ECB/PKCS5Padding";
+    private static final String CIPHER_NAME = "AES/ECB/PKCS5Padding"; //$NON-NLS-1$
 
     /**
      * Secret key that works as a seed.
@@ -82,7 +84,7 @@ public final class CryptoManager {
 
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
 
-            throw new CryptoException("Unable to encrypt the given string", e);
+            throw new CryptoException(Messages.getString("SECURITY_UNABLE_TO_CIPHER"), e); //$NON-NLS-1$
         }
 
         return retValue;
@@ -118,7 +120,7 @@ public final class CryptoManager {
 
         } catch (ArrayIndexOutOfBoundsException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
 
-            throw new CryptoException("Unable to decrip the given string", e);
+            throw new CryptoException(Messages.getString("SECURITY_UNABLE_TO_DECRYPT"), e); //$NON-NLS-1$
         }
 
         return retValue;

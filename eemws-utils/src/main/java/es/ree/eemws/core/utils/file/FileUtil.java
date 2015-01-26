@@ -31,9 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-import es.ree.eemws.core.utils.config.ConfigException;
-
-
 /**
  * Utilities to read and write files.
  *
@@ -45,6 +42,9 @@ public final class FileUtil {
     /** UTF-8 BOM header (should be removed to use the content as string). */
     private static final int UTF8_BOM_HEADER = 65279;
     
+    /** Backup file extension prefix. */
+    private static final String BACKUP_EXTENSION = ".bak_"; //$NON-NLS-1$
+
     /**
      * Constructor.
      */
@@ -54,7 +54,7 @@ public final class FileUtil {
     }
 
     /**
-     * This method reads a text file using the default platform char set.
+     * Reads a text file using the default platform char set.
      * NOTE: This is not intended for reading in large files.
      * @param fullFileName Path of the file.
      * @return String with the content of the file.
@@ -66,7 +66,7 @@ public final class FileUtil {
     }
 
     /**
-     * This method reads a text file in a UTF-8 Char set.
+     * Reads a text file in a UTF-8 Char set.
      * NOTE: This is not intended for reading in large files.
      * @param fullFileName Path of the file.
      * @return String with the content of the file.
@@ -75,7 +75,7 @@ public final class FileUtil {
     public static String readUTF8(final String fullFileName) throws IOException {
 
         CharBuffer cb = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(Files.readAllBytes(Paths.get(fullFileName))));
-        if (cb.length() > 1 && cb.charAt(0) ==  UTF8_BOM_HEADER) {
+        if (cb.length() > 1 && cb.charAt(0) == UTF8_BOM_HEADER) {
 
             cb.get();
         }
@@ -84,7 +84,7 @@ public final class FileUtil {
     }
 
     /**
-     * This method reads a text file using the given char set.
+     * Reads a text file using the given char set.
      * NOTE: This is not intended for reading in large files.
      * @param fullFileName Path of the file.
      * @param encoding Char set
@@ -95,20 +95,21 @@ public final class FileUtil {
 
         return encoding.decode(ByteBuffer.wrap(Files.readAllBytes(Paths.get(fullFileName)))).toString();
     }
-    
+
     /**
-     * This method reads a binary file.
+     * Reads a binary file.
      * NOTE: This is not intended for reading in large files.
      * @param fullFileName Path of the file.
      * @return Byte[] with the content of the file.
      * @throws IOException Exception with the error.
      */
-    public static byte[] readBinary(final String fullFileName)  throws IOException {
+    public static byte[] readBinary(final String fullFileName) throws IOException {
 
         return Files.readAllBytes(Paths.get(fullFileName));
     }
+
     /**
-     * This method writes a text file using the default platform char set.
+     * Writes a text file using the default platform char set.
      * NOTE: This is not intended for writing out large files.
      * @param fullFileName Path of the file.
      * @param content String with the content of the file.
@@ -120,7 +121,7 @@ public final class FileUtil {
     }
 
     /**
-     * This method writes a text file using the default platform char set.
+     * Writes a text file using the default platform char set.
      * NOTE: This is not intended for writing out large files.
      * @param fullFileName Path of the file.
      * @param content String with the content of the file.
@@ -132,7 +133,7 @@ public final class FileUtil {
     }
 
     /**
-     * This method writes a text file using the given char set.
+     * Writes a text file using the given char set.
      * NOTE: This is not intended for writing out large files.
      * @param fullFileName Path of the file.
      * @param content String with the content of the file.
@@ -145,7 +146,7 @@ public final class FileUtil {
     }
 
     /**
-     * This method tests whether a file exists.
+     * Tests whether a file exists.
      * @param fullFileName Path of the file.
      * @return true if the file exists; false if the file does not exist or its existence cannot be determined.
      */
@@ -155,7 +156,7 @@ public final class FileUtil {
     }
 
     /**
-     * This method creates a backup file. Uses extension .bak_N. N is a number from 1 to the max version create.
+     * Creates a backup file. Uses extension .bak_N. N is a number from 1 to the max version create.
      * @param fullFileName Path of the file.
      * @return Name of the file backup.
      */
@@ -169,7 +170,7 @@ public final class FileUtil {
 
             for (int n = 1; !isRename; n++) {
 
-                f2 = new File(fullFileName + ".bak_" + n);
+                f2 = new File(fullFileName + BACKUP_EXTENSION + n);
                 isRename = f.renameTo(f2);
             }
         }
@@ -177,22 +178,21 @@ public final class FileUtil {
         return f2.getAbsolutePath();
     }
 
-
     /**
-     * Return full path of a resource file of the application.
-     * @param configPath file name
-     * @return Full path of the settings file,
-     * @throws ConfigException Exception with the error.
+     * Returns full path of a resource.
+     * @param resourceName Resource name
+     * @return Full path of the given resourceName.<br>
+     *   <code>null</code> if the given resourceName is not found in the current thread's ClassLoader.
      */
-    public static String getFullPathOfResoruce(final String resorucePath) throws ConfigException {
+    public static String getFullPathOfResoruce(final String resourceName) {
         String retValue;
-    	try {
-    		retValue = new File(Thread.currentThread().getContextClassLoader().getResource(resorucePath).toURI()).getAbsolutePath();
-		} catch (URISyntaxException e) {
-			retValue = null;
-		}
-    	
-    	return retValue;
+        try {
+            retValue = new File(Thread.currentThread().getContextClassLoader().getResource(resourceName).toURI()).getAbsolutePath();
+        } catch (URISyntaxException e) { //NOSONAR - We specifically do not want to propagate nor log this exception
+            retValue = null;
+        }
+
+        return retValue;
     }
 
 }

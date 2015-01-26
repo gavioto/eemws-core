@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
+import es.ree.eemws.core.utils.messages.Messages;
+
 
 /**
  * Simple test cases.
@@ -95,8 +97,8 @@ public final class SignatureTest  {
         } catch (SignatureManagerException ex) {
 
             logger.debug("verifyTest3 - Caught expected SignatureManagerException. Message: {}", ex.getMessage());
-            assertThat(ex.getMessage(), anyOf(containsString("Signature validation failed."),
-                    containsString("certificate signature is not trusted")));
+            assertThat(ex.getMessage(), anyOf(containsString(Messages.getString("SECURITY_SIGNATURE_VALIDATION_FAILED")),
+                    containsString(Messages.getString("SECURITY_SIGNATURE_NO_TRUSTED_CERT"))));
             throw ex;
         }
     }
@@ -118,8 +120,8 @@ public final class SignatureTest  {
         } catch (SignatureManagerException ex) {
 
             logger.debug("verifyTest4 - Caught expected SignatureManagerException. Message: {}", ex.getMessage());
-            assertThat(ex.getMessage(), anyOf(containsString("Signature validation failed."),
-                    containsString("certificate signature is not trusted")));
+            assertThat(ex.getMessage(), anyOf(containsString(Messages.getString("SECURITY_SIGNATURE_VALIDATION_FAILED")),
+                    containsString(Messages.getString("SECURITY_SIGNATURE_NO_TRUSTED_CERT"))));
             throw ex;
         }
     }
@@ -139,7 +141,7 @@ public final class SignatureTest  {
 
         } catch (SignatureManagerException ex) {
 
-            assertThat(ex.getMessage(), containsString("Invalid document. The given document has no [Header:http://iec.ch/TC57/2011/schema/message] tag to place the signature."));
+            assertThat(ex.getMessage(), containsString(Messages.getString("SECURITY_INVALID_DOCUMENT_NO_HEADER", "Header", "http://iec.ch/TC57/2011/schema/message")));
             throw ex;
         }
     }
