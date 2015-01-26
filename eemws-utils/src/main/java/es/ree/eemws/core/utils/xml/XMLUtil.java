@@ -38,7 +38,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-
 /**
  * Class that contains utilities for XML messages.
  *
@@ -48,13 +47,51 @@ import org.xml.sax.SAXException;
 public final class XMLUtil {
 
     /** Transform the document as XML (not text). */
-    private static final String STRING_XML_METHOD = "xml";
+    private static final String STRING_XML_METHOD = "xml"; //$NON-NLS-1$
 
     /** String format of a Document will be have UTF-8 codification. */
-    private static final String STRING_XML_CODIFICATION = "UTF-8";
+    private static final String STRING_XML_CODIFICATION = "UTF-8"; //$NON-NLS-1$
 
     /** Do not add xml declaration, the xml will be included into another!. */
-    private static final String STRING_XML_OMIT_DECLARATION = "yes";
+    private static final String STRING_XML_OMIT_DECLARATION = "yes"; //$NON-NLS-1$
+
+    private static final String XMLNS = "xmlns"; //$NON-NLS-1$
+
+    /** Double quote constant. */
+    private static final char DOUBLE_QUOTE = '"';
+
+    /** Simple quote constant. */
+    private static final char SIMPLE_QUOTE = '\'';
+
+    /** XML end tag character. */
+    private static final String END_TAG = ">"; //$NON-NLS-1$
+
+    /** XML start tag character. */
+    private static final String START_TAG = "<"; //$NON-NLS-1$
+
+    /** Start tag as char. */
+    private static final char START_TAG_CHAR = START_TAG.charAt(0);
+
+    /** XML start close tag character. */
+    private static final String START_CLOSE_TAG = "</"; //$NON-NLS-1$
+
+    /** Blank string. */
+    private static final String BLANK = " "; //$NON-NLS-1$
+
+    /** Emtpy string. */
+    private static final String EMPTY = ""; //$NON-NLS-1$
+
+    /** Colon character constant. */
+    private static final String COLON = ":"; //$NON-NLS-1$
+
+    /** Colon character constant as character. */
+    private static final char COLON_CHAR = COLON.charAt(0);
+
+    /** New line constant. */
+    private static final String NEW_LINE = "\n"; //$NON-NLS-1$
+
+    /** Slash character constant. */
+    private static final String SLASH = "/"; //$NON-NLS-1$
 
     /** Tab size. */
     private static final int TAB_SIZE = 4;
@@ -71,52 +108,52 @@ public final class XMLUtil {
     }
 
     /**
-     * This method get the value of the node.
+     * Gets the value of the node.
      * @param tag Tag name.
      * @param doc XML document in string.
      * @return Value of the node.
      */
-    public static String getNodeValue(final String tag, final String doc) {
+    public static String getNodeValue(final String tag, final StringBuilder doc) {
 
-        String tag1 = tag + ">";
-        String tag2 = tag + " ";
+        String tag1 = tag + END_TAG;
+        String tag2 = tag + BLANK;
         int len = tag.length();
         int pos1 = doc.indexOf(tag1);
         int pos2 = doc.indexOf(tag2);
         int pos = 0;
-        String finalTag = "";
+        String finalTag = EMPTY;
+        String retValue;
 
-        if ((pos1 == -1) && (pos2 == -1)) {
-            return null;
+        if (pos1 == -1 && pos2 == -1) {
+            retValue = null;
+        } else {
+
+            if (pos2 == -1) {
+                if (pos1 != -1) {
+                    pos = pos1;
+                    len++;
+                }
+            } else {
+                pos = pos2;
+                finalTag = END_TAG;
+            }
+
+            int end = doc.indexOf(END_TAG, pos) + 1;
+            int posBegin = pos - 1;
+            while (doc.charAt(posBegin) != START_TAG_CHAR && posBegin > 0) {
+                posBegin--;
+            }
+
+            String endTag = START_CLOSE_TAG + doc.substring(posBegin + 1, pos + len) + finalTag;
+            retValue = doc.substring(end, doc.indexOf(endTag));
         }
 
-        if ((pos1 != -1) && (pos2 != -1)) {
-            pos = pos2;
-            finalTag = ">";
-        }
+        return retValue;
 
-        if ((pos1 == -1) && (pos2 != -1)) {
-            pos = pos2;
-            finalTag = ">";
-        }
-
-        if ((pos1 != -1) && (pos2 == -1)) {
-            pos = pos1;
-            len++;
-        }
-
-        int end = doc.indexOf(">", pos) + 1;
-        int posBegin = pos - 1;
-        while (doc.charAt(posBegin) != '<' && posBegin > 0) {
-            posBegin--;
-        }
-
-        String endTag = "</" + doc.substring(posBegin + 1, pos + len) + finalTag;
-        return doc.substring(end, doc.indexOf(endTag));
     }
 
     /**
-     * Return an XML document from a String.
+     * Returns an XML document from a String.
      * @param msgAsString String that contains an XML document to be transformed.
      * @return An XML document.
      * @throws ParserConfigurationException If the factory cannot transform the the string into a document.
@@ -129,7 +166,7 @@ public final class XMLUtil {
     }
 
     /**
-     * Return an XML document from a StringBuilder (String).
+     * Returns an XML document from a StringBuilder (String).
      * @param msgAsString String that contains an XML document to be transformed.
      * @return An XML document.
      * @throws ParserConfigurationException If the factory cannot transform the the string into a document.
@@ -145,7 +182,7 @@ public final class XMLUtil {
     }
 
     /**
-     * Return the string representation of a given XML document. Note that the return string us UTF-8 encoded and has no
+     * Returns the string representation of a given XML document. Note that the return string us UTF-8 encoded and has no
      * XML declaration.
      * @param doc The input document to transform.
      * @return A string representation of the given XML document.
@@ -170,64 +207,72 @@ public final class XMLUtil {
     }
 
     /**
-     * This method tabulates the document reference given using the format of the opening and closing tags.
+     * Gets a pretty print document using the format of the opening and closing tags.
      * @param whatToPretty Text formatting.
      * @return Document formatted as.
      */
     public static StringBuilder prettyPrint(final String whatToPretty) {
 
-    	StringBuilder output = new StringBuilder();
+        StringBuilder output = new StringBuilder();
 
-        String tab = "\n";
+        try {
+            String tab = NEW_LINE;
 
-        String tabBlanks = "";
-        StringBuilder buf = new StringBuilder();
-        for (int cont = 0; cont < TAB_SIZE; cont++) {
-            buf.append(' ');
-        }
-        tabBlanks = buf.toString();
+            String tabBlanks = EMPTY;
+            StringBuilder buf = new StringBuilder();
+            for (int cont = 0; cont < TAB_SIZE; cont++) {
+                buf.append(BLANK);
+            }
+            tabBlanks = buf.toString();
 
-        String[] text = whatToPretty.trim().split(">");
+            String[] text = whatToPretty.trim().split(END_TAG);
 
-        String current = "";
-        String previous = " ";
-        int pos = 0;
+            String current = EMPTY;
+            String previous = BLANK;
+            int pos = 0;
 
-        for (int cont = 0; cont < text.length; cont++) {
+            for (int cont = 0; cont < text.length; cont++) {
 
-            current = text[cont].trim().replaceAll("\n", " ");
+                current = text[cont].trim().replaceAll(NEW_LINE, BLANK);
 
-            if (!current.endsWith("/") && !current.startsWith("</")) {
+                if (!current.endsWith(SLASH) && !current.startsWith(START_CLOSE_TAG)) {
 
-                if (current.startsWith("<")) {
+                    if (current.startsWith(START_TAG)) {
 
-                    tab += tabBlanks;
+                        tab += tabBlanks;
 
-                } else {
+                    } else {
 
-                    int k = output.length();
-                    output.delete(k - tab.length(), k);
+                        int k = output.length();
+                        output.delete(k - tab.length(), k);
+                        tab = tab.substring(0, tab.length() - TAB_SIZE);
+                    }
+
+                } else if (current.startsWith(START_CLOSE_TAG)) {
+
                     tab = tab.substring(0, tab.length() - TAB_SIZE);
+                    int k = output.length();
+                    output.delete(k - TAB_SIZE, k);
+
+                    if (isSameTag(previous, current)) {
+
+                        output.setLength(pos - 1);
+                        current = SLASH;
+                    }
                 }
 
-            } else if (current.startsWith("</")) {
-
-                tab = tab.substring(0, tab.length() - TAB_SIZE);
-                int k = output.length();
-                output.delete(k - TAB_SIZE, k);
-
-                if (isSameTag(previous, current)) {
-
-                    output.setLength(pos - 1);
-                    current = "/";
-                }
+                previous = current;
+                output.append(current);
+                output.append(END_TAG);
+                pos = output.length();
+                output.append(tab);
             }
 
-            previous = current;
-            output.append(current);
-            output.append('>');
-            pos = output.length();
-            output.append(tab);
+        } catch (IndexOutOfBoundsException e) {
+            
+            /* The input string is not an XML. */
+            output.setLength(0);
+            output.append(whatToPretty);
         }
 
         return output;
@@ -242,15 +287,15 @@ public final class XMLUtil {
     private static boolean isSameTag(final String previousTag, final String currentTag) {
 
         String tag1 = previousTag.substring(1);
-        if (tag1.indexOf(" ") > 0) {
+        if (tag1.indexOf(BLANK) > 0) {
 
-            tag1 = tag1.substring(0, tag1.indexOf(" "));
+            tag1 = tag1.substring(0, tag1.indexOf(BLANK));
         }
 
         String tag2 = currentTag.substring(2);
-        if (tag2.indexOf(" ") > 0) {
+        if (tag2.indexOf(BLANK) > 0) {
 
-            tag2 = tag2.substring(0, tag2.indexOf(" "));
+            tag2 = tag2.substring(0, tag2.indexOf(BLANK));
         }
 
         return tag1.equals(tag2);
@@ -287,8 +332,8 @@ public final class XMLUtil {
         if (prefix != null) {
 
             String retXml = xmlOut.toString();
-            retXml = retXml.replaceAll(prefix + ":", "");
-            retXml = retXml.replaceFirst("xmlns:" + prefix, "xmlns");
+            retXml = retXml.replaceAll(prefix + COLON, EMPTY);
+            retXml = retXml.replaceFirst(XMLNS + COLON + prefix, XMLNS);
             xmlOut = new StringBuilder(retXml);
         }
 
@@ -324,28 +369,28 @@ public final class XMLUtil {
         String prefix = getTargetNameSpacePrefix(xmlOut);
 
         if (prefix == null) {
-            prefix = "";
+            prefix = EMPTY;
         } else {
-            prefix = ":" + prefix;
+            prefix = COLON + prefix;
         }
 
         String newDoc = xml.toString();
 
-        int posEndTag = newDoc.indexOf(">");
+        int posEndTag = newDoc.indexOf(END_TAG);
         if (newDoc.charAt(posEndTag - 1) == '/') {
             posEndTag--;
         }
 
         String rootTag = newDoc.substring(0, posEndTag);
-        String[] rootTags = rootTag.split("\\s");
+        String[] rootTags = rootTag.split("\\s"); //$NON-NLS-1$
         StringBuilder sb = new StringBuilder(rootTags[0]);
-        sb.append(" xmlns" + prefix + "=\"" + ns + "\" ");
+        sb.append(BLANK + XMLNS + prefix + "=\"" + ns + DOUBLE_QUOTE + BLANK); //$NON-NLS-1$ 
 
         int len = rootTags.length;
         for (int i = 1; i < len; i++) {
-            if (rootTags[i].indexOf("xmlns") == -1) {
+            if (rootTags[i].indexOf(XMLNS) == -1) {
                 sb.append(rootTags[i]);
-                sb.append(" ");
+                sb.append(BLANK);
             }
         }
         sb.setLength(sb.length() - 1);
@@ -369,11 +414,11 @@ public final class XMLUtil {
         } else {
             subXml = xml.toString();
         }
-        subXml += ">";
+        subXml += END_TAG;
 
-        int startPos = subXml.indexOf('<');
-        int endPos1 = subXml.indexOf(' ');
-        int endPos2 = subXml.indexOf('>');
+        int startPos = subXml.indexOf(START_TAG);
+        int endPos1 = subXml.indexOf(BLANK);
+        int endPos2 = subXml.indexOf(END_TAG);
 
         if (endPos1 == -1) {
             endPos1 = endPos2;
@@ -386,8 +431,8 @@ public final class XMLUtil {
         try {
 
             String tag = subXml.substring(startPos, Math.min(endPos1, endPos2));
-            if (tag.indexOf(":") != -1) {
-                prefix = tag.substring(tag.indexOf("<") + 1, tag.indexOf(":"));
+            if (tag.indexOf(COLON) != -1) {
+                prefix = tag.substring(tag.indexOf(START_TAG) + 1, tag.indexOf(COLON));
             }
 
         } catch (IndexOutOfBoundsException e) {
@@ -396,6 +441,58 @@ public final class XMLUtil {
         }
 
         return prefix;
+    }
+
+    /**
+     * Searches a XML document root tag value given the document as a string.
+     * We search from the end to the top (The last tag is also the root tag!)
+     * There are serveral cases:
+     * <li>(1) Simple end tag:  </etiqueta>
+     * <li>(2) End tag with namespace prefix: </n1:etiqueta>
+     * <li>(3) Empty document: <etiqueta/>
+     * <li>(4) Empty document with namespace prefix: <n1:etiqueta xmnls:n1="abde"/>
+     * @param strXml document as a string. 
+     * @return Xml's root tag as a String <code>null</code> if the given xml is not well formed (cannot find root tag).
+     */
+    public static String getRootTag(final StringBuilder strXml) {
+
+        int posEndTag = strXml.lastIndexOf(END_TAG);
+        int posCloseTag = strXml.lastIndexOf(SLASH);
+
+        int end;
+        if (posCloseTag == posEndTag - 1) {
+            int posBlank = strXml.indexOf(BLANK);
+
+            /* 3rd case: */
+            if (posBlank == -1) {
+                end = posCloseTag;
+            } else {
+
+                /* 4th case */
+                end = posBlank;
+            }
+        } else {
+
+            /* 1st & 2nd case. */
+            end = posEndTag;
+        }
+
+        int start = end - 1;
+
+        while (start >= 0 && strXml.charAt(start) != COLON_CHAR && strXml.charAt(start) != '/' && strXml.charAt(start) != START_TAG_CHAR) {
+            start--;
+        }
+
+        String retValue;
+        if (start < 0) {
+
+            /* The given xml is not well formed. */
+            retValue = null;
+        } else {
+            retValue = strXml.substring(start + 1, end);
+        }
+
+        return retValue;
     }
 
     /**
@@ -420,24 +517,24 @@ public final class XMLUtil {
 
             if (prefix == null) {
 
-                int pos = subXml.indexOf("xmlns");
-                int pos2 = subXml.indexOf("xmlns:");
+                int pos = subXml.indexOf(XMLNS);
+                int pos2 = subXml.indexOf(XMLNS + COLON);
 
                 if (pos != -1) {
 
                     while (pos == pos2 && pos != -1) {
-                        pos = subXml.indexOf("xmlns", pos + 1);
-                        pos2 = subXml.indexOf("xmlns:", pos2 + 1);
+                        pos = subXml.indexOf(XMLNS, pos + 1);
+                        pos2 = subXml.indexOf(XMLNS + COLON, pos2 + 1);
                     }
 
                     if (pos != -1) {
 
-                        pos = subXml.indexOf("\"", pos);
-                        pos2 = subXml.indexOf("\"", pos + 1);
+                        pos = subXml.indexOf(DOUBLE_QUOTE, pos);
+                        pos2 = subXml.indexOf(DOUBLE_QUOTE, pos + 1);
                         if (pos == -1) {
 
-                            pos = subXml.indexOf("'", pos);
-                            pos2 = subXml.indexOf("'", pos + 1);
+                            pos = subXml.indexOf(SIMPLE_QUOTE, pos);
+                            pos2 = subXml.indexOf(SIMPLE_QUOTE, pos + 1);
                         }
 
                         targetNamespace = subXml.substring(pos + 1, pos2);
@@ -446,15 +543,15 @@ public final class XMLUtil {
 
             } else {
 
-                prefix = "xmlns:" + prefix;
+                prefix = XMLNS + COLON + prefix;
                 int posIni = subXml.indexOf(prefix) + prefix.length();
-                posIni = subXml.indexOf('"', posIni) + 1;
-                int posFin = subXml.indexOf('"', posIni);
+                posIni = subXml.indexOf(DOUBLE_QUOTE, posIni) + 1;
+                int posFin = subXml.indexOf(DOUBLE_QUOTE, posIni);
                 if (posIni == -1) {
 
                     posIni = subXml.indexOf(prefix) + prefix.length();
-                    posIni = subXml.indexOf("'", posIni) + 1;
-                    posFin = subXml.indexOf("'", posIni);
+                    posIni = subXml.indexOf(SIMPLE_QUOTE, posIni) + 1;
+                    posFin = subXml.indexOf(SIMPLE_QUOTE, posIni);
                 }
 
                 targetNamespace = subXml.substring(posIni, posFin);
