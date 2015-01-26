@@ -39,9 +39,9 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
 import es.ree.eemws.core.utils.file.FileUtil;
+import es.ree.eemws.core.utils.messages.Messages;
 import es.ree.eemws.core.utils.security.CryptoException;
 import es.ree.eemws.core.utils.security.CryptoManager;
-
 
 /**
  * Class to manage configuration files.
@@ -55,47 +55,59 @@ public final class ConfigManager {
     private Properties config = new Properties();
 
     /** Standard key for java key store. */
-    private static final String KEY_STORE = "javax.net.ssl.keyStore";
+    private static final String KEY_STORE = "javax.net.ssl.keyStore"; //$NON-NLS-1$
 
     /** Standard key for java key store password. */
-    private static final String KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword";
+    private static final String KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword"; //$NON-NLS-1$
 
     /** Standard key for java key store type. */
-    private static final String KEY_STORE_TYPE = "javax.net.ssl.keyStoreType";
+    private static final String KEY_STORE_TYPE = "javax.net.ssl.keyStoreType"; //$NON-NLS-1$
 
     /** Standard key for java trust store file. */
-    private static final String KEY_TRUST_STORE = "javax.net.ssl.trustStore";
+    private static final String KEY_TRUST_STORE = "javax.net.ssl.trustStore"; //$NON-NLS-1$
 
     /** Standard key for java trust store password. */
-    private static final String KEY_TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
+    private static final String KEY_TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword"; //$NON-NLS-1$
 
     /** Standard key for java trust store type. */
-    private static final String KEY_TRUST_STORE_TYPE = "javax.net.ssl.trustStoreType";
+    private static final String KEY_TRUST_STORE_TYPE = "javax.net.ssl.trustStoreType"; //$NON-NLS-1$
 
     /** Default key store type. */
-    private static final String DEFAULT_KEY_STORE_TYPE = "PKCS12";
+    private static final String DEFAULT_KEY_STORE_TYPE = "PKCS12"; //$NON-NLS-1$
 
     /** Default trust store type. */
-    private static final String DEFAULT_TRUST_STORE_TYPE = "JKS";
+    private static final String DEFAULT_TRUST_STORE_TYPE = "JKS"; //$NON-NLS-1$
 
     /** Default key store password. */
-    private static final String DEFAULT_KEY_STORE_PASSWORD = "";
+    private static final String DEFAULT_KEY_STORE_PASSWORD = ""; //$NON-NLS-1$
 
     /** System's configuration keys, these values will be setup as java system properties. */
-    private static final String[] SYSTEM_KEYS = {KEY_TRUST_STORE, KEY_TRUST_STORE_PASSWORD, KEY_TRUST_STORE_TYPE, KEY_STORE, KEY_STORE_PASSWORD, KEY_STORE_TYPE,
-        "https.proxyHost", "https.proxyPort", "https.proxyUser", "https.proxyPassword" };
+    private static final String[] SYSTEM_KEYS = { KEY_TRUST_STORE, KEY_TRUST_STORE_PASSWORD, KEY_TRUST_STORE_TYPE, KEY_STORE, KEY_STORE_PASSWORD, KEY_STORE_TYPE, "https.proxyHost", //$NON-NLS-1$
+            "https.proxyPort", //$NON-NLS-1$
+            "https.proxyUser", //$NON-NLS-1$
+            "https.proxyPassword" }; //$NON-NLS-1$
 
     /** Token to recognize password keys. */
-    private static final String PASSWORD_TOKEN = "PASSWORD";
+    private static final String PASSWORD_TOKEN = "PASSWORD"; //$NON-NLS-1$
 
     /** New line character. */
-    private static final String NEW_LINE = "\n";
+    private static final String NEW_LINE = "\n"; //$NON-NLS-1$
 
     /** Constant for "=". */
-    private static final String EQUALS = "=";
+    private static final String EQUALS = "="; //$NON-NLS-1$
 
+    /** SSL context protocols. */
+    @SuppressWarnings("nls")
+    private static final String[] SSL_CONTEXT_PROTOCOLS = { "TSL", "TSLv1", "TSLv1.1", "TSLv1.2" };
+
+    /** SSL context proctol. According to the specification this value should be at lease "TSLv1.1" */
+    private static final String SSL_CONTEXT_PROTOCOL = SSL_CONTEXT_PROTOCOLS[0];
+
+    /** Operative System id for AIX. */
+    private static final String OS_AIX = "aix"; //$NON-NLS-1$
+    
     /**
-     * This method read a configuration file that must be accessible from the classpath.
+     * Reads a configuration file that must be accessible from the classpath.
      * @param configFileName Path of the configuration file
      * @return Properties with the configuration values.
      * @throws ConfigException If the given file cannot be read of if there is a miss configuration.
@@ -108,31 +120,30 @@ public final class ConfigManager {
 
             if (isProps == null) {
 
-                throw new ConfigException("Unable to read the given config file [" + configFileName + "]");
-            } else {
-                config = new Properties();
-                config.load(isProps);
-                isProps.close();
+                throw new ConfigException(Messages.getString("CONFIG_UNABLE_TO_READ_CONFIG_FILE", configFileName)); //$NON-NLS-1$
+            }
+            config = new Properties();
+            config.load(isProps);
+            isProps.close();
 
-                boolean shouldCypherFile = clearPasswords();
-                loadAndCheckSecurityConfig();
-                setSystem();
-                setConfigSSL();
+            boolean shouldCypherFile = clearPasswords();
+            loadAndCheckSecurityConfig();
+            setSystem();
+            setConfigSSL();
 
-                if (shouldCypherFile) {
+            if (shouldCypherFile) {
 
-                    File configFile = new File(FileUtil.getFullPathOfResoruce(configFileName));
-                    if (configFile.canWrite()) {
+                File configFile = new File(FileUtil.getFullPathOfResoruce(configFileName));
+                if (configFile.canWrite()) {
 
-                        cypherFile(configFile);
-                    }
+                    cypherFile(configFile);
                 }
             }
+
         } catch (IOException e) {
 
-            throw new ConfigException("Unable to read the given config file [" + configFileName + "]", e);
+            throw new ConfigException(Messages.getString("CONFIG_UNABLE_TO_READ_CONFIG_FILE", configFileName), e); //$NON-NLS-1$
         }
-
 
         return config;
     }
@@ -167,7 +178,7 @@ public final class ConfigManager {
      */
     private void cypherFile(final File configFile) throws ConfigException {
 
-        String failedKey = "";
+        String failedKey = ""; //$NON-NLS-1$
         try {
 
             String fullFilePath = configFile.getAbsolutePath();
@@ -176,7 +187,7 @@ public final class ConfigManager {
 
             for (String line : fullFileConfig) {
 
-                if (!line.trim().startsWith("#") && line.toUpperCase().indexOf(PASSWORD_TOKEN) != -1 && line.indexOf(EQUALS) != -1) {
+                if (!line.trim().startsWith("#") && line.toUpperCase().indexOf(PASSWORD_TOKEN) != -1 && line.indexOf(EQUALS) != -1) { //$NON-NLS-1$
 
                     String[] pair = line.split(EQUALS);
                     String key = pair[0];
@@ -202,11 +213,11 @@ public final class ConfigManager {
 
         } catch (CryptoException e) {
 
-            throw new ConfigException("Unable to cipher the key [" + failedKey + "]", e);
+            throw new ConfigException(Messages.getString("CONFIG_UNABLE_TO_CIPHER_PASSWORD", failedKey), e); //$NON-NLS-1$
 
         } catch (IOException e) {
 
-            throw new ConfigException("Unable to write the configuration file", e);
+            throw new ConfigException(Messages.getString("CONFIG_UNABLE_TO_SAVE_CONFIG"), e); //$NON-NLS-1$
         }
     }
 
@@ -218,7 +229,7 @@ public final class ConfigManager {
     private boolean clearPasswords() throws ConfigException {
 
         boolean hasPasswordEntryClear = false;
-        String failedKey = "";
+        String failedKey = ""; //$NON-NLS-1$
         try {
 
             Set<Entry<Object, Object>> configKeysAndValues = config.entrySet();
@@ -240,7 +251,7 @@ public final class ConfigManager {
 
         } catch (CryptoException e) {
 
-            throw new ConfigException("Unable to decrypt value for key [" + failedKey + "]. Edit the configuration file and set its value as clear text.", e);
+            throw new ConfigException(Messages.getString("CONFIG_UNABLE_TO_DECRYPT_PASSWORD", failedKey), e); //$NON-NLS-1$
         }
 
         return hasPasswordEntryClear;
@@ -268,7 +279,7 @@ public final class ConfigManager {
     }
 
     /**
-     * Open a key store using the given parameters.
+     * Opens a key store using the given parameters.
      * @param certFile Key store file. Can be <code>null</code>.
      * @param passwd Key store password.
      * @param type Key store type.
@@ -284,7 +295,7 @@ public final class ConfigManager {
                 File f = new File(certFile);
                 if (!f.canRead()) {
 
-                    throw new ConfigException("Unable to read the keystore [" + certFile + "]");
+                    throw new ConfigException(Messages.getString("CONFIG_UNABLE_TO_READ_KEY_STORE", certFile)); //$NON-NLS-1$
                 }
 
                 KeyStore ks = KeyStore.getInstance(type);
@@ -292,7 +303,7 @@ public final class ConfigManager {
 
             } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
 
-                throw new ConfigException("Unable to load the keystore [" + certFile + "]. Check keystore password and keystore type.", e);
+                throw new ConfigException(Messages.getString("CONFIG_UNABLE_TO_LOAD_KEY_STORE", certFile), e); //$NON-NLS-1$
             }
         }
     }
@@ -316,34 +327,43 @@ public final class ConfigManager {
 
     /**
      * Sets the user certificate in the SSL socket factory.
-     * This method does not make sense in windows, but communication will not work in AIX
+     * This method does not make any sense in windows, but communication will not work on AIX
      * @throws ConfigException If you can not set the SSL environment.
      */
     private static void setConfigSSL() throws ConfigException {
 
-        try {
+        String os = System.getProperty("os.name"); //$NON-NLS-1$
+        if (os == null) {
+            os = ""; //$NON-NLS-1$
+        } else  {
+            os = os.toLowerCase();
+        }
+        
+        if (os.indexOf(OS_AIX) != -1) {
+            try {
 
-            String keyStore = System.getProperty(KEY_STORE);
-            String keyType = System.getProperty(KEY_STORE_TYPE);
-            String keyPassword = System.getProperty(KEY_STORE_PASSWORD);
+                String keyStore = System.getProperty(KEY_STORE);
+                String keyType = System.getProperty(KEY_STORE_TYPE);
+                String keyPassword = System.getProperty(KEY_STORE_PASSWORD);
 
-            if (keyStore != null && keyType != null && keyPassword != null) {
+                if (keyStore != null && keyType != null && keyPassword != null) {
 
-                KeyStore ksKeys = KeyStore.getInstance(keyType);
-                ksKeys.load(new FileInputStream(keyStore), keyPassword.toCharArray());
+                    KeyStore ksKeys = KeyStore.getInstance(keyType);
+                    ksKeys.load(new FileInputStream(keyStore), keyPassword.toCharArray());
 
-                KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-                kmf.init(ksKeys, keyPassword.toCharArray());
+                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                    kmf.init(ksKeys, keyPassword.toCharArray());
 
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(kmf.getKeyManagers(), null, null);
+                    SSLContext sslContext = SSLContext.getInstance(SSL_CONTEXT_PROTOCOL);
+                    sslContext.init(kmf.getKeyManagers(), null, null);
 
-                HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+                    HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+                }
+
+            } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | UnrecoverableKeyException | KeyManagementException e) {
+
+                throw new ConfigException(Messages.getString("CONFIG_UNABLE_TO_LOAD_SSL_CONFIGURATION"), e); //$NON-NLS-1$
             }
-
-        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | UnrecoverableKeyException | KeyManagementException e) {
-
-            throw new ConfigException("Unable to load SSL configuration.", e);
         }
     }
 }

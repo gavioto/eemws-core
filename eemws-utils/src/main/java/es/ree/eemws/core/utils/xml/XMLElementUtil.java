@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red ElÃ©ctrica de EspaÃ±a, S.A.U.
+ * Copyright 2014 Red Eléctrica de España, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -15,7 +15,7 @@
  * http://www.gnu.org/licenses/.
  *
  * Any redistribution and/or modification of this program has to make
- * reference to Red ElÃ©ctrica de EspaÃ±a, S.A.U. as the copyright owner of
+ * reference to Red Eléctrica de España, S.A.U. as the copyright owner of
  * the program.
  */
 package es.ree.eemws.core.utils.xml;
@@ -36,6 +36,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -48,7 +49,7 @@ import org.xml.sax.SAXException;
 /**
  * Utilities to use the XML Element class.
  *
- * @author Red ElÃ©ctrica de EspaÃ±a S.A.U.
+ * @author Red Eléctrica de España S.A.U.
  * @version 1.0 13/06/2014
  */
 public final class XMLElementUtil {
@@ -61,9 +62,8 @@ public final class XMLElementUtil {
         /* This method should not be implemented. */
     }
 
-
     /**
-     * This method transforms an Element class in an Object.
+     * Transforms an Element class in an Object.
      * @param element Element to transform.
      * @param classType Class type of the Object.
      * @return Object transform.
@@ -77,7 +77,7 @@ public final class XMLElementUtil {
     }
 
     /**
-     * This method transforms a String in an Element.
+     * Transforms a String in an Element.
      * @param xml String with the XML document.
      * @return Element with the XML.
      * @throws ParserConfigurationException Exception parsing XML.
@@ -97,7 +97,7 @@ public final class XMLElementUtil {
     }
 
     /**
-     * This method transforms an Element in a String.
+     * Transforms an Element to a String.
      * @param element Element with the XML.
      * @return String with the XML.
      * @throws TransformerException Exception transforms XML.
@@ -118,16 +118,38 @@ public final class XMLElementUtil {
 
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8"); 
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml"); //$NON-NLS-1$
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes"); //$NON-NLS-1$
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");  //$NON-NLS-1$
 
         transformer.transform(domSource, result);
         return stringWriter.toString();
     }
 
     /**
-     * This method transforms an Object into a String.
+     * Transforms an Object in an Element class.
+     * @param obj Object to transform.
+     * @return Element class.
+     * @throws JAXBException Exception marshal the object.
+     */
+    public static Element obj2Element(final Object obj)
+            throws JAXBException {
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+        
+        DOMResult res = new DOMResult();
+        jaxbMarshaller.marshal(obj, res);
+
+        
+        return ((Document) res.getNode()).getDocumentElement();
+    }
+
+    
+    /**
+     * Transforms an Object into a String.
      * @param obj Object to transform.
      * @return StringBuilder String with the object.
      * @throws JAXBException Exception marshal the object.
@@ -137,7 +159,7 @@ public final class XMLElementUtil {
         JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass().getPackage().getName());
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
         jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, false);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

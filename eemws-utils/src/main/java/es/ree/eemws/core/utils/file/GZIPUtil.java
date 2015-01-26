@@ -35,6 +35,9 @@ import java.util.zip.GZIPOutputStream;
  */
 public final class GZIPUtil {
 
+    /** Buffer size in bytes. */
+    private static final int BUFFER_SIZE = 1024;
+
     /**
      * Constructor.
      */
@@ -44,7 +47,7 @@ public final class GZIPUtil {
     }
 
     /**
-     * This method compress the data with gzip.
+     * Compress the data with gzip.
      * @param dataToCompress Data to compress.
      * @return Data compress.
      * @throws IOException Exception with the error.
@@ -61,7 +64,7 @@ public final class GZIPUtil {
     }
 
     /**
-     * This method uncompress the data with gzip.
+     * Uncompress the data with gzip.
      * @param contentBytes Data to uncompress.
      * @return Data uncompress.
      * @throws IOException Exception with the error.
@@ -73,7 +76,7 @@ public final class GZIPUtil {
             try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(contentBytes));) {
 
                 int len;
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[BUFFER_SIZE];
                 while ((len = gzis.read(buffer)) > 0) {
 
                     out.write(buffer, 0, len);

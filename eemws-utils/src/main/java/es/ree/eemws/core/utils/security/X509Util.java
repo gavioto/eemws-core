@@ -29,6 +29,7 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import es.ree.eemws.core.utils.messages.Messages;
 
 /**
  * Implements simple X509 validations and utilities.
@@ -39,16 +40,16 @@ import javax.net.ssl.X509TrustManager;
 public final class X509Util {
 
     /** TrustFactory algorimth names. */
-    private static final String[] ALGORITHM_NAMES = {"SunX509", "IbmX509"};
+    private static final String[] ALGORITHM_NAMES = { "SunX509", "IbmX509" }; //$NON-NLS-1$ //$NON-NLS-2$
 
     /** Authentication type. */
-    private static final String AUTHENTICATION_TYPE = "RSA";
+    private static final String AUTHENTICATION_TYPE = "RSA"; //$NON-NLS-1$
 
     /** Trust manager, validate that the given certificate was issued by a trusted CA. */
     private static final X509TrustManager X509_TRUST_MANAGER;
 
     /*
-     * Initialize the x509 trust manager.
+     * Initializes the x509 trust manager.
      */
     static {
         TrustManagerFactory tmf = null;
@@ -63,15 +64,16 @@ public final class X509Util {
         }
 
         if (tmf == null) {
-            throw new IllegalStateException("Unable to find an X509 Trust validator");
+            throw new IllegalStateException(Messages.getString("SECURITY_NO_TRUST_VALIDATOR")); //$NON-NLS-1$
 
-        } else {
-            try {
-                tmf.init((KeyStore) null);
-                X509_TRUST_MANAGER = (X509TrustManager) tmf.getTrustManagers()[0];
-            } catch (KeyStoreException e) {
-                throw new IllegalStateException("Unable to initialize the X509 Trust validator [" + tmf.getAlgorithm() + "]", e);
-            }
+        }
+
+        try {
+            tmf.init((KeyStore) null);
+            X509_TRUST_MANAGER = (X509TrustManager) tmf.getTrustManagers()[0];
+        } catch (KeyStoreException e) {
+            throw new IllegalStateException(Messages.getString("SECURITY_UNABLE_TO_INITIALIZE_TRUST_VALIDATOR", tmf.getAlgorithm()), e); //$NON-NLS-1$
+
         }
     }
 
@@ -84,21 +86,21 @@ public final class X509Util {
     }
 
     /**
-     * Check the given X509 certificate.
+     * Checks the given X509 certificate.
      * @param x509Cert Certificate to be validated.
      * @throws CertificateException if the certificate is not valid (out of date or untrusted).
      */
     public static void checkCertificate(final X509Certificate x509Cert) throws CertificateException {
 
-        checkCertificate(new X509Certificate[] {x509Cert});
+        checkCertificate(new X509Certificate[] { x509Cert });
     }
 
     /**
-     * Check the given X509 certificates.
+     * Checks the given X509 certificates.
      * @param x509Certs Certificates to be validated.
      * @throws CertificateException if certificates are not valid (out of date or untrusted).
      */
-    public static void checkCertificate(final X509Certificate[] x509Certs) throws CertificateException  {
+    public static void checkCertificate(final X509Certificate[] x509Certs) throws CertificateException {
 
         X509_TRUST_MANAGER.checkClientTrusted(x509Certs, AUTHENTICATION_TYPE);
         for (int cont = 0; cont < x509Certs.length; cont++) {

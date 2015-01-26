@@ -24,6 +24,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.ree.eemws.core.utils.messages.Messages;
 
 /**
  * Implements an exception to notify problems with the signature validation.
@@ -70,61 +71,54 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         return details;
     }
 
-    
     /**
      * Keeps detail information about the signature's references
      */
     public final class ReferenceStatus {
-    	
-    	/** Status of the reference. */
-    	private Boolean refValid;
-    	
-    	/** Expected digest value. */
-    	private String calculatedDigestValue;
-    	
-    	/** Provided digest value. */
-    	private String providedDigestValue;
-    	
-    	/**
-    	 * Constructor. Creates a new detail information.
-    	 * @param refV Validation status.
-    	 * @param calcu Expected digest value.
-    	 * @param prov Calculated digest value.
-    	 */
-    	public ReferenceStatus(Boolean refV, String calcu, String prov) {
-			refValid = refV;
-			calculatedDigestValue = calcu;
-			providedDigestValue = prov;
-		}
-    	
-    	/**
-    	 * Returns whether  this reference is valid.
-    	 * @return <code>True</code> if the reference is valid.
-    	 */
-    	public Boolean isValid() {
-    		return refValid;
-    	}
-    	
-    	/*
-    	 * Returns a human readable version of the reference.
-    	 */
-    	@Override
-    	public String toString() {
-    		StringBuilder sb = new StringBuilder();
-    		sb.append("[Valid=");
-    		if (refValid) {
-    			sb.append("YES");
-    		} else {
-    			sb.append("NO");
-    			sb.append("][Provided Digest=");
-        		sb.append(providedDigestValue);
-        		sb.append("][Expected Digest=");
-        		sb.append(calculatedDigestValue);
-        		sb.append("]");
-    		}
-    		
-    		return sb.toString();
-    	}
+
+        /** Status of the reference. */
+        private Boolean refValid;
+
+        /** Expected digest value. */
+        private String calculatedDigestValue;
+
+        /** Provided digest value. */
+        private String providedDigestValue;
+
+        /**
+         * Constructor. Creates a new detail information.
+         * @param refV Validation status.
+         * @param calcu Expected digest value.
+         * @param prov Calculated digest value.
+         */
+        public ReferenceStatus(Boolean refV, String calcu, String prov) {
+            refValid = refV;
+            calculatedDigestValue = calcu;
+            providedDigestValue = prov;
+        }
+
+        /**
+         * Returns whether  this reference is valid.
+         * @return <code>True</code> if the reference is valid.
+         */
+        public Boolean isValid() {
+            return refValid;
+        }
+
+        /*
+         * Returns a human readable version of the reference.
+         */
+        @Override
+        public String toString() {
+            String msg;
+            if (refValid) {
+                msg = Messages.getString("SECURITY_REFERENCE_STATUS_VALID"); //$NON-NLS-1$
+            } else {
+                msg = Messages.getString("SECURITY_REFERENCE_STATUS_NO_VALID", providedDigestValue, calculatedDigestValue); //$NON-NLS-1$
+            }
+            
+            return msg;
+        }
     }
 
     /**
@@ -133,12 +127,12 @@ public final class SignatureVerificationException extends SignatureManagerExcept
     public final class SignatureVerificationExceptionDetails {
 
         /** Status of the signature. */
-        private boolean signatureStatus = false;
+        private Boolean signatureStatus = null;
 
         /** Status of the certificate. */
-        private boolean certificateValid = false;
-        
-        /** Certificate used in the signature. */ 
+        private Boolean certificateValid = null;
+
+        /** Certificate used in the signature. */
         private X509Certificate signatureCertificate = null;
 
         /** Status of the document's reference. */
@@ -146,53 +140,50 @@ public final class SignatureVerificationException extends SignatureManagerExcept
 
         @Override
         public String toString() {
-        	StringBuilder sb = new StringBuilder();
-        	sb.append("[Signature valid=");
-        	if (signatureStatus) {
-        		sb.append("YES");
-        	} else {
-        		sb.append("NO");
-        	}
-        	sb.append("][Certificate valid=");
-        	if (certificateValid) {
-        		sb.append("YES");
-        	} else {
-        		sb.append("NO");
-        	}        	
-        	sb.append("]");
-        	
-        	int cont = 0;
-        	for (ReferenceStatus rs: references) {
-        		sb.append("[Ref ");
-        		sb.append(cont);
-        		sb.append("={");
-        		sb.append(rs.toString());
-        		sb.append("}]");
-        		cont ++;
-        	}
-        	
-        	return sb.toString();
+            StringBuilder sb = new StringBuilder();
+            if (signatureStatus != null) {
+                if (signatureStatus) {
+                    sb.append(Messages.getString("SECURITY_SIGNATURE_STATUS_VALID")); //$NON-NLS-1$
+                } else {
+                    sb.append(Messages.getString("SECURITY_SIGNATURE_STATUS_NO_VALID")); //$NON-NLS-1$
+                }
+            }
+
+            if (certificateValid != null) {
+                if (certificateValid) {
+                    sb.append(Messages.getString("SECURITY_CERTIFICATE_STATUS_VALID")); //$NON-NLS-1$
+                } else {
+                    sb.append(Messages.getString("SECURITY_CERTIFICATE_STATUS_NO_VALID")); //$NON-NLS-1$
+                }
+            }
+
+            int cont = 0;
+            for (ReferenceStatus rs : references) {
+                Messages.getString("SECURITY_REFERENCE_STATUS", cont, rs.toString()); //$NON-NLS-1$
+                cont++;
+            }
+
+            return sb.toString();
         }
-        
-        
+
         /**
-         * Include the given certificate to this exception detail.
+         * Includes the given certificate to this exception detail.
          * @param x509Cert Certificate used for signature.
          */
-		public void setSignatureCertificate(X509Certificate x509Cert) {
-			signatureCertificate = x509Cert;			
-		}
-        
+        public void setSignatureCertificate(X509Certificate x509Cert) {
+            signatureCertificate = x509Cert;
+        }
+
         /**
          * Gets the certificate used in the signature. 
          * @return Certificate used in the signature.
          */
         public X509Certificate getSignatureCertificate() {
-        	return signatureCertificate;
+            return signatureCertificate;
         }
-        
+
         /**
-         * Set the status of the signature.
+         * Sets the status of the signature.
          * @param status <code>true</code> if the signature validation is OK.
          * <code>false</code> otherwise.
          */
@@ -212,17 +203,17 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         }
 
         /**
-         * Set the reference status.
+         * Sets the reference status.
          * @param ref Reference value <code>true</code> if the reference is ok.
          * <code>false</code> otherwise.
          */
         public void addReferenceStatus(Boolean refValid, String calculated, String provided) {
 
-        	references.add(new ReferenceStatus(refValid, calculated, provided));
+            references.add(new ReferenceStatus(refValid, calculated, provided));
         }
 
         /**
-         * Get the complete list of reference status.
+         * Gets the complete list of reference status.
          * @return A list with the reference status.
          */
         public List<ReferenceStatus> getReferencesStatus() {
@@ -231,7 +222,7 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         }
 
         /**
-         * Get the referece status for the reference with the given index.
+         * Gets the referece status for the reference with the given index.
          * @param index Reference index.
          * @return <code>true</code> if the reference is ok.
          * <code>false</code> otherwise.
@@ -242,7 +233,7 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         }
 
         /**
-         * Set the certificate validity.
+         * Sets the certificate validity.
          * @param certValidity <code>true</code> if the certificate is valid.
          * <code>false</code> otherwise.
          */
@@ -259,6 +250,6 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         public boolean isCertificateValid() {
 
             return certificateValid;
-        }  
+        }
     }
 }

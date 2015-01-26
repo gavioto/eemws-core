@@ -29,6 +29,7 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import es.ree.eemws.core.utils.messages.Messages;
 
 /**
  * Representation for W3C XML Schema 1.0 date/time datatypes.
@@ -38,6 +39,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public final class XMLGregorianCalendarFactory {
 
+    /** Generic error message. */
+    private static final String ERR_MSG = Messages.getString("XML_GREGORIAN_CALENDAR"); //$NON-NLS-1$
+    
     /**
      * Constructor.
      */
@@ -54,12 +58,12 @@ public final class XMLGregorianCalendarFactory {
      */
     public static XMLGregorianCalendar getGMTInstance(final Date date) {
 
-    	XMLGregorianCalendar retValue = getGMTInstanceMs(date);
-    	retValue.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
-    	
-    	return retValue;
+        XMLGregorianCalendar retValue = getGMTInstanceMs(date);
+        retValue.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
+
+        return retValue;
     }
-    
+
     /**
      * Gets an instance of a XMLGregorianCalendar GMT (with milliseconds) with date values given by the parameter.
      * @param date Date to create a XMLGregorianCalendar.
@@ -73,7 +77,7 @@ public final class XMLGregorianCalendarFactory {
         try {
             retValue = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal).normalize();
         } catch (DatatypeConfigurationException e) {
-            throw new RuntimeException("Error creating XMLGregorianCalendarFactory", e);
+            throw new RuntimeException(ERR_MSG, e);  
         }
 
         return retValue;
@@ -109,7 +113,7 @@ public final class XMLGregorianCalendarFactory {
 
         } catch (DatatypeConfigurationException e) {
 
-            throw new RuntimeException("Error creating XMLGregorianCalendarFactory", e);
+            throw new RuntimeException(ERR_MSG, e);  
         }
 
         return retValue;
