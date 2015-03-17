@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
 
 
 /**
- * Class to manage the messages of the application.
+ * Class to manage multi-language texts in the application.
  *
  * @author Red Eléctrica de España S.A.U.
  * @version 1.0 13/06/2014
@@ -42,7 +42,7 @@ public final class Messages extends AbstractMessages {
      */
     private Messages() {
 
-        /* This method should not be implemented. */
+        /* This constructor should not be implemented. */
     }
     
     /**

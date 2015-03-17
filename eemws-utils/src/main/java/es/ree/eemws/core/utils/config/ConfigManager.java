@@ -24,24 +24,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-
 import es.ree.eemws.core.utils.file.FileUtil;
 import es.ree.eemws.core.utils.messages.Messages;
 import es.ree.eemws.core.utils.security.CryptoException;
 import es.ree.eemws.core.utils.security.CryptoManager;
+
 
 /**
  * Class to manage configuration files.
@@ -82,10 +77,11 @@ public final class ConfigManager {
     private static final String DEFAULT_KEY_STORE_PASSWORD = ""; //$NON-NLS-1$
 
     /** System's configuration keys, these values will be setup as java system properties. */
-    private static final String[] SYSTEM_KEYS = { KEY_TRUST_STORE, KEY_TRUST_STORE_PASSWORD, KEY_TRUST_STORE_TYPE, KEY_STORE, KEY_STORE_PASSWORD, KEY_STORE_TYPE, "https.proxyHost", //$NON-NLS-1$
-            "https.proxyPort", //$NON-NLS-1$
-            "https.proxyUser", //$NON-NLS-1$
-            "https.proxyPassword" }; //$NON-NLS-1$
+    private static final String[] SYSTEM_KEYS = {KEY_TRUST_STORE, KEY_TRUST_STORE_PASSWORD, KEY_TRUST_STORE_TYPE, KEY_STORE, KEY_STORE_PASSWORD, KEY_STORE_TYPE,
+        "https.proxyHost", //$NON-NLS-1$
+        "https.proxyPort", //$NON-NLS-1$
+        "https.proxyUser", //$NON-NLS-1$
+    "https.proxyPassword" }; //$NON-NLS-1$
 
     /** Token to recognize password keys. */
     private static final String PASSWORD_TOKEN = "PASSWORD"; //$NON-NLS-1$
@@ -96,16 +92,6 @@ public final class ConfigManager {
     /** Constant for "=". */
     private static final String EQUALS = "="; //$NON-NLS-1$
 
-    /** SSL context protocols. */
-    @SuppressWarnings("nls")
-    private static final String[] SSL_CONTEXT_PROTOCOLS = { "TSL", "TSLv1", "TSLv1.1", "TSLv1.2" };
-
-    /** SSL context proctol. According to the specification this value should be at lease "TSLv1.1" */
-    private static final String SSL_CONTEXT_PROTOCOL = SSL_CONTEXT_PROTOCOLS[0];
-
-    /** Operative System id for AIX. */
-    private static final String OS_AIX = "aix"; //$NON-NLS-1$
-    
     /**
      * Reads a configuration file that must be accessible from the classpath.
      * @param configFileName Path of the configuration file
@@ -129,7 +115,6 @@ public final class ConfigManager {
             boolean shouldCypherFile = clearPasswords();
             loadAndCheckSecurityConfig();
             setSystem();
-            setConfigSSL();
 
             if (shouldCypherFile) {
 
@@ -321,48 +306,6 @@ public final class ConfigManager {
             if (value != null) {
 
                 System.setProperty(key, value);
-            }
-        }
-    }
-
-    /**
-     * Sets the user certificate in the SSL socket factory.
-     * This method does not make any sense in windows, but communication will not work on AIX
-     * @throws ConfigException If you can not set the SSL environment.
-     */
-    private static void setConfigSSL() throws ConfigException {
-
-        String os = System.getProperty("os.name"); //$NON-NLS-1$
-        if (os == null) {
-            os = ""; //$NON-NLS-1$
-        } else  {
-            os = os.toLowerCase();
-        }
-        
-        if (os.indexOf(OS_AIX) != -1) {
-            try {
-
-                String keyStore = System.getProperty(KEY_STORE);
-                String keyType = System.getProperty(KEY_STORE_TYPE);
-                String keyPassword = System.getProperty(KEY_STORE_PASSWORD);
-
-                if (keyStore != null && keyType != null && keyPassword != null) {
-
-                    KeyStore ksKeys = KeyStore.getInstance(keyType);
-                    ksKeys.load(new FileInputStream(keyStore), keyPassword.toCharArray());
-
-                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-                    kmf.init(ksKeys, keyPassword.toCharArray());
-
-                    SSLContext sslContext = SSLContext.getInstance(SSL_CONTEXT_PROTOCOL);
-                    sslContext.init(kmf.getKeyManagers(), null, null);
-
-                    HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-                }
-
-            } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | UnrecoverableKeyException | KeyManagementException e) {
-
-                throw new ConfigException(Messages.getString("CONFIG_UNABLE_TO_LOAD_SSL_CONFIGURATION"), e); //$NON-NLS-1$
             }
         }
     }

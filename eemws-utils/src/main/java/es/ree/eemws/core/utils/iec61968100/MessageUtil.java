@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Eléctrica de España, S.A.U.
+ * Copyright 2015 Red Eléctrica de España, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -46,7 +46,6 @@ import ch.iec.tc57._2011.schema.message.RequestMessage;
 import ch.iec.tc57._2011.schema.message.RequestType;
 import ch.iec.tc57._2011.schema.message.RequestType.ID;
 import ch.iec.tc57._2011.schema.message.ResponseMessage;
-import es.ree.eemws.core.utils.file.GZIPUtil;
 import es.ree.eemws.core.utils.xml.XMLElementUtil;
 import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
 
@@ -54,13 +53,10 @@ import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
  * Miscellaneous utilities to handle message.
  * 
  * @author Red Eléctrica de España S.A.U.
- * @version 1.0 13/06/2014
+ * @version 1.0 13/02/2014
  */
 
 public class MessageUtil {
-
-    /** Name of the name of the binary file. */
-    private static final String BINARY_FILENAME_ID = "name"; //$NON-NLS-1$
 
     /**
      * Constructor. Utility classes should not have a public constructor.
@@ -68,44 +64,6 @@ public class MessageUtil {
     private MessageUtil() {
 
         /* This constructor must not be implemented. */
-    }
-
-    /**
-     * Creates a <code>ResponseMessage</code> with the given parameters and payload.
-     * @param verb Header verb.
-     * @param noun Header noun.
-     * @param status Header status
-     * @param msgPayload Message payload
-     * @return a Response message with payload.
-     */
-    public static ResponseMessage createResponseWithPayload(final EnumVerb verb, final EnumNoun noun, final EnumMessageStatus status, final Element msgPayload) {
-
-        return createResponseWithPayload(verb.toString(), noun.toString(), status, msgPayload);
-    }
-
-    /**
-     * Creates a <code>ResponseMessage</code> with the given parameters and payload.
-     * @param verb Header verb.
-     * @param noun Header noun.
-     * @param status Header status
-     * @param msgPayload Message payload
-     * @return a Response message with payload.
-     */
-    public static ResponseMessage createResponseWithPayload(final String verb, final String noun, final EnumMessageStatus status, final Element msgPayload) {
-        ResponseMessage response = new ResponseMessage();
-
-        response.setHeader(createHeader(verb, noun));
-
-        ReplyType reply = new ReplyType();
-
-        reply.setResult(status.getStatus());
-        response.setReply(reply);
-        PayloadType payLoad = new PayloadType();
-        response.setPayload(payLoad);
-
-        payLoad.getAnies().add(msgPayload);
-
-        return response;
     }
 
     /**
@@ -196,8 +154,6 @@ public class MessageUtil {
         return map;
     }
 
-   
-
     /**
      * Creates a message header with the given verb and noun.
      * @param verb Message verb.
@@ -205,12 +161,12 @@ public class MessageUtil {
      * @return Message header with the given verb and noun.
      */
     private static HeaderType createHeader(final String verb, final String noun) {
-        HeaderType headerResponse = new HeaderType();
-        headerResponse.setVerb(verb);
-        headerResponse.setNoun(noun);
-        headerResponse.setTimestamp(XMLGregorianCalendarFactory.getGMTInstanceMs(new Date()));
+        HeaderType header = new HeaderType();
+        header.setVerb(verb);
+        header.setNoun(noun);
+        header.setTimestamp(XMLGregorianCalendarFactory.getGMTInstanceMs(new Date()));
 
-        return headerResponse;
+        return header;
     }
 
     /**
@@ -256,27 +212,22 @@ public class MessageUtil {
 
     }
     
-
     /**
-     * Creates a request message with binary payload. The payload will be GZIP compressed.
-     * @param verb Message verb.
-     * @param noun Message noun.
+     * Creates a request message with binary payload.
      * @param name Binary name (file name).
-     * @param data Binary data as byte array.
-     * @param format Optional value for the binary format (can be <code>null</code>).
-     * @return Request message.
-       * @throws IOException If it is not possible to compress the given byte array.
+     * @param binaryB64 Binary data in B64.
+     * @param format Optional value for the binary format. if <code>null</code> XML will be used.
+     * @return Request message With binary data.
      */
-    public static RequestMessage createResponseWithBinaryPayload(String verb, String noun, String name, byte[] data, String format) throws IOException {
+    public static RequestMessage createRequestWithBinaryPayload(String name, StringBuilder binaryB64, EnumMessageFormat format) {
         RequestMessage message = new RequestMessage();
-
-        HeaderType header = createHeader(verb, noun);
+        HeaderType header = createHeader(EnumVerb.CREATE.toString(), EnumNoun.COMPRESSED.toString());
         message.setHeader(header);
 
         RequestType resquest = new RequestType();
 
         ID id = new ID();
-        id.setIdType(BINARY_FILENAME_ID);
+        id.setIdType(EnumMessageFormat.BINARY_FILENAME_ID);
         id.setValue(name);
 
         List<ID> ids = resquest.getIDS();
@@ -285,16 +236,116 @@ public class MessageUtil {
         message.setRequest(resquest);
 
         PayloadType payload = new PayloadType();
-        byte[] dataCompress = GZIPUtil.compress(data);
-        String dataBase64 = DatatypeConverter.printBase64Binary(dataCompress);
-        payload.setCompressed(dataBase64);
-        if (format != null) {
-            payload.setFormat(format);
+        payload.setCompressed(binaryB64.toString());
+
+        if (format == null) {
+            payload.setFormat(EnumMessageFormat.XML.toString());
+        } else {
+            payload.setFormat(format.toString());
         }
+        
         message.setPayload(payload);
 
         return message;
-
     }
 
+    /**
+     * Creates a request message with binary payload.
+     * @param name Binary name (file name).
+     * @param binary Binary data as byte[].
+     * @param format Optional value for the binary format. if <code>null</code> XML will be used.
+     * @return Request message With binary data.
+     */
+    public static RequestMessage createRequestWithBinaryPayload(String name, byte[] binary, EnumMessageFormat format) {
+        return createRequestWithBinaryPayload(name, new StringBuilder(DatatypeConverter.printBase64Binary(binary)), format);
+    }
+
+    /**
+     * Creates a <code>ResponseMessage</code> with the given parameters and payload.
+     * @param verb Header verb.
+     * @param noun Header noun.
+     * @param status Header status
+     * @param msgPayload Message payload
+     * @return a Response message with payload.
+     */
+    public static ResponseMessage createResponseWithPayload(final EnumVerb verb, final EnumNoun noun, final EnumMessageStatus status, final Element msgPayload) {
+
+        return createResponseWithPayload(verb.toString(), noun.toString(), status, msgPayload);
+    }
+
+    /**
+     * Creates a <code>ResponseMessage</code> with the given parameters and payload.
+     * @param verb Header verb.
+     * @param noun Header noun.
+     * @param status Header status
+     * @param msgPayload Message payload
+     * @return a Response message with payload.
+     */
+    public static ResponseMessage createResponseWithPayload(final String verb, final String noun, final EnumMessageStatus status, final Element msgPayload) {
+        ResponseMessage response = new ResponseMessage();
+
+        response.setHeader(createHeader(verb, noun));
+
+        ReplyType reply = new ReplyType();
+
+        reply.setResult(status.getStatus());
+        response.setReply(reply);
+        PayloadType payLoad = new PayloadType();
+        response.setPayload(payLoad);
+
+        payLoad.getAnies().add(msgPayload);
+
+        return response;
+    }
+
+    /**
+     * Creates a ResponseMessage with a binary content.
+     * @param status Message status (OK, FAILED)
+     * @param name Binary file name.
+     * @param binary Binary context as byte[].
+     * @param format Binary format. if <code>null</code> EnumMessageFormat.XML is set.
+     * @return ResponseMessage with binary content.
+     */
+    public static ResponseMessage createResponseWithBinaryPayload(final EnumMessageStatus status, final String name, final byte[] binary, final EnumMessageFormat format) {
+
+        return createResponseWithBinaryPayload(status, name, new StringBuilder(DatatypeConverter.printBase64Binary(binary)), format);
+    }
+
+    /**
+     * Creates a ResponseMessage with a binary content.
+     * @param status Message status (OK, FAILED)
+     * @param name Binary file name.
+     * @param binaryB64 Binary context in B64.
+     * @param format Binary format. if <code>null</code> EnumMessageFormat.XML is set.
+     * @return ResponseMessage with binary content.
+     */
+    public static ResponseMessage createResponseWithBinaryPayload(final EnumMessageStatus status, final String name, final StringBuilder binaryB64, final EnumMessageFormat format) {
+
+        ResponseMessage response = new ResponseMessage();
+
+        response.setHeader(createHeader(EnumVerb.REPLY.toString(), EnumNoun.COMPRESSED.toString()));
+
+        ReplyType reply = new ReplyType();
+
+        reply.setResult(status.getStatus());
+        ch.iec.tc57._2011.schema.message.ReplyType.ID id = new ch.iec.tc57._2011.schema.message.ReplyType.ID();
+        reply.getIDS().add(id);
+        id.setIdType(EnumMessageFormat.BINARY_FILENAME_ID);
+        id.setValue(name);
+
+        response.setReply(reply);
+
+        PayloadType payLoad = new PayloadType();
+        response.setPayload(payLoad);
+
+        payLoad.setCompressed(binaryB64.toString());
+
+        if (format == null) {
+            payLoad.setFormat(EnumMessageFormat.XML.toString());
+        } else {
+            payLoad.setFormat(format.toString());
+        }
+
+        return response;
+    }
 }
