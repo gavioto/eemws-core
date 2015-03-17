@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Eléctrica de España, S.A.U.
+ * Copyright 2015 Red Eléctrica de España, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -35,7 +35,7 @@ import java.nio.file.StandardOpenOption;
  * Utilities to read and write files.
  *
  * @author Red Eléctrica de España S.A.U.
- * @version 1.0 13/06/2014
+ * @version 1.1 13/02/2015
  */
 public final class FileUtil {
 
@@ -55,7 +55,6 @@ public final class FileUtil {
 
     /**
      * Reads a text file using the default platform char set.
-     * NOTE: This is not intended for reading in large files.
      * @param fullFileName Path of the file.
      * @return String with the content of the file.
      * @throws IOException Exception with the error.
@@ -67,7 +66,6 @@ public final class FileUtil {
 
     /**
      * Reads a text file in a UTF-8 Char set.
-     * NOTE: This is not intended for reading in large files.
      * @param fullFileName Path of the file.
      * @return String with the content of the file.
      * @throws IOException Exception with the error.
@@ -85,7 +83,6 @@ public final class FileUtil {
 
     /**
      * Reads a text file using the given char set.
-     * NOTE: This is not intended for reading in large files.
      * @param fullFileName Path of the file.
      * @param encoding Char set
      * @return String with the content of the file.
@@ -98,7 +95,6 @@ public final class FileUtil {
 
     /**
      * Reads a binary file.
-     * NOTE: This is not intended for reading in large files.
      * @param fullFileName Path of the file.
      * @return Byte[] with the content of the file.
      * @throws IOException Exception with the error.
@@ -110,7 +106,6 @@ public final class FileUtil {
 
     /**
      * Writes a text file using the default platform char set.
-     * NOTE: This is not intended for writing out large files.
      * @param fullFileName Path of the file.
      * @param content String with the content of the file.
      * @throws IOException Exception with the error.
@@ -120,9 +115,21 @@ public final class FileUtil {
         Files.write(Paths.get(fullFileName), content.getBytes(Charset.defaultCharset()), StandardOpenOption.CREATE);
     }
 
+
+    /**
+     * Writes a binary file.
+     * @param fullFileName Path of the file.
+     * @param content Binary content of the file.
+     * @throws IOException Exception with the error.
+     */
+    public static void write(final String fullFileName, final byte[] content) throws IOException {
+
+        Files.write(Paths.get(fullFileName), content, StandardOpenOption.CREATE);
+    }
+    
+    
     /**
      * Writes a text file using the default platform char set.
-     * NOTE: This is not intended for writing out large files.
      * @param fullFileName Path of the file.
      * @param content String with the content of the file.
      * @throws IOException Exception with the error.
@@ -134,7 +141,6 @@ public final class FileUtil {
 
     /**
      * Writes a text file using the given char set.
-     * NOTE: This is not intended for writing out large files.
      * @param fullFileName Path of the file.
      * @param content String with the content of the file.
      * @param encoding Char set

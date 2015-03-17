@@ -5,6 +5,7 @@
     <jxb:bindings schemaLocation="../xsd/http-iec-ch-TC57-2011-schema-message.xsd" node="/xs:schema">
         <jxb:globalBindings>
             <xjc:simple/>
+			<xjc:serializable uid="1"/>
         </jxb:globalBindings>
     </jxb:bindings>
 </jxb:bindings>

@@ -172,7 +172,7 @@ public final class SignatureManager {
 
             } else {
 
-                throw new SignatureVerificationException(Messages.getString("SECURITY_INVALID_DOCUMENT", SIGNATURE_TAG, XMLSignature.XMLNS)); //$NON-NLS-1$
+                throw new SignatureVerificationException(Messages.getString("SECURITY_INVALID_DOCUMENT_NO_HEADER", SIGNATURE_TAG, XMLSignature.XMLNS)); //$NON-NLS-1$
             }
 
             XMLSignatureFactory fac = XMLSignatureFactory.getInstance(SIGNATURE_FACTORY_TYPE);
