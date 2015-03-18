@@ -25,7 +25,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * Base class to manage the messages of the application.
+ * Base class to manage multi-language texts in the application.
  *
  * @author Red Eléctrica de España S.A.U.
  * @version 1.0 13/06/2014

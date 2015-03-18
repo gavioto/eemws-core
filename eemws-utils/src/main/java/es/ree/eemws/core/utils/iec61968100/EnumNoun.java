@@ -29,12 +29,13 @@ package es.ree.eemws.core.utils.iec61968100;
  */
 public enum EnumNoun {
 
-    ANY("Any"),  //$NON-NLS-1$
-    MESSAGE_LIST("MessageList"),  //$NON-NLS-1$
-    QUERY_DATA("QueryData"); //$NON-NLS-1$
+    ANY("Any"),  
+    MESSAGE_LIST("MessageList"),  
+    QUERY_DATA("QueryData"), 
+    COMPRESSED("Compressed"); 
 
     /** Tag name (element) of the "Noun" in IEC 61968-100. */
-    public static final String ELEMENT_NOUN = "Noun"; //$NON-NLS-1$
+    public static final String ELEMENT_NOUN = "Noun"; 
 
     /** Noun as string. */
     private String nounStr;

@@ -54,6 +54,9 @@ public final class MessageMetaData implements Serializable {
     /** Remote user. */
     private String remoteUser = null;
 
+    /** Current message owner. */
+    private String owner = null;
+    
     /** List of user's roles. */
     private List<String> userRoles = new ArrayList<String>();
 
@@ -64,7 +67,7 @@ public final class MessageMetaData implements Serializable {
     private String messageType = null;
 
     /** Status of the message. */
-    private EnumMessageStatus status = null;
+    private EnumMessageStatus status = EnumMessageStatus.OK;
 
     /** Reject text of the message. */
     private String rejectText = null;
@@ -72,16 +75,34 @@ public final class MessageMetaData implements Serializable {
     /** Exception asociated with this message. */
     private GenericCodedException exception;
 
-    /** Rejection flag. Note this is not associated with the bussines process (Ack)!. */
-    private boolean rejected;
+    /** Ignorable flag.  */
+    private boolean ignorable = false;
 
     /** 
      * Creates a new instance of the message metadata. Sets the timestamp.
      */
     public MessageMetaData() {
+        
         serverTimestamp = Calendar.getInstance();
     }
 
+    /**
+     * Returns current message's data owner.
+     * @return Current message's data owner.
+     */
+    public String getOwner() {
+            return owner;
+    }
+    
+    /**
+     * Sets current message's data owner.
+     * @own Current message's data owner.
+     */    
+    public void setOwner(final String own) {
+        owner = own;
+    }
+    
+    
     /**
      * Gets the timestamp when the message is received by the server.
      * @return Date when the message is received by the server.
@@ -101,8 +122,8 @@ public final class MessageMetaData implements Serializable {
     }
 
     /**
-     * Gets the user's X.509 Certificate.
-     * @return User's X.509 Certificate.
+     * Gets the user's http X.509 Certificate.
+     * @return User's http X.509 Certificate.
      */
     public X509Certificate getHttpCertificate() {
 
@@ -110,8 +131,8 @@ public final class MessageMetaData implements Serializable {
     }
 
     /**
-     * Sets the X.509 Certificate.
-     * @param x509Certificate X.509 Certificate.
+     * Sets the http X.509 Certificate.
+     * @param x509Certificate Http X.509 Certificate.
      */
     public void setHttpCertificate(final X509Certificate x509Certificate) {
 
@@ -119,10 +140,11 @@ public final class MessageMetaData implements Serializable {
     }
 
     /**
-     * Sets the certificate used in the signature.
-     * @param x509Certificate Certificate used in the signature.
+     * Sets the certificate used for signature.
+     * @param x509Certificate Certificate used for signature.
      */
     public void setSignatureCertificate(final X509Certificate x509Certificate) {
+        
         signCertificate = x509Certificate;
     }
 
@@ -131,6 +153,7 @@ public final class MessageMetaData implements Serializable {
      * @return Certificate used in the signature.
      */
     public X509Certificate getSignatureCertificate() {
+        
         return signCertificate;
     }
 
@@ -139,6 +162,7 @@ public final class MessageMetaData implements Serializable {
      * @return Remote user identification.
      */
     public String getRemoteUser() {
+        
         return remoteUser;
     }
 
@@ -147,6 +171,7 @@ public final class MessageMetaData implements Serializable {
      * @param inRemoteUser Remote user identification.
      */
     public void setRemoteUser(final String inRemoteUser) {
+        
         remoteUser = inRemoteUser;
     }
 
@@ -175,8 +200,8 @@ public final class MessageMetaData implements Serializable {
     }
 
     /**
-     * Sets the code of the message in the database table.
-     * @return Code of the XML in the database table.
+     * Sets the code of the message when it is stored.
+     * @return Code of the message.
      */
     public void setCode(final Long inCode) {
         msgCode = inCode;
@@ -205,6 +230,9 @@ public final class MessageMetaData implements Serializable {
      * @param ex Exception caused during the processing of this message
      */
     public void setException(final GenericCodedException ex) {
+        if (ex != null) {
+            status = EnumMessageStatus.FAILED;
+        }
         exception = ex;
     }
 
@@ -221,14 +249,6 @@ public final class MessageMetaData implements Serializable {
      * @return Status of the message.
      */
     public EnumMessageStatus getStatus() {
-        if (status == null) {
-            if (exception == null) {
-                status = EnumMessageStatus.OK;
-            } else {
-                status = EnumMessageStatus.FAILED;
-            }
-        }
-
         return status;
     }
 
@@ -252,32 +272,45 @@ public final class MessageMetaData implements Serializable {
 
         return rejectText;
     }
-
+    
+    
     /**
-     * Sets the reject text of the message.
+     * Sets the reject text of the message. If a rejection text was already provided
+     * the given text will be appended at the end.
      * @param inRejectText Reject text of the message.
      */
     public void setRejectText(final String inRejectText) {
-
-        rejectText = inRejectText;
+        if (inRejectText != null) {
+            status = EnumMessageStatus.FAILED;
+            if (rejectText != null) {
+                if (rejectText.indexOf(inRejectText) == -1) {
+                    rejectText += " / " + inRejectText; //$NON-NLS-1$
+                }
+            } else {
+                rejectText = inRejectText;
+            }
+        }        
     }
 
     /**
-     * Returns <code>true</code> if any further process of this message must be skipped because the message is rejected. <code>false</code> otherwise.
-     * This is usefull to abort chain process if one of the chains elements reject the message.
+     * Returns <code>true</code> if the message must be ignored. <code>false</code> otherwise.
      * @return <code>true</code> if any futher process of this message must be skipped. <code>false</code> otherwise.
      */
-    public boolean isRejected() {
-        return rejected;
+    public boolean isIgnorable() {
+        return ignorable;
     }
     
     /**
-     * Sets if the process of this message (not the message itself) is rejected. For instance if the server receives a message
-     * whose owner it's not the one associated with the received certificate.
-     * @param rej <code>true</code> if the process of message is rejected. <code>false</code> otherwise. 
+     * Sets if the message must be ignored. For instance if the server receives a message whose owner it's not the one associated with the received certificate.
+     * Ignored messages are not stored with the rest. 
+     * @param rej <code>true</code> if the message must be ignored. <code>false</code> otherwise. 
      */
-    public void setRejected(final boolean rej) {
-        rejected = rej;
+    public void setIgnorable(final boolean ign) {
+        if (ign) {
+            setStatus(EnumMessageStatus.FAILED);
+        }
+        
+        ignorable = ign;
     }
 
 }
