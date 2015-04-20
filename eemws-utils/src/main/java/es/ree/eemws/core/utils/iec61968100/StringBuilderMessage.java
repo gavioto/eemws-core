@@ -168,7 +168,7 @@ public final class StringBuilderMessage {
         
         if (messageStr != null) {
             try {                
-                FaultMessage fm = (FaultMessage) XMLElementUtil.elment2Obj(XMLElementUtil.string2Element(XMLUtil.getNodeValue(TAG_MSG_FAULT, messageStr)), FaultMessage.class);
+                FaultMessage fm = (FaultMessage) XMLElementUtil.element2Obj(XMLElementUtil.string2Element(XMLUtil.getNodeValue(TAG_MSG_FAULT, messageStr)), FaultMessage.class);
                 
                 String msg = XMLUtil.getNodeValue(TAG_DETAILS_FAULT, messageStr);
                 if (msg == null) {

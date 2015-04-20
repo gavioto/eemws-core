@@ -28,6 +28,7 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -69,8 +70,7 @@ public final class XMLElementUtil {
      * @return Object transform.
      * @throws JAXBException Exception unmarshal the object.
      */
-    public static Object elment2Obj(final Element element, final Class<?> classType) throws JAXBException {
-
+    public static Object element2Obj(final Element element, final Class<?> classType) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(classType);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         return (jaxbUnmarshaller.unmarshal(element, classType)).getValue();
@@ -132,21 +132,15 @@ public final class XMLElementUtil {
      * @return Element class.
      * @throws JAXBException Exception marshal the object.
      */
-    public static Element obj2Element(final Object obj)
-            throws JAXBException {
+    public static Element obj2Element(final Object obj) throws JAXBException {
 
-        JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+        Marshaller jaxbMarshaller = getMarshaller(obj);
         
         DOMResult res = new DOMResult();
         jaxbMarshaller.marshal(obj, res);
-
         
         return ((Document) res.getNode()).getDocumentElement();
     }
-
     
     /**
      * Transforms an Object into a String.
@@ -156,16 +150,20 @@ public final class XMLElementUtil {
      */
     public static StringBuilder object2StringBuilder(final Object obj) throws JAXBException {
 
-        JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass().getPackage().getName());
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, false);
-
+        Marshaller jaxbMarshaller = getMarshaller(obj);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
         jaxbMarshaller.marshal(obj, baos);
 
         return new StringBuilder(baos.toString());
+    }
+    
+    private static Marshaller getMarshaller(final Object obj) throws JAXBException, PropertyException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
+        
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+        
+        return jaxbMarshaller;
     }
 }

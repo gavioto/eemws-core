@@ -23,15 +23,7 @@ package es.ree.eemws.core.utils.xml;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,12 +156,27 @@ public final class XMLUtilTest {
 		logger.debug(idCase + " testGetNodeValue (existent element and text case 2: fist the text then element)");
 		tmp = XMLUtil.getNodeValue("code", xml);
 		assertThat(tmp, is(CODE));
-		
-		
     }
-	
-	
 
-    
-    
+	/**
+	 * Get the root tag using different document's configurations.
+	 */
+	@Test
+	public void testGetRootTag() {
+		String root;
+		
+		logger.debug("Getting root tag in a no-namespace prefix document");
+		root = XMLUtil.getRootTag(NO_NAME_SPACE_PREFIX);
+		assertThat(root, is("Acknowledgement_MarketDocument"));
+		
+		logger.debug("Getting root tag in a namespace prefix document");
+		root = XMLUtil.getRootTag(NAME_SPACE_PREFIX);
+		assertThat(root, is("Acknowledgement_MarketDocument"));
+		
+		logger.debug("Getting root tag in a namespace prefix document with declaration in each tag");
+		root = XMLUtil.getRootTag(NAME_SPACE_PREFIX_DECLARATION_IN_EACH_ELEMENT);
+		assertThat(root, is("Acknowledgement_MarketDocument"));
+	}
+
+	
 }

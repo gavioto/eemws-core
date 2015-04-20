@@ -115,41 +115,75 @@ public final class XMLUtil {
      */
     public static String getNodeValue(final String tag, final StringBuilder doc) {
 
-        String tag1 = tag + END_TAG;
-        String tag2 = tag + BLANK;
-        int len = tag.length();
-        int pos1 = doc.indexOf(tag1);
-        int pos2 = doc.indexOf(tag2);
-        int pos = 0;
-        String finalTag = EMPTY;
-        String retValue;
+        String retValue = null;
+		int pos = -1;
+		int totLen = doc.length();
+		
+		do {
+			pos++;
+			String tag1 = tag + END_TAG;
+			String tag2 = tag + BLANK;
+			int len = tag.length();
+			int pos1 = doc.indexOf(tag1, pos);
+			int pos2 = doc.indexOf(tag2, pos);
+			String finalToken = EMPTY;
+			
+			if (pos1 == -1 && pos2 == -1) {
+				retValue = null;
+				pos = totLen;
+			} else {
 
-        if (pos1 == -1 && pos2 == -1) {
-            retValue = null;
-        } else {
-
-            if (pos2 == -1) {
-                if (pos1 != -1) {
-                    pos = pos1;
-                    len++;
-                }
-            } else {
-                pos = pos2;
-                finalTag = END_TAG;
-            }
-
-            int end = doc.indexOf(END_TAG, pos) + 1;
-            int posBegin = pos - 1;
-            while (doc.charAt(posBegin) != START_TAG_CHAR && posBegin > 0) {
-                posBegin--;
-            }
-
-            String endTag = START_CLOSE_TAG + doc.substring(posBegin + 1, pos + len) + finalTag;
-            retValue = doc.substring(end, doc.indexOf(endTag));
-        }
+				if (pos2 == -1) {
+					if (pos1 != -1) {
+						pos = pos1;
+						len++;
+					}
+				} else {
+					pos = pos2;
+					finalToken = END_TAG;
+				}
+				
+                retValue = extractValue(doc, pos, len, finalToken);
+				
+                // No value returned, check the other posibility.
+				if (retValue == null && pos2 !=-1 && pos1 !=-1) {
+					pos = pos1;
+					len++;
+					finalToken = EMPTY;
+				
+					retValue = extractValue(doc, pos, len, finalToken);
+				}
+			}
+		} while (pos < totLen && retValue == null);
 
         return retValue;
+    }
 
+    /**
+     * Returns the element value from the current possition or <code>null</code> if the current possition is not an element (it's text).
+     * @param doc Document with the value to extract
+     * @param pos possition of the Tag.
+     * @param len Tag's length.
+     * @param finalToken End character to be used in the element search. 
+     * @return Element value from the current possition or <code>null</code> if the current possition is not an element (it's text).
+     */
+    private static String extractValue(final StringBuilder doc,  int pos, int len, String finalToken) {
+        String retValue = null;
+        
+        int end = doc.indexOf(END_TAG, pos) + 1;
+        if (end != -1) {
+        	int posBegin = pos - 1;
+        	while (doc.charAt(posBegin) != START_TAG_CHAR && posBegin > 0) {
+        		posBegin--;
+        	}
+
+        	String endTag = START_CLOSE_TAG + doc.substring(posBegin + 1, pos + len) + finalToken;
+        	int idx = doc.indexOf(endTag);
+        	if (idx != -1) {
+        		retValue = doc.substring(end, idx);
+        	}
+        }
+        return retValue;
     }
 
     /**

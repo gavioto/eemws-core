@@ -63,7 +63,10 @@ public enum EnumParameterLimit {
 
     /* Max number of days that a message will be accessible by this specification operations. */
     MAX_MESSAGE_AGE_IN_DAYS("MaxMessageAgeInDays"), //$NON-NLS-1$
-
+    
+    /* Xml messages will be transmited as binary if their size is bigger than the one configured. */
+    GET_XML_AS_BINARY_THRESHOLD_IN_KB("GetXmlAsBinaryThresholdInKb"), //$NON-NLS-1$
+    
     /*
      * If set, the server will reject messages that do not meet the following criteria: CT - ST + MD >= 0 Being CT the
      * current server time, ST the msg:serverTimestamp indicated in the request message and MD this parameter value.
