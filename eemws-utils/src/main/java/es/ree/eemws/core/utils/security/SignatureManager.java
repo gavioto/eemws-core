@@ -132,7 +132,7 @@ public final class SignatureManager {
 
         /* This method should not be implemented. */
     }
-
+   
     /**
      * Verifies the signature of the given signed document expressed as String (StringBuilder).
      * @param msgAsString The document to be validated.
@@ -178,7 +178,9 @@ public final class SignatureManager {
             XMLSignatureFactory fac = XMLSignatureFactory.getInstance(SIGNATURE_FACTORY_TYPE);
             KeyValueKeySelector keySelector = new KeyValueKeySelector();
             DOMValidateContext valContext = new DOMValidateContext(keySelector, signatureNode);
-            XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+            
+            /* Note: This will throw "NumberFormatException" if the X509SerialNumber is not an integer */
+            XMLSignature signature = fac.unmarshalXMLSignature(valContext); 
             boolean coreValidity = signature.validate(valContext);
             boolean certValidity = true;
 
@@ -223,10 +225,10 @@ public final class SignatureManager {
                 throw sve;
             }
 
-        } catch (XMLSignatureException | MarshalException e) {
+        } catch (XMLSignatureException | MarshalException | NumberFormatException e) {
 
             throw new SignatureVerificationException(Messages.getString("SECURITY_UNABLE_TO_VERIFY"), e); //$NON-NLS-1$
-        }
+        } 
 
         return x509;
     }
