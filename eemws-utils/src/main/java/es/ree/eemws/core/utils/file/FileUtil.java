@@ -164,24 +164,29 @@ public final class FileUtil {
     /**
      * Creates a backup file. Uses extension .bak_N. N is a number from 1 to the max version create.
      * @param fullFileName Path of the file.
-     * @return Name of the file backup.
+     * @return Name of backup file. <code>fullFileName</code> if the file doesn't exist (no backup is made). <code>null</code>
+     * if it could not create a backup file.  
      */
     public static String createBackup(final String fullFileName) {
 
+        String retValue = fullFileName;
         File f = new File(fullFileName);
         File f2 = new File(fullFileName);
-        boolean isRename = false;
 
         if (f.exists()) {
 
-            for (int n = 1; !isRename; n++) {
-
+            for (int n = 1; f2.exists(); n++) {
                 f2 = new File(fullFileName + BACKUP_EXTENSION + n);
-                isRename = f.renameTo(f2);
+            }
+            
+            if (f.renameTo(f2)) {
+                retValue = f2.getAbsolutePath();
+            } else {
+                retValue = null;
             }
         }
 
-        return f2.getAbsolutePath();
+        return retValue;
     }
 
     /**
