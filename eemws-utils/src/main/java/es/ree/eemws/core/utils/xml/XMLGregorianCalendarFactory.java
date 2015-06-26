@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Eléctrica de España, S.A.U.
+ * Copyright 2015 Red Eléctrica de España, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,8 @@
  */
 package es.ree.eemws.core.utils.xml;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -35,12 +37,15 @@ import es.ree.eemws.core.utils.messages.Messages;
  * Representation for W3C XML Schema 1.0 date/time datatypes.
  *
  * @author Red Eléctrica de España, S.A.U.
- * @version 1.0 01/04/2014
+ * @version 1.1 25/06/2015
  */
 public final class XMLGregorianCalendarFactory {
 
     /** Generic error message. */
     private static final String ERR_MSG = Messages.getString("XML_GREGORIAN_CALENDAR"); //$NON-NLS-1$
+    
+    /** Date format for string date values. */
+    private static final String Z_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     
     /**
      * Constructor.
@@ -84,6 +89,19 @@ public final class XMLGregorianCalendarFactory {
     }
 
     /**
+     * Gets an instance of a XMLGregorianCalendar with date values given by the string parameter.
+     * @param date String with the format yyyy-MM-dd'T'HH:mm:ss'Z'
+     * @return XMLGregorianCalendar with date values given by the parameter.
+     */
+    public static XMLGregorianCalendar getInstance(final String date) throws ParseException {
+        
+        SimpleDateFormat sdf = new SimpleDateFormat(Z_DATE_FORMAT);
+        sdf.setLenient(false);
+        return getInstance(sdf.parse(date));
+    }
+    
+    
+    /**
      * Gets an instance of a XMLGregorianCalendar with date values given by the parameter.
      * Millisecond values are removed anyway.
      * @param date Date to create a XMLGregorianCalendar.
@@ -95,6 +113,7 @@ public final class XMLGregorianCalendarFactory {
         cal.setTime(date);
         return getInstance(cal);
     }
+       
 
     /**
      * Gets an instance of a XMLGregorianCalendar with date values given by the parameter.

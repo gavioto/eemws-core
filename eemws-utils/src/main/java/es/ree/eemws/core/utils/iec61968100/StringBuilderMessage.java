@@ -100,23 +100,27 @@ public final class StringBuilderMessage {
      * @return Message header noun.
      */
     public String getNoun() {
-        String retValue = null;
-        if (messageStr != null) {
-            retValue = XMLUtil.getNodeValue(EnumNoun.ELEMENT_NOUN, messageStr);
-        }
-
-        return retValue;
+        return getElement(EnumNoun.ELEMENT_NOUN);
     }
     
     /**
      * Returns this message header verb.<code>null</code> if there is no valid verb in the header.
      * @return Message header verb.
      */
-    public EnumVerb getVerb() {
-        EnumVerb retValue = null;
+    public String getVerb() {
+        return getElement(EnumVerb.ELEMENT_VERB);
+    }
+    
+    /**
+     * Returns the node value of the given element.
+     * @param elementName Element (tag) name which value we want to retrieve.
+     * @return <code>null</code> if there is no such element in the current xml or
+     * the element value if exists.
+     */
+    private String getElement(final String elementName) {
+        String retValue = null;
         if (messageStr != null) {
-            String verbStr = XMLUtil.getNodeValue(EnumVerb.ELEMENT_VERB, messageStr);
-            retValue = EnumVerb.fromString(verbStr);
+            retValue = XMLUtil.getNodeValue(elementName, messageStr);
         }
 
         return retValue;
@@ -150,12 +154,7 @@ public final class StringBuilderMessage {
      * @return Message payload or <code>null</code> if the current message has no payload.
      */
     public String getPayload() {
-        String retValue = null;
-        if (messageStr != null) {
-            retValue = XMLUtil.getNodeValue(TAG_MSG_PAYLOAD, messageStr);
-        }
-
-        return retValue;
+        return getElement(TAG_MSG_PAYLOAD);
     }
     
     /**
@@ -191,9 +190,10 @@ public final class StringBuilderMessage {
      * @return This message's status value. <code>null</code> if the message is empty or has no status.
      */
     public EnumMessageStatus getStatus() {
+                
         EnumMessageStatus retValue = null;
-        if (messageStr != null) {
-            String result = XMLUtil.getNodeValue(EnumMessageStatus.ELEMENT_RESULT, messageStr);
+        String result = getElement(EnumMessageStatus.ELEMENT_RESULT);
+        if (result != null) {
             retValue = EnumMessageStatus.fromString(result);
         }
 

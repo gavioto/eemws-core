@@ -46,6 +46,7 @@ import ch.iec.tc57._2011.schema.message.RequestMessage;
 import ch.iec.tc57._2011.schema.message.RequestType;
 import ch.iec.tc57._2011.schema.message.RequestType.ID;
 import ch.iec.tc57._2011.schema.message.ResponseMessage;
+import es.ree.eemws.core.utils.messages.Messages;
 import es.ree.eemws.core.utils.xml.XMLElementUtil;
 import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
 
@@ -123,32 +124,92 @@ public class MessageUtil {
 
         return message;
     }
-
+    
     /**
-     * Returns a <code>Map</code> with the given RequestMessage options. The start time and end time are also included
-     * in the map.
+     * Returns a <code>Map</code> with the given RequestMessage options. The start time and end time are also included in the map.
      * @param message Request message.
      * @return a Map with the options that the given RequestMessage has.
      */
     public static Map<String, Object> getRequestMessageOptions(final RequestMessage message) {
-
+        return getInternalRequestMessageOptions(message, false);
+    }
+    
+    /**
+     * Returns a <code>Map</code> with the given RequestMessage options ignoring invalid date format parameters and duplicates.
+     * The start time and end time are also included in the map.
+     * @param message Request message.
+     * @return a Map with the options that the given RequestMessage has.
+     */
+    public static Map<String, Object> getRequestMessageOptionsAllowingErrors(final RequestMessage message) {
+        return getInternalRequestMessageOptions(message, true);
+    }
+    
+    /**
+     * Returns a <code>Map</code> with the given RequestMessage options. The start time and end time are also included in the map.
+     * @param message Request message.
+     * @param allowInvalidValues allow invalid date format and duplicate values.   
+     * @return a Map with the options that the given RequestMessage has.
+     */
+    private static Map<String, Object> getInternalRequestMessageOptions(final RequestMessage message, final boolean allowInvalidValues) {
+        
+        boolean stopIfError = !allowInvalidValues;
         List<OptionType> requestOption = message.getRequest().getOptions();
         Map<String, Object> map = new HashMap<String, Object>();
 
-        for (OptionType optionType : requestOption) {
-            map.put(optionType.getName(), optionType.getValue());
-        }
-
         XMLGregorianCalendar time;
 
+        String startElementStr = EnumFilterElement.START_TIME.toString();
+        String endElementStr = EnumFilterElement.END_TIME.toString();
+        
         time = message.getRequest().getStartTime();
         if (time != null) {
-            map.put(EnumFilterElement.START_TIME.toString(), time);
+            map.put(startElementStr, time);
         }
 
         time = message.getRequest().getEndTime();
         if (time != null) {
-            map.put(EnumFilterElement.END_TIME.toString(), time);
+            map.put(endElementStr, time);
+        }
+
+        for (OptionType optionType : requestOption) {
+            
+            String optName = optionType.getName();
+            Object optValue = optionType.getValue();
+            Object obj = null;
+            
+            /* It's recommended to use the IEC 61968-100 elements where posible.
+             * Here we are giving a facility to the user that could use StartTime and EndTime 
+             * as Option instead of elements. 
+             */
+            if (optName.equals(startElementStr) || optName.equals(endElementStr)) {
+                try {
+                    optValue = XMLGregorianCalendarFactory.getInstance((String) optValue);
+                } catch (ParseException e) {
+                    if (stopIfError) {
+                        throw new IllegalArgumentException(Messages.getString("INVALID_DATE_PARAMETER_VALUE", optName));
+                    } 
+                }
+            }
+            
+            obj = map.put(optName, optValue);
+            
+            
+            /* If obj is not null, the parameter was already in the map. */
+            if (obj != null) {
+                if (stopIfError) {
+                    throw new IllegalArgumentException(Messages.getString("INVALID_PARAMETER_TWICE", optName));
+                } else {
+                    int cont = 1;
+                    StringBuilder key = new StringBuilder();
+                    key.append(optName).append("(").append(cont).append(")"); 
+                    while (map.containsKey(key.toString())) {
+                        cont++;
+                        key.setLength(0);
+                        key.append(optName).append("(").append(cont).append(")");
+                    }
+                    map.put(key.toString(),  obj);
+                }
+            }
         }
 
         return map;
