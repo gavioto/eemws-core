@@ -62,11 +62,11 @@ public final class StringBuilderMessage {
      * Creates a new message from the soap message context.
      * @throws SOAPException If it's not possible to transform the incoming message into a string.
      */
-    public StringBuilderMessage(final SOAPMessageContext context) throws GenericCodedException {
+    public StringBuilderMessage(final SOAPMessageContext context) throws SOAPException {
         try {
             messageStr = new StringBuilder(XMLUtil.getNodeValue(SOAPUtil.SOAP_BODY_TAG, new StringBuilder(SOAPUtil.soapMessage2String(context.getMessage()))));
-        } catch (SOAPException e) {
-            throw new GenericCodedException(Messages.getString("IEC_UNABLE_TO_RETRIEVE_FROM_CONTEXT"), "SBM-001", e);   //$NON-NLS-1$ //$NON-NLS-2$
+        } catch (NullPointerException e) {
+            throw new SOAPException(Messages.getString("IEC_UNABLE_TO_RETRIEVE_FROM_CONTEXT"));   //$NON-NLS-1$
         }
     }
 

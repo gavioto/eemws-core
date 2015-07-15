@@ -53,6 +53,15 @@ public final class X509UtilTest {
 
     /** Logger messages. */
     private final Logger logger = LoggerFactory.getLogger(KeyValueKeySelectorTest.class);
+
+	/** Test keystore type. */
+	private static final String KEY_STORE_TYPE = "PKCS12";
+	
+	/** Test keystore file name. */
+	private static final String KEY_STORE_FILE = "test.p12";
+	
+	/** Test keystore password. */
+	private static final String KEY_STORE_PASSWORD = "test";
     
     /** X.509 certificate. */
     @Mock private X509Certificate mX509Certificate;
@@ -87,11 +96,11 @@ public final class X509UtilTest {
     @Test
     public void testCheckCertificateX509CertificateArray() throws Exception{
         logger.debug("testCheckCertificateX509CertificateArray");
-        KeyStore ks = KeyStore.getInstance("JKS");
+        KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE);
         java.io.FileInputStream fis = null;
         try {
-            fis = new java.io.FileInputStream(getClass().getClassLoader().getResource("test.jks").getFile());
-            ks.load(fis, "test".toCharArray()); 
+            fis = new java.io.FileInputStream(getClass().getClassLoader().getResource(KEY_STORE_FILE).getFile());
+            ks.load(fis, KEY_STORE_PASSWORD.toCharArray()); 
             Enumeration<String> aliases = ks.aliases();
             
             while (aliases.hasMoreElements()) {
@@ -116,12 +125,12 @@ public final class X509UtilTest {
      */
     private void setSecurityEnvironment() {
 
-        System.setProperty("javax.net.ssl.keyStore", getClass().getClassLoader().getResource("test.jks").getFile());
-        System.setProperty("javax.net.ssl.keyStoreType", "JKS");
-        System.setProperty("javax.net.ssl.keyStorePassword", "test");
-        System.setProperty("javax.net.ssl.trustStore", getClass().getClassLoader().getResource("test.jks").getFile());
-        System.setProperty("javax.net.ssl.trustStoreType", "JKS");
-        System.setProperty("javax.net.ssl.trustStorePassword", "test");
+        System.setProperty("javax.net.ssl.keyStore", getClass().getClassLoader().getResource(KEY_STORE_FILE).getFile());
+        System.setProperty("javax.net.ssl.keyStoreType", KEY_STORE_TYPE);
+        System.setProperty("javax.net.ssl.keyStorePassword", KEY_STORE_PASSWORD);
+        System.setProperty("javax.net.ssl.trustStore", getClass().getClassLoader().getResource(KEY_STORE_FILE).getFile());
+        System.setProperty("javax.net.ssl.trustStoreType", KEY_STORE_TYPE);
+        System.setProperty("javax.net.ssl.trustStorePassword", KEY_STORE_PASSWORD);
     }
     
 }
