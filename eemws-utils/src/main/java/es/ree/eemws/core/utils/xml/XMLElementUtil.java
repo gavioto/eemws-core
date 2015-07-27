@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -190,9 +189,9 @@ public final class XMLElementUtil {
      * @param classType The class which the marshaller will be created for.
      * @return Marshaller for the given class.
      * @throws JAXBException If cannot create a marshaller for the given class.
-     * @throws PropertyException If the marshaller cannot set the given properties.
+     
      */
-    private static Marshaller getMarshaller(final Class<?> classType) throws JAXBException, PropertyException {
+    private static Marshaller getMarshaller(final Class<?> classType) throws JAXBException {
        
         Marshaller jaxbMarshaller = MARSHALLER_CACHE.remove(classType);
         
