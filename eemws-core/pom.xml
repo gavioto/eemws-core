@@ -54,6 +54,9 @@
                 <resource>
                   <directory>${basedir}/src/wsdl</directory>
                 </resource>
+				<resource>
+                  <directory>${basedir}/src/xsd</directory>
+                </resource>
               </resources>              
             </configuration>            
           </execution>
