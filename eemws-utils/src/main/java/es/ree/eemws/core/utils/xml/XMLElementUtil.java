@@ -24,6 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -54,6 +56,15 @@ import org.xml.sax.SAXException;
  */
 public final class XMLElementUtil {
 
+    /** Keeps thread safe JAXBContext in order to re-build them. */
+    private static final Map<Class<?>, JAXBContext> JAXB_CONTEXT_CACHE = new ConcurrentHashMap<>();
+    
+    /** Keeps a pool (just 1 instance per class of Unmarshaller. Note UnMarshallers are not thread safe. */
+    private static final ConcurrentHashMap<Class<?>, Unmarshaller> UNMARSHALLER_CACHE = new ConcurrentHashMap<>();
+    
+    /** Keeps a pool (just 1 instance per class of Marshaller. Note Marshallers are not thread safe. */
+    private static final ConcurrentHashMap<Class<?>, Marshaller> MARSHALLER_CACHE = new ConcurrentHashMap<>();
+        
     /**
      * Constructor.
      */
@@ -69,11 +80,21 @@ public final class XMLElementUtil {
      * @return Object transform.
      * @throws JAXBException Exception unmarshal the object.
      */
-    public static Object elment2Obj(final Element element, final Class<?> classType) throws JAXBException {
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(classType);
-        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        return (jaxbUnmarshaller.unmarshal(element, classType)).getValue();
+    public static Object element2Obj(final Element element, final Class<?> classType) throws JAXBException {
+        
+        /* Remove the instance, so only the current thread could use it. Others will create their own. */
+        Unmarshaller jaxbUnmarshaller = UNMARSHALLER_CACHE.remove(classType);
+        
+        if (jaxbUnmarshaller == null) {
+            jaxbUnmarshaller = getJAXBContext(classType).createUnmarshaller();
+        }
+        
+        Object retValue = (jaxbUnmarshaller.unmarshal(element, classType)).getValue(); 
+        
+        /* Other thread could put an instance before. */
+        UNMARSHALLER_CACHE.putIfAbsent(classType, jaxbUnmarshaller);
+        
+        return retValue;
     }
 
     /**
@@ -132,21 +153,17 @@ public final class XMLElementUtil {
      * @return Element class.
      * @throws JAXBException Exception marshal the object.
      */
-    public static Element obj2Element(final Object obj)
-            throws JAXBException {
+    public static Element obj2Element(final Object obj) throws JAXBException {
 
-        JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+        Class<?> classType = obj.getClass();
         
+        Marshaller jaxbMarshaller = getMarshaller(classType);
         DOMResult res = new DOMResult();
         jaxbMarshaller.marshal(obj, res);
-
+        MARSHALLER_CACHE.putIfAbsent(classType, jaxbMarshaller);
         
         return ((Document) res.getNode()).getDocumentElement();
     }
-
     
     /**
      * Transforms an Object into a String.
@@ -155,17 +172,51 @@ public final class XMLElementUtil {
      * @throws JAXBException Exception marshal the object.
      */
     public static StringBuilder object2StringBuilder(final Object obj) throws JAXBException {
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass().getPackage().getName());
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, false);
-
+        
+        Class<?> classType = obj.getClass();
+                
+        Marshaller jaxbMarshaller = getMarshaller(classType);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
         jaxbMarshaller.marshal(obj, baos);
-
+        MARSHALLER_CACHE.putIfAbsent(classType, jaxbMarshaller);
+        
         return new StringBuilder(baos.toString());
+    }    
+    
+    /**
+     * Returns a Marshaller for a given class.
+     * If there is an instance in the cache, this will be removed from the cache and returned. 
+     * @param classType The class which the marshaller will be created for.
+     * @return Marshaller for the given class.
+     * @throws JAXBException If cannot create a marshaller for the given class.
+     
+     */
+    private static Marshaller getMarshaller(final Class<?> classType) throws JAXBException {
+       
+        Marshaller jaxbMarshaller = MARSHALLER_CACHE.remove(classType);
+        
+        if (jaxbMarshaller == null) {
+            jaxbMarshaller = getJAXBContext(classType).createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+        }
+        
+        return jaxbMarshaller;
+    }
+
+    /**
+     * Returns a JAXBContext for the given class.
+     * If there is an instance in the cache, this will be removed from the cache and returned.      
+     * @param classType The class which the context will be created for.
+     * @return JAXBContext for the given class.
+     * @throws JAXBException if cannot create an instance for the given class
+     */
+    private static JAXBContext getJAXBContext(Class<?> classType) throws JAXBException {
+        JAXBContext jaxbContext = JAXB_CONTEXT_CACHE.get(classType);
+        if (jaxbContext == null) {
+            jaxbContext = JAXBContext.newInstance(classType);
+            JAXB_CONTEXT_CACHE.put(classType, jaxbContext); 
+        }
+        return jaxbContext;
     }
 }

@@ -159,7 +159,7 @@ public final class SignatureVerificationException extends SignatureManagerExcept
 
             int cont = 0;
             for (ReferenceStatus rs : references) {
-                Messages.getString("SECURITY_REFERENCE_STATUS", cont, rs.toString()); //$NON-NLS-1$
+                sb.append(Messages.getString("SECURITY_REFERENCE_STATUS", cont, rs.toString())); //$NON-NLS-1$
                 cont++;
             }
 

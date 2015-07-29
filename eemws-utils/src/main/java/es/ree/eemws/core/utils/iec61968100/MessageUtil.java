@@ -22,6 +22,8 @@
 package es.ree.eemws.core.utils.iec61968100;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -29,11 +31,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -46,6 +54,7 @@ import ch.iec.tc57._2011.schema.message.RequestMessage;
 import ch.iec.tc57._2011.schema.message.RequestType;
 import ch.iec.tc57._2011.schema.message.RequestType.ID;
 import ch.iec.tc57._2011.schema.message.ResponseMessage;
+import es.ree.eemws.core.utils.messages.Messages;
 import es.ree.eemws.core.utils.xml.XMLElementUtil;
 import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
 
@@ -55,9 +64,12 @@ import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
  * @author Red Eléctrica de España S.A.U.
  * @version 1.0 13/02/2014
  */
-
 public class MessageUtil {
 
+    /** IEC 61968-100 schema file (it's included in <code>core.jar</code>. */
+    private static final String IEC_61968_100_SCHEMA_FILE = "http-iec-ch-TC57-2011-schema-message.xsd";
+    
+    
     /**
      * Constructor. Utility classes should not have a public constructor.
      */
@@ -76,7 +88,7 @@ public class MessageUtil {
     public static RequestMessage createRequestWithOptions(final EnumVerb verb, final EnumNoun noun, final Map<String, String> options) {
         return createRequestWithOptions(verb.toString(), noun.toString(), options);
     }
-
+    
     /**
      * This method creates a request message with the given options.
      * @param verb Rquest verb
@@ -123,32 +135,92 @@ public class MessageUtil {
 
         return message;
     }
-
+    
     /**
-     * Returns a <code>Map</code> with the given RequestMessage options. The start time and end time are also included
-     * in the map.
+     * Returns a <code>Map</code> with the given RequestMessage options. The start time and end time are also included in the map.
      * @param message Request message.
      * @return a Map with the options that the given RequestMessage has.
      */
     public static Map<String, Object> getRequestMessageOptions(final RequestMessage message) {
-
+        return getInternalRequestMessageOptions(message, false);
+    }
+    
+    /**
+     * Returns a <code>Map</code> with the given RequestMessage options ignoring invalid date format parameters and duplicates.
+     * The start time and end time are also included in the map.
+     * @param message Request message.
+     * @return a Map with the options that the given RequestMessage has.
+     */
+    public static Map<String, Object> getRequestMessageOptionsAllowingErrors(final RequestMessage message) {
+        return getInternalRequestMessageOptions(message, true);
+    }
+    
+    /**
+     * Returns a <code>Map</code> with the given RequestMessage options. The start time and end time are also included in the map.
+     * @param message Request message.
+     * @param allowInvalidValues allow invalid date format and duplicate values.   
+     * @return a Map with the options that the given RequestMessage has.
+     */
+    private static Map<String, Object> getInternalRequestMessageOptions(final RequestMessage message, final boolean allowInvalidValues) {
+        
+        boolean stopIfError = !allowInvalidValues;
         List<OptionType> requestOption = message.getRequest().getOptions();
         Map<String, Object> map = new HashMap<String, Object>();
 
-        for (OptionType optionType : requestOption) {
-            map.put(optionType.getName(), optionType.getValue());
-        }
-
         XMLGregorianCalendar time;
 
+        String startElementStr = EnumFilterElement.START_TIME.toString();
+        String endElementStr = EnumFilterElement.END_TIME.toString();
+        
         time = message.getRequest().getStartTime();
         if (time != null) {
-            map.put(EnumFilterElement.START_TIME.toString(), time);
+            map.put(startElementStr, time);
         }
 
         time = message.getRequest().getEndTime();
         if (time != null) {
-            map.put(EnumFilterElement.END_TIME.toString(), time);
+            map.put(endElementStr, time);
+        }
+
+        for (OptionType optionType : requestOption) {
+            
+            String optName = optionType.getName();
+            Object optValue = optionType.getValue();
+            Object obj = null;
+            
+            /* It's recommended to use the IEC 61968-100 elements where posible.
+             * Here we are giving a facility to the user that could use StartTime and EndTime 
+             * as Option instead of elements. 
+             */
+            if (optName.equals(startElementStr) || optName.equals(endElementStr)) {
+                try {
+                    optValue = XMLGregorianCalendarFactory.getInstance((String) optValue);
+                } catch (ParseException e) {
+                    if (stopIfError) {
+                        throw new IllegalArgumentException(Messages.getString("INVALID_DATE_PARAMETER_VALUE", optName));
+                    } 
+                }
+            }
+            
+            obj = map.put(optName, optValue);
+            
+            
+            /* If obj is not null, the parameter was already in the map. */
+            if (obj != null) {
+                if (stopIfError) {
+                    throw new IllegalArgumentException(Messages.getString("INVALID_PARAMETER_TWICE", optName));
+                } else {
+                    int cont = 1;
+                    StringBuilder key = new StringBuilder();
+                    key.append(optName).append("(").append(cont).append(")"); 
+                    while (map.containsKey(key.toString())) {
+                        cont++;
+                        key.setLength(0);
+                        key.append(optName).append("(").append(cont).append(")");
+                    }
+                    map.put(key.toString(),  obj);
+                }
+            }
         }
 
         return map;
@@ -348,4 +420,40 @@ public class MessageUtil {
 
         return response;
     }
+    
+
+    /**
+     * Validates against schema the given IEC 61968-100 message.
+     * Note that schema validation has impact on the performance.
+     * @param msg A StringBuilderMessage with 61968-100 message.
+     * @throws SAXException If the message is not valid against schema.
+     */
+    public static void validateMessage(final StringBuilderMessage msg) throws SAXException {
+        validateMessage(msg.getStringMessage());
+    }
+            
+    /**
+     * Validates against schema the given IEC 61968-100 message.
+     * Note that schema validation has impact on the performance.
+     * @param stringMessage A String representation of the xml message
+     * @throws SAXException If the message is not valid against schema.
+     */
+    public static void validateMessage(final StringBuilder stringMessage) throws SAXException {
+        
+        try {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            URL schemaUrl = loader.getResource(IEC_61968_100_SCHEMA_FILE);
+            
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(schemaUrl);
+            Validator validator = schema.newValidator();
+            validator.validate(new StreamSource(new StringReader(stringMessage.toString())));
+                                    
+        } catch (IOException | NullPointerException e) {
+            
+            /* Ignore IOException. */
+            Logger.getLogger(".").log(Level.FINE, "Unable to read message", e);
+        } 
+    }
+
 }
