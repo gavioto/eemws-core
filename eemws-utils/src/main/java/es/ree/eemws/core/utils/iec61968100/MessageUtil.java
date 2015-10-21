@@ -60,16 +60,16 @@ import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
 
 /**
  * Miscellaneous utilities to handle message.
- * 
+ *
  * @author Red Eléctrica de España S.A.U.
  * @version 1.0 13/02/2014
  */
-public class MessageUtil {
+public final class MessageUtil {
 
     /** IEC 61968-100 schema file (it's included in <code>core.jar</code>. */
     private static final String IEC_61968_100_SCHEMA_FILE = "http-iec-ch-TC57-2011-schema-message.xsd";
-    
-    
+
+
     /**
      * Constructor. Utility classes should not have a public constructor.
      */
@@ -82,18 +82,18 @@ public class MessageUtil {
      * This method creates a request message with the given options.
      * @param verb Rquest verb
      * @param noun Request noun
-     * @param options Options to be included in the request. 
+     * @param options Options to be included in the request.
      * @return Request message.
      */
     public static RequestMessage createRequestWithOptions(final EnumVerb verb, final EnumNoun noun, final Map<String, String> options) {
         return createRequestWithOptions(verb.toString(), noun.toString(), options);
     }
-    
+
     /**
      * This method creates a request message with the given options.
      * @param verb Rquest verb
      * @param noun Request noun
-     * @param options Options to be included in the request. 
+     * @param options Options to be included in the request.
      * @return Request message.
      */
     public static RequestMessage createRequestWithOptions(final String verb, final String noun, final Map<String, String> options) {
@@ -135,7 +135,7 @@ public class MessageUtil {
 
         return message;
     }
-    
+
     /**
      * Returns a <code>Map</code> with the given RequestMessage options. The start time and end time are also included in the map.
      * @param message Request message.
@@ -144,7 +144,7 @@ public class MessageUtil {
     public static Map<String, Object> getRequestMessageOptions(final RequestMessage message) {
         return getInternalRequestMessageOptions(message, false);
     }
-    
+
     /**
      * Returns a <code>Map</code> with the given RequestMessage options ignoring invalid date format parameters and duplicates.
      * The start time and end time are also included in the map.
@@ -154,15 +154,15 @@ public class MessageUtil {
     public static Map<String, Object> getRequestMessageOptionsAllowingErrors(final RequestMessage message) {
         return getInternalRequestMessageOptions(message, true);
     }
-    
+
     /**
      * Returns a <code>Map</code> with the given RequestMessage options. The start time and end time are also included in the map.
      * @param message Request message.
-     * @param allowInvalidValues allow invalid date format and duplicate values.   
+     * @param allowInvalidValues allow invalid date format and duplicate values.
      * @return a Map with the options that the given RequestMessage has.
      */
     private static Map<String, Object> getInternalRequestMessageOptions(final RequestMessage message, final boolean allowInvalidValues) {
-        
+
         boolean stopIfError = !allowInvalidValues;
         List<OptionType> requestOption = message.getRequest().getOptions();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -171,7 +171,7 @@ public class MessageUtil {
 
         String startElementStr = EnumFilterElement.START_TIME.toString();
         String endElementStr = EnumFilterElement.END_TIME.toString();
-        
+
         time = message.getRequest().getStartTime();
         if (time != null) {
             map.put(startElementStr, time);
@@ -183,14 +183,14 @@ public class MessageUtil {
         }
 
         for (OptionType optionType : requestOption) {
-            
+
             String optName = optionType.getName();
             Object optValue = optionType.getValue();
             Object obj = null;
-            
+
             /* It's recommended to use the IEC 61968-100 elements where posible.
-             * Here we are giving a facility to the user that could use StartTime and EndTime 
-             * as Option instead of elements. 
+             * Here we are giving a facility to the user that could use StartTime and EndTime
+             * as Option instead of elements.
              */
             if (optName.equals(startElementStr) || optName.equals(endElementStr)) {
                 try {
@@ -198,13 +198,13 @@ public class MessageUtil {
                 } catch (ParseException e) {
                     if (stopIfError) {
                         throw new IllegalArgumentException(Messages.getString("INVALID_DATE_PARAMETER_VALUE", optName));
-                    } 
+                    }
                 }
             }
-            
+
             obj = map.put(optName, optValue);
-            
-            
+
+
             /* If obj is not null, the parameter was already in the map. */
             if (obj != null) {
                 if (stopIfError) {
@@ -212,7 +212,7 @@ public class MessageUtil {
                 } else {
                     int cont = 1;
                     StringBuilder key = new StringBuilder();
-                    key.append(optName).append("(").append(cont).append(")"); 
+                    key.append(optName).append("(").append(cont).append(")");
                     while (map.containsKey(key.toString())) {
                         cont++;
                         key.setLength(0);
@@ -247,7 +247,7 @@ public class MessageUtil {
      * @param value Value of the new option. Value is optional, so its value can be <code>null</code> if not set.
      * @return New option.
      */
-    private static final OptionType createOption(final String name, final String value) {
+    private static OptionType createOption(final String name, final String value) {
 
         OptionType option = new OptionType();
         option.setName(name);
@@ -269,7 +269,8 @@ public class MessageUtil {
      * @throws SAXException If the given payload is not well formed.
      * @throws IOException If it is not possible to read the given xml payload.
      */
-    public static RequestMessage createRequestWithPayload(String verb, String noun, StringBuilder xmlMessage) throws ParserConfigurationException, SAXException, IOException {
+    public static RequestMessage createRequestWithPayload(final String verb, final String noun, final StringBuilder xmlMessage)
+            throws ParserConfigurationException, SAXException, IOException {
 
         RequestMessage message = new RequestMessage();
 
@@ -283,7 +284,7 @@ public class MessageUtil {
         return message;
 
     }
-    
+
     /**
      * Creates a request message with binary payload.
      * @param name Binary name (file name).
@@ -291,7 +292,8 @@ public class MessageUtil {
      * @param format Optional value for the binary format. if <code>null</code> XML will be used.
      * @return Request message With binary data.
      */
-    public static RequestMessage createRequestWithBinaryPayload(String name, StringBuilder binaryB64, EnumMessageFormat format) {
+    public static RequestMessage createRequestWithBinaryPayload(final String name, final StringBuilder binaryB64, final EnumMessageFormat format) {
+
         RequestMessage message = new RequestMessage();
         HeaderType header = createHeader(EnumVerb.CREATE.toString(), EnumNoun.COMPRESSED.toString());
         message.setHeader(header);
@@ -315,7 +317,7 @@ public class MessageUtil {
         } else {
             payload.setFormat(format.toString());
         }
-        
+
         message.setPayload(payload);
 
         return message;
@@ -328,7 +330,8 @@ public class MessageUtil {
      * @param format Optional value for the binary format. if <code>null</code> XML will be used.
      * @return Request message With binary data.
      */
-    public static RequestMessage createRequestWithBinaryPayload(String name, byte[] binary, EnumMessageFormat format) {
+    public static RequestMessage createRequestWithBinaryPayload(final String name, final byte[] binary, final EnumMessageFormat format) {
+
         return createRequestWithBinaryPayload(name, new StringBuilder(DatatypeConverter.printBase64Binary(binary)), format);
     }
 
@@ -420,7 +423,7 @@ public class MessageUtil {
 
         return response;
     }
-    
+
 
     /**
      * Validates against schema the given IEC 61968-100 message.
@@ -431,7 +434,7 @@ public class MessageUtil {
     public static void validateMessage(final StringBuilderMessage msg) throws SAXException {
         validateMessage(msg.getStringMessage());
     }
-            
+
     /**
      * Validates against schema the given IEC 61968-100 message.
      * Note that schema validation has impact on the performance.
@@ -439,21 +442,20 @@ public class MessageUtil {
      * @throws SAXException If the message is not valid against schema.
      */
     public static void validateMessage(final StringBuilder stringMessage) throws SAXException {
-        
+
         try {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             URL schemaUrl = loader.getResource(IEC_61968_100_SCHEMA_FILE);
-            
+
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = schemaFactory.newSchema(schemaUrl);
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new StringReader(stringMessage.toString())));
-                                    
+
         } catch (IOException | NullPointerException e) {
-            
+
             /* Ignore IOException. */
             Logger.getLogger(".").log(Level.FINE, "Unable to read message", e);
-        } 
+        }
     }
-
 }

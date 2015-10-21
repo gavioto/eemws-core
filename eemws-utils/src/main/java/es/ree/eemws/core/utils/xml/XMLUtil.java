@@ -55,6 +55,7 @@ public final class XMLUtil {
     /** Do not add xml declaration, the xml will be included into another!. */
     private static final String STRING_XML_OMIT_DECLARATION = "yes"; //$NON-NLS-1$
 
+    /** XML namespace. */
     private static final String XMLNS = "xmlns"; //$NON-NLS-1$
 
     /** Double quote constant. */
@@ -116,45 +117,45 @@ public final class XMLUtil {
     public static String getNodeValue(final String tag, final StringBuilder doc) {
 
         String retValue = null;
-		int pos = -1;
-		int totLen = doc.length();
-		
-		do {
-			pos++;
-			String tag1 = tag + END_TAG;
-			String tag2 = tag + BLANK;
-			int len = tag.length();
-			int pos1 = doc.indexOf(tag1, pos);
-			int pos2 = doc.indexOf(tag2, pos);
-			String finalToken = EMPTY;
-			
-			if (pos1 == -1 && pos2 == -1) {
-				retValue = null;
-				pos = totLen;
-			} else {
+        int pos = -1;
+        int totLen = doc.length();
 
-				if (pos2 == -1) {
-					if (pos1 != -1) {
-						pos = pos1;
-						len++;
-					}
-				} else {
-					pos = pos2;
-					finalToken = END_TAG;
-				}
-				
+        do {
+            pos++;
+            String tag1 = tag + END_TAG;
+            String tag2 = tag + BLANK;
+            int len = tag.length();
+            int pos1 = doc.indexOf(tag1, pos);
+            int pos2 = doc.indexOf(tag2, pos);
+            String finalToken = EMPTY;
+
+            if (pos1 == -1 && pos2 == -1) {
+                retValue = null;
+                pos = totLen;
+            } else {
+
+                if (pos2 == -1) {
+                    if (pos1 != -1) {
+                        pos = pos1;
+                        len++;
+                    }
+                } else {
+                    pos = pos2;
+                    finalToken = END_TAG;
+                }
+
                 retValue = extractValue(doc, pos, len, finalToken);
-				
+
                 // No value returned, check the other posibility.
-				if (retValue == null && pos2 !=-1 && pos1 !=-1) {
-					pos = pos1;
-					len++;
-					finalToken = EMPTY;
-				
-					retValue = extractValue(doc, pos, len, finalToken);
-				}
-			}
-		} while (pos < totLen && retValue == null);
+                if (retValue == null && pos2 != -1 && pos1 != -1) {
+                    pos = pos1;
+                    len++;
+                    finalToken = EMPTY;
+
+                    retValue = extractValue(doc, pos, len, finalToken);
+                }
+            }
+        } while (pos < totLen && retValue == null);
 
         return retValue;
     }
@@ -164,24 +165,24 @@ public final class XMLUtil {
      * @param doc Document with the value to extract
      * @param pos possition of the Tag.
      * @param len Tag's length.
-     * @param finalToken End character to be used in the element search. 
+     * @param finalToken End character to be used in the element search.
      * @return Element value from the current possition or <code>null</code> if the current possition is not an element (it's text).
      */
-    private static String extractValue(final StringBuilder doc,  int pos, int len, String finalToken) {
+    private static String extractValue(final StringBuilder doc, final int pos, final int len, final String finalToken) {
         String retValue = null;
-        
+
         int end = doc.indexOf(END_TAG, pos) + 1;
         if (end != -1) {
-        	int posBegin = pos - 1;
-        	while (doc.charAt(posBegin) != START_TAG_CHAR && posBegin > 0) {
-        		posBegin--;
-        	}
+            int posBegin = pos - 1;
+            while (doc.charAt(posBegin) != START_TAG_CHAR && posBegin > 0) {
+                posBegin--;
+            }
 
-        	String endTag = START_CLOSE_TAG + doc.substring(posBegin + 1, pos + len) + finalToken;
-        	int idx = doc.indexOf(endTag);
-        	if (idx != -1) {
-        		retValue = doc.substring(end, idx);
-        	}
+            String endTag = START_CLOSE_TAG + doc.substring(posBegin + 1, pos + len) + finalToken;
+            int idx = doc.indexOf(endTag);
+            if (idx != -1) {
+                retValue = doc.substring(end, idx);
+            }
         }
         return retValue;
     }
@@ -303,7 +304,7 @@ public final class XMLUtil {
             }
 
         } catch (IndexOutOfBoundsException e) {
-            
+
             /* The input string is not an XML. */
             output.setLength(0);
             output.append(whatToPretty);
@@ -408,7 +409,7 @@ public final class XMLUtil {
             prefix = COLON + prefix;
         }
 
-        String newDoc = xml.toString();
+        String newDoc = xml;
 
         int posEndTag = newDoc.indexOf(END_TAG);
         if (newDoc.charAt(posEndTag - 1) == '/') {
@@ -418,7 +419,7 @@ public final class XMLUtil {
         String rootTag = newDoc.substring(0, posEndTag);
         String[] rootTags = rootTag.split("\\s"); //$NON-NLS-1$
         StringBuilder sb = new StringBuilder(rootTags[0]);
-        sb.append(BLANK + XMLNS + prefix + "=\"" + ns + DOUBLE_QUOTE + BLANK); //$NON-NLS-1$ 
+        sb.append(BLANK + XMLNS + prefix + "=\"" + ns + DOUBLE_QUOTE + BLANK); //$NON-NLS-1$
 
         int len = rootTags.length;
         for (int i = 1; i < len; i++) {
@@ -428,8 +429,9 @@ public final class XMLUtil {
             }
         }
         sb.setLength(sb.length() - 1);
+        sb.append(xml.substring(posEndTag));
 
-        return new StringBuilder(sb.toString() + xml.substring(posEndTag));
+        return sb;
     }
 
     /**
@@ -485,7 +487,7 @@ public final class XMLUtil {
      * <li>(2) End tag with namespace prefix: </n1:etiqueta>
      * <li>(3) Empty document: <etiqueta/>
      * <li>(4) Empty document with namespace prefix: <n1:etiqueta xmnls:n1="abde"/>
-     * @param strXml document as a string. 
+     * @param strXml document as a string.
      * @return Xml's root tag as a String <code>null</code> if the given xml is not well formed (cannot find root tag).
      */
     public static String getRootTag(final StringBuilder strXml) {

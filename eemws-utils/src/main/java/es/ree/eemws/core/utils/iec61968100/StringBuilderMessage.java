@@ -42,18 +42,33 @@ import es.ree.eemws.core.utils.xml.XMLUtil;
  * This is specillay useful for handler procesing where the message is not already modeled as beans.
  * Note that IEC-61968-100 message could be a RequestMessage a ResponseMessage or a FaultMessage
  * @author Red Eléctrica de España S.A.U.
- * @version 1.0 13/06/2014
+ * @version 1.1 11/10/2015
  */
 public final class StringBuilderMessage {
 
     /** Payload element name. */
     private static final String TAG_MSG_PAYLOAD = "Payload"; //$NON-NLS-1$
     
+    /** Format element name. */
+    private static final String TAG_MSG_FORMAT = "Format"; //$NON-NLS-1$
+    
+    /** Format tag end for <n1:Format/>  and <Format/> (empty) cases. */
+    private static final String EMPTY_FORMAT_TAG_END = TAG_MSG_FORMAT + "/>"; //$NON-NLS-1$
+    
+    /* <Format>asdf</Format> and  <n1:Format>asdf</n1:Format> */
+    private static final String NON_EMPTY_FORMAT_TAG_END = TAG_MSG_FORMAT + ">"; //$NON-NLS-1$
+    
     /** Fault element name. */
     private static final String TAG_MSG_FAULT = "FaultMessage";
 
     /** Fault details element name. */
-    private static final String TAG_DETAILS_FAULT = "details"; 
+    private static final String TAG_DETAILS_FAULT = "details";
+
+    /** Reduce the payload in order to search string without memory waste. */
+    private static final int MAX_LENGTH_TEST = 100;
+
+    /** XML start tag character. */
+    private static final int START_TAG_CHAR = '<'; 
     
     /**  IEC-61968-100 message a string. */
     private StringBuilder messageStr = null;
@@ -121,6 +136,7 @@ public final class StringBuilderMessage {
         String retValue = null;
         if (messageStr != null) {
             retValue = XMLUtil.getNodeValue(elementName, messageStr);
+            
         }
 
         return retValue;
@@ -151,10 +167,33 @@ public final class StringBuilderMessage {
     
     /**
      * Returns this message's payload. Note that for a Fault messages {@link #getFault()} must be used.
+     * Note that the Format element (if present) is not returned.
      * @return Message payload or <code>null</code> if the current message has no payload.
      */
     public String getPayload() {
-        return getElement(TAG_MSG_PAYLOAD);
+        String payL = getElement(TAG_MSG_PAYLOAD);
+        
+        
+        String testStr;
+        int payLen = payL.length();
+        if (payLen > MAX_LENGTH_TEST) {
+            testStr = payL.substring(payLen - MAX_LENGTH_TEST, payLen).trim();
+        } else {
+            testStr = payL.trim();
+        }
+        
+        if (testStr.endsWith(EMPTY_FORMAT_TAG_END)) {
+            payL = payL.substring(0, payL.lastIndexOf(START_TAG_CHAR));
+        } else if (testStr.endsWith(NON_EMPTY_FORMAT_TAG_END)) {
+            int k = payL.lastIndexOf(START_TAG_CHAR) - 1;
+            while (payL.charAt(k) != START_TAG_CHAR && k > 0) {
+                k--;
+            }
+            
+            payL = payL.substring(0, k);
+        }
+      
+        return payL;
     }
     
     /**
@@ -199,4 +238,5 @@ public final class StringBuilderMessage {
 
         return retValue;        
     }
+ 
 }

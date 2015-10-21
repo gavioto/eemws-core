@@ -70,12 +70,19 @@ public final class SignatureTest  {
     public void signatureTest1() throws Exception {
 
         Document doc = getDocumentFromFile("signature-test-1.xml");
-        logger.debug("signatureTest1 - Signing Document...");
+        logger.debug("signatureTest1a - Signing Document (SHA-2)...");
         SignatureManager.signDocument(doc);
-        logger.debug("signatureTest1 - Verifying Document...");
+        logger.debug("signatureTest1a - Verifying Document (SHA-2)...");
+		SignatureManager.verifyDocument(doc);
+
+   		logger.debug("signatureTest1b - Signing Document (SHA-1)...");
+        System.setProperty("USE_LEGACY_SHA1","");
+        doc = getDocumentFromFile("signature-test-1.xml");
+        SignatureManager.signDocument(doc);
+        logger.debug("signatureTest1b - Verifying Document (SHA-1)...");
         SignatureManager.verifyDocument(doc);
     }
-
+	
     /**
      * Signature verification test (successful).
      * @throws Exception in case of error.
