@@ -90,14 +90,23 @@ public final class SignatureManager {
     private static final String SIGNATURE_FACTORY_TYPE = "DOM"; //$NON-NLS-1$
 
     /** Digest method. */
-    private static final String DIGEST_METHOD = DigestMethod.SHA1;
+    private static final String DIGEST_METHOD = DigestMethod.SHA256;
+    
+    /** SHA1 digest method. Use this only in old enviroments where SHA-2 is not supported. */
+    private static final String LEGACY_SHA1_DIGEST_METHOD = DigestMethod.SHA1;
 
     /** Canonicalization method. */
     private static final String CANONICALIZATION_METHOD = CanonicalizationMethod.INCLUSIVE;
+    
+    /** Name of the system property to be set in order to to use SHA1 algorithm for digest and signature. */
+    private static final String USE_LEGACY_SHA1_SYSTEM_FLAG = "USE_LEGACY_SHA1";
 
     /** Signature method. */
-    private static final String SIGNATURE_METHOD = SignatureMethod.RSA_SHA1;
-
+    private static final String SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"; //$NON-NLS-1$
+     
+    /** RSA-SHA1 Signature method. Use this only in old enviroments where SHA-2 is not supported. */
+    private static final String LEGACY_SHA1_SIGNATURE_METHOD = SignatureMethod.RSA_SHA1;
+    
     /** Transform method. */
     private static final String TRANSFORM = Transform.ENVELOPED;
 
@@ -314,31 +323,6 @@ public final class SignatureManager {
     }
 
     /**
-     * Signs the given xml document expressed as String (StringBuilder) usign the given private key and certificate.
-     * @param msgAsString The document to be signed, the result of the process will be returned in this parameter.
-     * @param privateKey The private key to be used for signature.
-     * @param cert The certificate to be used for signature.
-     * @throws SignatureManagerException If it's impossible to sign the document.
-     * @see #signDocument(Document, RSAPrivateKey, X509Certificate)
-     */
-    public static void signString(final StringBuilder msgAsString, final RSAPrivateKey privateKey, final X509Certificate cert) throws SignatureManagerException {
-
-        try {
-
-            Document doc = XMLUtil.string2Document(msgAsString);
-            signDocument(doc, privateKey, cert);
-
-            msgAsString.setLength(0);
-            msgAsString.append(XMLUtil.document2String(doc));
-            msgAsString.trimToSize();
-
-        } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
-
-            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT"), e); //$NON-NLS-1$
-        }
-    }
-
-    /**
      * Signs the given xml document expressed as String (StringBuilder) using the default keystore.
      * @param msgAsString The document to be signed, the result of the process will be returned in this parameter.
      * @throws SignatureManagerException If it's impossible to sign the document.
@@ -346,17 +330,31 @@ public final class SignatureManager {
      */
     public static void signString(final StringBuilder msgAsString) throws SignatureManagerException {
 
+        Document doc = null;
+        
         try {
 
-            Document doc = XMLUtil.string2Document(msgAsString);
-            signDocument(doc);
-            msgAsString.setLength(0);
-            msgAsString.append(XMLUtil.document2String(doc));
+            doc = XMLUtil.string2Document(msgAsString);
+            
+            /* Removes input message, avoiding two copies of the message. */
+            msgAsString.setLength(0); 
             msgAsString.trimToSize();
-
-        } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
+            
+            signDocument(doc);
+            
+        } catch (SAXException | IOException | ParserConfigurationException  e) {
 
             throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT"), e); //$NON-NLS-1$
+        
+        } finally {
+            
+            if (doc != null) {
+                try {
+                    msgAsString.append(XMLUtil.document2String(doc));
+                } catch (TransformerException e) {
+                    throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT"), e); //$NON-NLS-1$
+                }    
+            }            
         }
     }
 
@@ -370,18 +368,31 @@ public final class SignatureManager {
      */
     public static void signString(final StringBuilder msgAsString, final PrivateKey privateKey, final X509Certificate cert) throws SignatureManagerException {
 
+        Document doc = null;
+        
         try {
 
-            Document doc = XMLUtil.string2Document(msgAsString);
-            signDocument(doc, privateKey, cert);
-
-            msgAsString.setLength(0);
-            msgAsString.append(XMLUtil.document2String(doc));
+            doc = XMLUtil.string2Document(msgAsString);
+            
+            /* Removes input message, avoiding two copies of the message. */
+            msgAsString.setLength(0); 
             msgAsString.trimToSize();
-
-        } catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
+                        
+            signDocument(doc, privateKey, cert);
+            
+        } catch (SAXException | IOException | ParserConfigurationException e) {
 
             throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT"), e); //$NON-NLS-1$
+        
+        } finally {
+            
+            if (doc != null) {
+                try {
+                    msgAsString.append(XMLUtil.document2String(doc));
+                } catch (TransformerException e) {
+                    throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT"), e); //$NON-NLS-1$
+                }    
+            }            
         }
     }
 
@@ -399,8 +410,15 @@ public final class SignatureManager {
 
             XMLSignatureFactory fac = XMLSignatureFactory.getInstance(SIGNATURE_FACTORY_TYPE);
 
-            Reference ref = fac.newReference(SIGNATURE_URI, fac.newDigestMethod(DIGEST_METHOD, null), Collections.singletonList(fac.newTransform(TRANSFORM, (TransformParameterSpec) null)), null, null);
-            SignedInfo si = fac.newSignedInfo(fac.newCanonicalizationMethod(CANONICALIZATION_METHOD, (C14NMethodParameterSpec) null), fac.newSignatureMethod(SIGNATURE_METHOD, null), Collections.singletonList(ref));
+            SignedInfo si;
+            
+            if (System.getProperty(USE_LEGACY_SHA1_SYSTEM_FLAG) == null) {
+                Reference ref = fac.newReference(SIGNATURE_URI, fac.newDigestMethod(DIGEST_METHOD, null), Collections.singletonList(fac.newTransform(TRANSFORM, (TransformParameterSpec) null)), null, null);
+                si = fac.newSignedInfo(fac.newCanonicalizationMethod(CANONICALIZATION_METHOD, (C14NMethodParameterSpec) null), fac.newSignatureMethod(SIGNATURE_METHOD, null), Collections.singletonList(ref));
+            } else {
+                Reference ref = fac.newReference(SIGNATURE_URI, fac.newDigestMethod(LEGACY_SHA1_DIGEST_METHOD, null), Collections.singletonList(fac.newTransform(TRANSFORM, (TransformParameterSpec) null)), null, null);
+                si = fac.newSignedInfo(fac.newCanonicalizationMethod(CANONICALIZATION_METHOD, (C14NMethodParameterSpec) null), fac.newSignatureMethod(LEGACY_SHA1_SIGNATURE_METHOD, null), Collections.singletonList(ref));
+            }
 
             Node headerNode = null;
             NodeList nl = msgAsDocument.getElementsByTagNameNS(HEADER_NAME_SPACE, HEADER_TAG);
