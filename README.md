@@ -15,9 +15,9 @@ Please use maven 3.x and java 7.x in order to compile.
 
 **News**
 
-* **21-10-2015**: Use SHA-256 for digest and signing messages instead of deprecated SHA-1.
+* **21-10-2015**: New connection kit version (1.0-m9) with small fixes and use of SHA-256 for digest and signing messages instead of deprecated SHA-1 [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0-m9.jar) (see Downloads section).
 * **14-10-2015**: User's manual review [available](https://bitbucket.org/smree/eemws-core/downloads/user's%20manual%20v1.1.pdf)
-* **29-07-2015**: New connection kit version (1.0-m8) with small fixes [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0-m8.jar) (see Downloads section).
+* **29-07-2015**: New connection kit version (1.0-m8) with small fixes.
 * **03-06-2015**: IEC 62325-504 is now available!! (https://twitter.com/iec_csc/status/606061621010694146)
 * **12-05-2015**: Added an utility pack to use Magic Folder as a Windows Service see Downloads section.
 * **18-03-2015**: New connection kit version (1.0-m7) with binary support available (see Downloads section).
