@@ -24,6 +24,7 @@ package es.ree.eemws.core.utils.iec61968100;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -54,6 +55,7 @@ import ch.iec.tc57._2011.schema.message.RequestMessage;
 import ch.iec.tc57._2011.schema.message.RequestType;
 import ch.iec.tc57._2011.schema.message.RequestType.ID;
 import ch.iec.tc57._2011.schema.message.ResponseMessage;
+import es.ree.eemws.core.utils.file.GZIPUtil;
 import es.ree.eemws.core.utils.messages.Messages;
 import es.ree.eemws.core.utils.xml.XMLElementUtil;
 import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
@@ -68,7 +70,6 @@ public final class MessageUtil {
 
     /** IEC 61968-100 schema file (it's included in <code>core.jar</code>. */
     private static final String IEC_61968_100_SCHEMA_FILE = "http-iec-ch-TC57-2011-schema-message.xsd";
-
 
     /**
      * Constructor. Utility classes should not have a public constructor.
@@ -188,9 +189,9 @@ public final class MessageUtil {
             Object optValue = optionType.getValue();
             Object obj = null;
 
-            /* It's recommended to use the IEC 61968-100 elements where posible.
-             * Here we are giving a facility to the user that could use StartTime and EndTime
-             * as Option instead of elements.
+            /*
+             * It's recommended to use the IEC 61968-100 elements where posible. Here we are giving a facility to the
+             * user that could use StartTime and EndTime as Option instead of elements.
              */
             if (optName.equals(startElementStr) || optName.equals(endElementStr)) {
                 try {
@@ -203,7 +204,6 @@ public final class MessageUtil {
             }
 
             obj = map.put(optName, optValue);
-
 
             /* If obj is not null, the parameter was already in the map. */
             if (obj != null) {
@@ -218,7 +218,7 @@ public final class MessageUtil {
                         key.setLength(0);
                         key.append(optName).append("(").append(cont).append(")");
                     }
-                    map.put(key.toString(),  obj);
+                    map.put(key.toString(), obj);
                 }
             }
         }
@@ -269,8 +269,7 @@ public final class MessageUtil {
      * @throws SAXException If the given payload is not well formed.
      * @throws IOException If it is not possible to read the given xml payload.
      */
-    public static RequestMessage createRequestWithPayload(final String verb, final String noun, final StringBuilder xmlMessage)
-            throws ParserConfigurationException, SAXException, IOException {
+    public static RequestMessage createRequestWithPayload(final String verb, final String noun, final StringBuilder xmlMessage) throws ParserConfigurationException, SAXException, IOException {
 
         RequestMessage message = new RequestMessage();
 
@@ -283,11 +282,23 @@ public final class MessageUtil {
 
         return message;
 
+    }    
+    
+    /**
+     * Creates a request message with compressed xml message.
+     * @param xmlMessage Xml document (payload) to be transmited.
+     * @return Request message With with the given xml in compressed format.
+     * @throws IOException If the given xml cannot be compressed.
+     */
+    public static RequestMessage createRequestWithCompressedXmlPayload(final StringBuilder xmlMessage) throws IOException {
+        byte[] compressedPayload = GZIPUtil.compress(xmlMessage.toString().getBytes(StandardCharsets.UTF_8));
+        
+        return createRequestWithBinaryPayload(null, compressedPayload, EnumMessageFormat.XML);
     }
 
     /**
      * Creates a request message with binary payload.
-     * @param name Binary name (file name).
+     * @param name Name for binary files. For compressed XML documents this value is not necessary (name will be taken form the xml document during procesing)
      * @param binaryB64 Binary data in B64.
      * @param format Optional value for the binary format. if <code>null</code> XML will be used.
      * @return Request message With binary data.
@@ -298,16 +309,19 @@ public final class MessageUtil {
         HeaderType header = createHeader(EnumVerb.CREATE.toString(), EnumNoun.COMPRESSED.toString());
         message.setHeader(header);
 
-        RequestType resquest = new RequestType();
+        if (name != null) {
 
-        ID id = new ID();
-        id.setIdType(EnumMessageFormat.BINARY_FILENAME_ID);
-        id.setValue(name);
+            RequestType resquest = new RequestType();
 
-        List<ID> ids = resquest.getIDS();
-        ids.add(id);
+            ID id = new ID();
+            id.setIdType(EnumMessageFormat.BINARY_FILENAME_ID);
+            id.setValue(name);
 
-        message.setRequest(resquest);
+            List<ID> ids = resquest.getIDS();
+            ids.add(id);
+
+            message.setRequest(resquest);
+        }
 
         PayloadType payload = new PayloadType();
         payload.setCompressed(binaryB64.toString());
@@ -423,7 +437,6 @@ public final class MessageUtil {
 
         return response;
     }
-
 
     /**
      * Validates against schema the given IEC 61968-100 message.
