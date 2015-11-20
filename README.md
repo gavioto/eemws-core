@@ -16,7 +16,7 @@ Please use maven 3.x and java 7.x in order to compile.
 **News**
 
 * **20-11-2015**: New connection kit version (1.0-m10) with small fixes [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0-m10.jar) (see Downloads section). Make it easier to use compressed payloads. Various Magic Folder fixes
-* **20-11-2015**: New user's manual version (1.2) [available](https://bitbucket.org/smree/eemws-core/downloads/user's%20manual%20v1.2.pdf)
+* **20-11-2015**: New user's manual version (1.2) [available](https://bitbucket.org/smree/eemws-core/downloads/user's%20manual%20v.1.2.pdf)
 * **21-10-2015**: New connection kit version (1.0-m9) with small fixes and use of SHA-256 for digest and signing messages instead of deprecated SHA-1 available (see Downloads section).
 * **21-10-2015**: Use SHA-256 for digest and signing messages instead of deprecated SHA-1.
 * **14-10-2015**: User's manual review available.
