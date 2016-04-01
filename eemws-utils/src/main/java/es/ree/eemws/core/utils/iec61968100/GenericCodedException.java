@@ -31,7 +31,10 @@ package es.ree.eemws.core.utils.iec61968100;
 public class GenericCodedException extends Exception {
 
     /** Serial ID. */
-    private static final long serialVersionUID = 6627907085138612803L;
+    private static final long serialVersionUID = -3529568809081691101L;
+
+    /** In the exception message the following character will be replaced by a detail (context) message. */
+    private static final String PARAMETER_TOKEN = "\\?"; //$NON-NLS-1$
     
     /** Exception code. */
     private final String errCode;
@@ -40,7 +43,6 @@ public class GenericCodedException extends Exception {
      * Creates a new exception with the given message text and code.
      * @param text Message text.
      * @param code Exception code.
-     * @param args List of string
      * @param args Optional arguments for the text error message.
      */
     public GenericCodedException(final String text, final String code, final String ... args) {
@@ -58,6 +60,16 @@ public class GenericCodedException extends Exception {
     public GenericCodedException(final String text, final String code, final Exception exCause, final String ... args) {
         super(handleParameters(text, args), exCause);
         errCode = code;
+    }
+    
+    /**
+     * Creates a new exception given other exception.
+     * This method is usefull to "copy" exception values from one type of CodedException to other.
+     * @param other Other exception which code and message will be used by this exception.
+     */
+    public GenericCodedException(final GenericCodedException other) {
+        super(other.getMessage(), other.getCause());
+        errCode = other.errCode;
     }
 
     /**
@@ -77,7 +89,7 @@ public class GenericCodedException extends Exception {
     private static String handleParameters(final String errMsg, final String ... args) {
         String text = errMsg;
         for (String str : args) {
-            text = text.replaceFirst("\\?", str);
+            text = text.replaceFirst(PARAMETER_TOKEN, str);
         }
         return text;
     }

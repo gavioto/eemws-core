@@ -29,7 +29,10 @@ package es.ree.eemws.core.utils.iec61968100;
  */
 public enum EnumMessageStatus {
     
+    /** Status OK. */
     OK("OK"),  //$NON-NLS-1$
+    
+    /** Status FAILED. */
     FAILED("FAILED"); //$NON-NLS-1$
     
     /** Tag name (element) of the "Result" in IEC 61968-100. */
@@ -38,8 +41,10 @@ public enum EnumMessageStatus {
     /** Message status text. */
     private String status;
     
-    /** Creates a new message status with the given text. */
-    private EnumMessageStatus(final String str) {
+    /** Creates a new message status with the given text. 
+     * @param str Text associated to this status.
+     */
+    EnumMessageStatus(final String str) {
 
         status = str;
     }

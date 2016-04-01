@@ -29,13 +29,23 @@ package es.ree.eemws.core.utils.iec61968100;
  */
 public enum EnumNoun {
 
-    ANY("Any"),  
-    MESSAGE_LIST("MessageList"),  
-    QUERY_DATA("QueryData"), 
-    COMPRESSED("Compressed"); 
+    /** ANY noun for get and put operations. */
+    ANY("Any"),   //$NON-NLS-1$
+    
+    /** MessageList noun for list operation. */
+    MESSAGE_LIST("MessageList"),   //$NON-NLS-1$
+    
+    /** QueryData noun for query operation. */
+    QUERY_DATA("QueryData"),  //$NON-NLS-1$
+    
+    /** Compressed noun for binary (or xml compressed) put and get operations. */
+    COMPRESSED("Compressed"),  //$NON-NLS-1$
 
+    /** Empty response noun. */
+    EMPTY("");  //$NON-NLS-1$
+    
     /** Tag name (element) of the "Noun" in IEC 61968-100. */
-    public static final String ELEMENT_NOUN = "Noun"; 
+    public static final String ELEMENT_NOUN = "Noun";  //$NON-NLS-1$
 
     /** Noun as string. */
     private String nounStr;

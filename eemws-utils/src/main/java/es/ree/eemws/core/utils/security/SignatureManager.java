@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Eléctrica de España, S.A.U.
+ * Copyright 2015 Red Eléctrica de España, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -68,7 +68,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import es.ree.eemws.core.utils.messages.Messages;
+import es.ree.eemws.core.utils.i18n.Messages;
 import es.ree.eemws.core.utils.security.SignatureVerificationException.SignatureVerificationExceptionDetails;
 import es.ree.eemws.core.utils.xml.XMLUtil;
 
@@ -99,7 +99,7 @@ public final class SignatureManager {
     private static final String CANONICALIZATION_METHOD = CanonicalizationMethod.INCLUSIVE;
     
     /** Name of the system property to be set in order to to use SHA1 algorithm for digest and signature. */
-    private static final String USE_LEGACY_SHA1_SYSTEM_FLAG = "USE_LEGACY_SHA1";
+    private static final String USE_LEGACY_SHA1_SYSTEM_FLAG = "USE_LEGACY_SHA1"; //$NON-NLS-1$
 
     /** Signature method. */
     private static final String SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"; //$NON-NLS-1$
@@ -147,9 +147,10 @@ public final class SignatureManager {
      * @param msgAsString The document to be validated.
      * @return X509 Key used in signature. <code>null</code> if other kind of certificate was used (RSA, DSA).
      * @throws SignatureVerificationException If the document cannot be validated or if its signature is invalid.
+     * @throws SignatureSyntaxException If the given signature has an invalid structure (syntaxis)
      * @see #verifyString(StringBuilder)
      */
-    public static X509Certificate verifyString(final StringBuilder msgAsString) throws SignatureVerificationException {
+    public static X509Certificate verifyString(final StringBuilder msgAsString) throws SignatureVerificationException, SignatureSyntaxException {
 
         try {
 
@@ -166,9 +167,10 @@ public final class SignatureManager {
      * @param msgAsDocument The document to be validated.
      * @return X509 Key used in signature. <code>null</code> if other kind of certificate was used (RSA, DSA).
      * @throws SignatureVerificationException If the document cannot be validated or if its signature is invalid.
+     * @throws SignatureSyntaxException If the given signature has an invalid structure (syntaxis)
      * @see #verifyString(StringBuilder)
      */
-    public static X509Certificate verifyDocument(final Document msgAsDocument) throws SignatureVerificationException {
+    public static X509Certificate verifyDocument(final Document msgAsDocument) throws SignatureVerificationException, SignatureSyntaxException {
 
         X509Certificate x509 = null;
         try {
@@ -234,10 +236,15 @@ public final class SignatureManager {
                 throw sve;
             }
 
-        } catch (XMLSignatureException | MarshalException | NumberFormatException e) {
-
+        } catch (XMLSignatureException e) {
+            
             throw new SignatureVerificationException(Messages.getString("SECURITY_UNABLE_TO_VERIFY"), e); //$NON-NLS-1$
-        } 
+        
+        } catch (MarshalException | NumberFormatException e) {
+
+            throw new SignatureSyntaxException(Messages.getString("SECURITY_SIGNATURE_SYNTAX_ERROR"), e); //$NON-NLS-1$
+        }
+        
 
         return x509;
     }
@@ -451,7 +458,8 @@ public final class SignatureManager {
 
         } catch (MarshalException | XMLSignatureException e) {
 
-            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT_CANNOT_SIGN")); //$NON-NLS-1$
+            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT_CANNOT_SIGN"), e); //$NON-NLS-1$
         }
     }
+    
 }
