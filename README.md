@@ -15,11 +15,12 @@ Please use maven 3.x and java 7.x in order to compile.
 
 **News**
 
-* **2016-03-28**: Check any IEC 62325-504 implementation with [this SoapUI project](https://bitbucket.org/smree/eemws-core/downloads/IEC-62535-504-soapui-project.xml) and [this document guide!](https://bitbucket.org/smree/eemws-core/downloads/IEC%2062325-504%20Test%20Cases.pdf)
-* **2016-03-25**: New document explaining [security aspects](https://bitbucket.org/smree/eemws-core/downloads/Understanding%20security%20in%20communications%20with%20IEC%2062325-504.pdf)
-* **2016-03-24**: New user's manual version (1.3) [available](https://bitbucket.org/smree/eemws-core/downloads/Connection%20Kit%20User's%20manual%20v.1.3.pdf)
-* **20-11-2015**: New connection kit version (1.0-m10) with small fixes [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0-m10.jar) (see Downloads section). Make it easier to use compressed payloads. Various Magic Folder fixes
-* **20-11-2015**: New user's manual version (1.2) [available](https://bitbucket.org/smree/eemws-core/downloads/user's%20manual%20v.1.2.pdf)
+* **01-04-2016**: New connection kit version (1.0-m11) [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0-m11.jar). Magic Folder now can deal with several input / output folders and can execute scripts / programs as well.
+* **28-03-2016**: Check any IEC 62325-504 implementation with [this SoapUI project](https://bitbucket.org/smree/eemws-core/downloads/IEC-62535-504-soapui-project.xml) and [this document guide!](https://bitbucket.org/smree/eemws-core/downloads/IEC%2062325-504%20Test%20Cases.pdf)
+* **25-03-2016**: New document explaining [security aspects](https://bitbucket.org/smree/eemws-core/downloads/Understanding%20security%20in%20communications%20with%20IEC%2062325-504.pdf)
+* **24-03-2016**: New user's manual version (1.3) [available](https://bitbucket.org/smree/eemws-core/downloads/Connection%20Kit%20User's%20manual%20v.1.3.pdf)
+* **20-11-2015**: New connection kit version (1.0-m10) with small fixes. Make it easier to use compressed payloads. Various Magic Folder fixes
+* **20-11-2015**: New user's manual version (1.2)
 * **21-10-2015**: New connection kit version (1.0-m9) with small fixes and use of SHA-256 for digest and signing messages instead of deprecated SHA-1 available (see Downloads section).
 * **14-10-2015**: User's manual review available.
 * **29-07-2015**: New connection kit version (1.0-m8) with small fixes.
