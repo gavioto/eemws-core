@@ -70,9 +70,18 @@ public final class SignatureVerificationException extends SignatureManagerExcept
 
         return details;
     }
+    
+    /**
+     * Returns an string expresion of this exception.
+     * @return String expresion of this exception.
+     */
+    @Override
+    public String toString() {
+        return super.toString() + " " + details.toString(); //$NON-NLS-1$
+    }
 
     /**
-     * Keeps detail information about the signature's references
+     * Keeps detail information about the signature's references.
      */
     public final class ReferenceStatus {
 
@@ -91,7 +100,7 @@ public final class SignatureVerificationException extends SignatureManagerExcept
          * @param calcu Expected digest value.
          * @param prov Calculated digest value.
          */
-        public ReferenceStatus(Boolean refV, String calcu, String prov) {
+        public ReferenceStatus(final Boolean refV, final String calcu, final String prov) {
             refValid = refV;
             calculatedDigestValue = calcu;
             providedDigestValue = prov;
@@ -136,7 +145,7 @@ public final class SignatureVerificationException extends SignatureManagerExcept
         private X509Certificate signatureCertificate = null;
 
         /** Status of the document's reference. */
-        private List<ReferenceStatus> references = new ArrayList<ReferenceStatus>();
+        private List<ReferenceStatus> references = new ArrayList<>();
 
         @Override
         public String toString() {
@@ -170,7 +179,7 @@ public final class SignatureVerificationException extends SignatureManagerExcept
          * Includes the given certificate to this exception detail.
          * @param x509Cert Certificate used for signature.
          */
-        public void setSignatureCertificate(X509Certificate x509Cert) {
+        public void setSignatureCertificate(final X509Certificate x509Cert) {
             signatureCertificate = x509Cert;
         }
 
@@ -204,10 +213,12 @@ public final class SignatureVerificationException extends SignatureManagerExcept
 
         /**
          * Sets the reference status.
-         * @param ref Reference value <code>true</code> if the reference is ok.
+         * @param refValid Reference value <code>true</code> if the reference is ok.
+         * @param calculated Calculated hash.
+         * @param provided Provided hash.
          * <code>false</code> otherwise.
          */
-        public void addReferenceStatus(Boolean refValid, String calculated, String provided) {
+        public void addReferenceStatus(final Boolean refValid, final String calculated, final String provided) {
 
             references.add(new ReferenceStatus(refValid, calculated, provided));
         }

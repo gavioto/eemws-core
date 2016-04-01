@@ -31,15 +31,34 @@ package es.ree.eemws.core.utils.iec61968100;
 
 public enum EnumFilterElement {
 
+    /** StartTime filter. */
     START_TIME("StartTime"),  //$NON-NLS-1$
+    
+    /** EndTime filter. */
     END_TIME("EndTime"),  //$NON-NLS-1$
+    
+    /** Code filter. */
     CODE("Code"),  //$NON-NLS-1$
+    
+    /** Interval type filter. */
     INTERVAL_TYPE("IntervalType"),  //$NON-NLS-1$
+    
+    /** Data type filter. */
     DATA_TYPE("DataType"),  //$NON-NLS-1$
+    
+    /** Owner filter. */
     OWNER("Owner"),  //$NON-NLS-1$
+    
+    /** Message identification filter. */
     MESSAGE_IDENTIFICATION("MessageIdentification"),  //$NON-NLS-1$
+    
+    /** Message version filter. */
     MESSAGE_VERSION("MessageVersion"), //$NON-NLS-1$
+    
+    /** Message type filter.*/
     MESSAGE_TYPE("MsgType"),  //$NON-NLS-1$
+    
+    /** Queue filter. */
     QUEUE("Queue"); //$NON-NLS-1$
 
     /** Filter text. */

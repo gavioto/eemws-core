@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Eléctrica de España, S.A.U.
+ * Copyright 2015 Red Eléctrica de España, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -99,7 +99,7 @@ public final class SignatureManager {
     private static final String CANONICALIZATION_METHOD = CanonicalizationMethod.INCLUSIVE;
     
     /** Name of the system property to be set in order to to use SHA1 algorithm for digest and signature. */
-    private static final String USE_LEGACY_SHA1_SYSTEM_FLAG = "USE_LEGACY_SHA1";
+    private static final String USE_LEGACY_SHA1_SYSTEM_FLAG = "USE_LEGACY_SHA1"; //$NON-NLS-1$
 
     /** Signature method. */
     private static final String SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"; //$NON-NLS-1$
@@ -458,7 +458,8 @@ public final class SignatureManager {
 
         } catch (MarshalException | XMLSignatureException e) {
 
-            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT_CANNOT_SIGN")); //$NON-NLS-1$
+            throw new SignatureManagerException(Messages.getString("SECURITY_INVALID_DOCUMENT_CANNOT_SIGN"), e); //$NON-NLS-1$
         }
     }
+    
 }

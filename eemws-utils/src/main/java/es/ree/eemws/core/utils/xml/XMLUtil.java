@@ -20,13 +20,17 @@
  */
 package es.ree.eemws.core.utils.xml;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -132,7 +136,6 @@ public final class XMLUtil {
             String finalToken = EMPTY;
 
             if (pos1 == -1 && pos2 == -1) {
-                retValue = null;
                 pos = totLen;
             } else {
 
@@ -305,9 +308,8 @@ public final class XMLUtil {
                 output.append(tab);
             }
 
-        } catch (IndexOutOfBoundsException e) {
-
-            /* The input string is not an XML. */
+        } catch (IndexOutOfBoundsException e) { // NOSONAR The input string is not an XML
+            
             output.setLength(0);
             output.append(whatToPretty);
         }
@@ -473,7 +475,7 @@ public final class XMLUtil {
                 prefix = tag.substring(tag.indexOf(START_TAG) + 1, tag.indexOf(COLON));
             }
 
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) { // NOSONAR Do not throw exception, there is no prefix
 
             prefix = null;
         }
@@ -595,11 +597,32 @@ public final class XMLUtil {
                 targetNamespace = subXml.substring(posIni, posFin);
             }
 
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) { // NOSONAR Do not throw exception, tns is null
 
             targetNamespace = null;
         }
 
         return targetNamespace;
+    }
+    
+    
+    /**
+     * Transforms a SOAP message into a String.
+     * @param message SOAP message.
+     * @return String with the content of the SOAP message.
+     * @throws SOAPException Exception transform the message.
+     */
+    public static String soapMessage2String(final SOAPMessage message) throws SOAPException {
+
+        try {
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            message.writeTo(baos);
+            return baos.toString(StandardCharsets.UTF_8.name()); 
+
+        } catch (IOException e) {
+
+            throw new SOAPException(Messages.getString("SOAP_UNABLE_TO_TRANSFORM"), e); //$NON-NLS-1$
+        }
     }
 }

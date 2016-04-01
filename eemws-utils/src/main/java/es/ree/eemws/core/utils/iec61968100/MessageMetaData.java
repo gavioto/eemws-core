@@ -58,7 +58,7 @@ public final class MessageMetaData implements Serializable {
     private String owner = null;
     
     /** List of user's roles. */
-    private List<String> userRoles = new ArrayList<String>();
+    private List<String> userRoles = new ArrayList<>();
 
     /** Message code (when it's stored). */
     private Long msgCode = null;
@@ -96,7 +96,7 @@ public final class MessageMetaData implements Serializable {
     
     /**
      * Sets current message's data owner.
-     * @own Current message's data owner.
+     * @param own Current message's data owner.
      */    
     public void setOwner(final String own) {
         owner = own;
@@ -201,7 +201,7 @@ public final class MessageMetaData implements Serializable {
 
     /**
      * Sets the code of the message when it is stored.
-     * @return Code of the message.
+     * @param inCode Message's code.
      */
     public void setCode(final Long inCode) {
         msgCode = inCode;
@@ -226,8 +226,8 @@ public final class MessageMetaData implements Serializable {
     }
 
     /**
-     * Sets an exception caused during the processing of this message
-     * @param ex Exception caused during the processing of this message
+     * Sets an exception caused during the processing of this message.
+     * @param ex Exception caused during the processing of this message.
      */
     public void setException(final GenericCodedException ex) {
         if (ex != null) {
@@ -238,7 +238,7 @@ public final class MessageMetaData implements Serializable {
 
     /**
      * Gets an exception caused during the processing of this message.
-     * @returns Exception caused during the processing of this message
+     * @return Exception caused during the processing of this message
      */
     public GenericCodedException getException() {
         return exception;
@@ -303,7 +303,7 @@ public final class MessageMetaData implements Serializable {
     /**
      * Sets if the message must be ignored. For instance if the server receives a message whose owner it's not the one associated with the received certificate.
      * Ignored messages are not stored with the rest. 
-     * @param rej <code>true</code> if the message must be ignored. <code>false</code> otherwise. 
+     * @param ign <code>true</code> if the message must be ignored. <code>false</code> otherwise. 
      */
     public void setIgnorable(final boolean ign) {
         if (ign) {

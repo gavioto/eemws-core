@@ -212,7 +212,7 @@ public final class XMLElementUtil {
      * @return JAXBContext for the given class.
      * @throws JAXBException if cannot create an instance for the given class
      */
-    private static JAXBContext getJAXBContext(Class<?> classType) throws JAXBException {
+    private static JAXBContext getJAXBContext(final Class<?> classType) throws JAXBException {
         JAXBContext jaxbContext = JAXB_CONTEXT_CACHE.get(classType);
         if (jaxbContext == null) {
             jaxbContext = JAXBContext.newInstance(classType);

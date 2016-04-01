@@ -30,13 +30,13 @@ package es.ree.eemws.core.utils.iec61968100;
 
 public enum EnumDataTypeValues {
 
-    /* The server will return a list of valid DataTypes that can be used for this service on this server. */
+    /** The server will return a list of valid DataTypes that can be used for this service on this server. */
     LIST_OF_DATA_TYPES("listOfDataTypes"), //$NON-NLS-1$
 
-    /* The server will return the Server Timestamp in UTC format */
+    /** The server will return the Server Timestamp in UTC format. */
     SERVER_TIME_STAMP("serverTimestamp"), //$NON-NLS-1$
 
-    /* The server will return its operational limits for parameters used in the List, Get, Put services. */
+    /** The server will return its operational limits for parameters used in the List, Get, Put services. */
     PARAMETER_LIMITS("parameterLimits"); //$NON-NLS-1$
 
     /** String used to separate values in the list view. */
