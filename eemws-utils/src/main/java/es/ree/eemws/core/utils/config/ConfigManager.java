@@ -33,7 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import es.ree.eemws.core.utils.file.FileUtil;
-import es.ree.eemws.core.utils.messages.Messages;
+import es.ree.eemws.core.utils.i18n.Messages;
 import es.ree.eemws.core.utils.security.CryptoException;
 import es.ree.eemws.core.utils.security.CryptoManager;
 

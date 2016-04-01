@@ -30,10 +30,10 @@ package es.ree.eemws.core.utils.iec61968100;
 
 public enum EnumIntervalTimeType {
 
-    /* Application time interval */
+    /** Application time interval. */
     APPLICATION("Application"), //$NON-NLS-1$
 
-    /* Server timestamp time interval. */
+    /** Server timestamp time interval. */
     SERVER("Server"); //$NON-NLS-1$
 
     /** Default interval type. */
@@ -49,7 +49,7 @@ public enum EnumIntervalTimeType {
      * Private constructor. Sets the text code.
      * @param txt Text code to use.
      */
-    private EnumIntervalTimeType(final String txt) {
+    EnumIntervalTimeType(final String txt) {
         text = txt;
     }
 

@@ -30,49 +30,57 @@ package es.ree.eemws.core.utils.iec61968100;
 
 public enum EnumParameterLimit {
 
-    /* Maximum number of messages that will be returned in a list operation response. */
+    /** Maximum number of messages that will be returned in a list operation response. */
     MAX_NUM_MESSAGES_IN_LIST_RESPONSE("MaxNumMessagesInListResponse"), //$NON-NLS-1$
 
-    /*
+    /**
      * Number of days that are guarantee to be included in the response list when the request has used a small code
      * value (typically 0). According to this specification, the default value for this parameter limit is 1 (all
      * messages available from 00:00 of D-1).
      */
     NUMBER_OF_DAYS_FOR_LOW_CODE_IN_LIST_RESPONSE("NumberOfDaysForLowCodeInListResponse"), //$NON-NLS-1$
 
-    /* Maximum number of days that a request for Application time interval type can span. */
+    /** Maximum number of days that a request for Application time interval type can span. */
     MAX_APPLICATION_TIME_INTERVAL_IN_DAYS_IN_LIST_REQUEST("MaxApplicationTimeIntervalInDaysInListRequest"), //$NON-NLS-1$
 
-    /* Maximum number of days that a request for Server time interval type can span. */
+    /** Maximum number of days that a request for Server time interval type can span. */
     MAX_SERVER_TIME_INTERVAL_IN_DAYS_IN_LIST_REQUEST("MaxServerTimeIntervalInDaysInListRequest"), //$NON-NLS-1$
 
-    /* Maximum size, in Megabytes, that message payload content can have. Messages with bigger size will be rejected. */
+    /** Maximum size, in Megabytes, that message payload content can have. Messages with bigger size will be rejected. */
     MAX_PAYLOAD_SIZE_IN_MB_IN_PUT_REQUEST("MaxPayloadSizeInMBInPutRequest"), //$NON-NLS-1$
 
-    /* Number of Get operations per minute that a user can execute. */
+    /** Number of Get operations per minute that a user can execute. */
     MAX_GET_REQUEST_PER_MINUTE("MaxGetRequestPerMinute"), //$NON-NLS-1$
 
-    /* Number of Put operations per minute that a user can execute. */
+    /** Number of Put operations per minute that a user can execute. */
     MAX_PUT_REQUEST_PER_MINUTE("MaxPutRequestPerMinute"), //$NON-NLS-1$
 
-    /* Number of List operations per minute that a user can execute. */
+    /** Number of List operations per minute that a user can execute. */
     MAX_LIST_REQUEST_PER_MINUTE("MaxListRequestPerMinute"), //$NON-NLS-1$
 
-    /* Number of Query Data operations per minute that a user can execute. */
+    /** Number of Query Data operations per minute that a user can execute. */
     MAX_QUERY_REQUEST_PER_MINUTE("MaxQueryRequestPerMinute"), //$NON-NLS-1$
 
-    /* Max number of days that a message will be accessible by this specification operations. */
+    /** Max number of days that a message will be accessible by this specification operations. */
     MAX_MESSAGE_AGE_IN_DAYS("MaxMessageAgeInDays"), //$NON-NLS-1$
     
-    /* Xml messages will be transmited as binary if their size is bigger than the one configured. */
-    GET_XML_AS_BINARY_THRESHOLD_IN_KB("GetXmlAsBinaryThresholdInKb"), //$NON-NLS-1$
-    
-    /*
+    /**
      * If set, the server will reject messages that do not meet the following criteria: CT - ST + MD >= 0 Being CT the
      * current server time, ST the msg:serverTimestamp indicated in the request message and MD this parameter value.
      */
-    MAX_DIFF_SERVER_TIMESTAMP_IN_SECONDS("MaxDiffServerTimestampInSeconds"); //$NON-NLS-1$
-
+    MAX_DIFF_SERVER_TIMESTAMP_IN_SECONDS("MaxDiffServerTimestampInSeconds"), //$NON-NLS-1$
+    
+    /* From this point on NOT 62325-504 limits: */
+    
+    /** Xml messages will be transmited as binary if their size is bigger than the one configured. */
+    GET_XML_AS_BINARY_THRESHOLD_IN_KB("GetXmlAsBinaryThresholdInKb"), //$NON-NLS-1$
+        
+    /** Number of times that a client can "GET" certain message. */ 
+    MAX_GET_REQUESTS_PER_MESSAGE("MaxGetRequestsPerMessage"), //$NON-NLS-1$ 
+    
+    /** (Client limit) Max payload size (in Mb) that the get response can retrieve. */
+    MAX_PAYLOAD_SIZE_IN_MB_IN_GET_RESPONSE("MaxPayloadSizeInMBInGetResponse"); //$NON-NLS-1$ 
+    
     /** Parameter as a text. */
     private String parameterText;
 

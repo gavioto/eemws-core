@@ -31,9 +31,8 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.xml.sax.SAXException;
 
 import _504.iec62325.wss._1._0.MsgFaultMsg;
-import ch.iec.tc57._2011.schema.message.FaultMessage; 
-import es.ree.eemws.core.utils.messages.Messages;
-import es.ree.eemws.core.utils.soap.SOAPUtil;
+import ch.iec.tc57._2011.schema.message.FaultMessage;
+import es.ree.eemws.core.utils.i18n.Messages;
 import es.ree.eemws.core.utils.xml.XMLElementUtil;
 import es.ree.eemws.core.utils.xml.XMLUtil;
 
@@ -48,40 +47,44 @@ public final class StringBuilderMessage {
 
     /** Payload element name. */
     private static final String TAG_MSG_PAYLOAD = "Payload"; //$NON-NLS-1$
-    
+
     /** Format element name. */
     private static final String TAG_MSG_FORMAT = "Format"; //$NON-NLS-1$
-    
+
     /** Format tag end for <n1:Format/>  and <Format/> (empty) cases. */
     private static final String EMPTY_FORMAT_TAG_END = TAG_MSG_FORMAT + "/>"; //$NON-NLS-1$
-    
-    /* <Format>asdf</Format> and  <n1:Format>asdf</n1:Format> */
+
+    /** <Format>asdf</Format> and <n1:Format>asdf</n1:Format>. */
     private static final String NON_EMPTY_FORMAT_TAG_END = TAG_MSG_FORMAT + ">"; //$NON-NLS-1$
-    
+
     /** Fault element name. */
-    private static final String TAG_MSG_FAULT = "FaultMessage";
+    private static final String TAG_MSG_FAULT = "FaultMessage"; //$NON-NLS-1$
 
     /** Fault details element name. */
-    private static final String TAG_DETAILS_FAULT = "details";
+    private static final String TAG_DETAILS_FAULT = "details"; //$NON-NLS-1$
 
     /** Reduce the payload in order to search string without memory waste. */
     private static final int MAX_LENGTH_TEST = 100;
 
     /** XML start tag character. */
-    private static final int START_TAG_CHAR = '<'; 
-    
+    private static final int START_TAG_CHAR = '<';
+
+    /** Soap body tag. */
+    private static final String SOAP_BODY_TAG = "Body"; //$NON-NLS-1$
+
     /**  IEC-61968-100 message a string. */
     private StringBuilder messageStr = null;
 
     /**
      * Creates a new message from the soap message context.
+     * @param context Soap message context.
      * @throws SOAPException If it's not possible to transform the incoming message into a string.
      */
     public StringBuilderMessage(final SOAPMessageContext context) throws SOAPException {
         try {
-            messageStr = new StringBuilder(XMLUtil.getNodeValue(SOAPUtil.SOAP_BODY_TAG, new StringBuilder(SOAPUtil.soapMessage2String(context.getMessage()))));
+            messageStr = new StringBuilder(XMLUtil.getNodeValue(SOAP_BODY_TAG, new StringBuilder(XMLUtil.soapMessage2String(context.getMessage()))));
         } catch (NullPointerException e) {
-            throw new SOAPException(Messages.getString("IEC_UNABLE_TO_RETRIEVE_FROM_CONTEXT"));   //$NON-NLS-1$
+            throw new SOAPException(Messages.getString("IEC_UNABLE_TO_RETRIEVE_FROM_CONTEXT"), e); //$NON-NLS-1$
         }
     }
 
@@ -89,10 +92,10 @@ public final class StringBuilderMessage {
      * Creates an empty string builder message.
      */
     public StringBuilderMessage() {
-        
+
         /* This constructor must be empty. */
     }
-    
+
     /**
      * Sets this StringBuilder content with the content of other message. 
      * @param anotherMessage Other StringBuilder context.
@@ -100,8 +103,7 @@ public final class StringBuilderMessage {
     public void setStringMessage(final StringBuilderMessage anotherMessage) {
         messageStr = anotherMessage.getStringMessage();
     }
-    
-    
+
     /**
      * Returns the current IEC-61968-100 message as a String.
      * @return Current IEC-61968-100 message as a String.
@@ -117,7 +119,7 @@ public final class StringBuilderMessage {
     public String getNoun() {
         return getElement(EnumNoun.ELEMENT_NOUN);
     }
-    
+
     /**
      * Returns this message header verb.<code>null</code> if there is no valid verb in the header.
      * @return Message header verb.
@@ -125,7 +127,7 @@ public final class StringBuilderMessage {
     public String getVerb() {
         return getElement(EnumVerb.ELEMENT_VERB);
     }
-    
+
     /**
      * Returns the node value of the given element.
      * @param elementName Element (tag) name which value we want to retrieve.
@@ -136,7 +138,7 @@ public final class StringBuilderMessage {
         String retValue = null;
         if (messageStr != null) {
             retValue = XMLUtil.getNodeValue(elementName, messageStr);
-            
+
         }
 
         return retValue;
@@ -144,27 +146,30 @@ public final class StringBuilderMessage {
 
     /**
      * Returns the current IEC-61968-100 message without payload.
-     * @return Current IEC-61968-100 message without payload. <code>null</code> 
-     * if the current message is null.
+     * @return Current IEC-61968-100 message without payload. 
+     * <code>null</code> if the current message is null.
      * @see #getStringPayLoad(StringBuilder)
      */
     public String getStringMessageNoPayload() {
-        String retValue;
-        if (messageStr == null) {
-            retValue = null;
-        } else {
+        String retValue = null;
+        
+        if (messageStr != null) {
             String payLoad = getPayload();
-            int pos = messageStr.indexOf(payLoad);
-            if (pos == -1) {
+            if (payLoad == null) {
                 retValue = messageStr.toString();
             } else {
-                retValue = messageStr.substring(0, pos) + messageStr.substring(pos + payLoad.length()); 
+                int pos = messageStr.indexOf(payLoad);
+                if (pos == -1) {
+                    retValue = messageStr.toString();
+                } else {
+                    retValue = messageStr.substring(0, pos) + messageStr.substring(pos + payLoad.length());
+                }
             }
         }
-        
+
         return retValue;
     }
-    
+
     /**
      * Returns this message's payload. Note that for a Fault messages {@link #getFault()} must be used.
      * Note that the Format element (if present) is not returned.
@@ -172,30 +177,32 @@ public final class StringBuilderMessage {
      */
     public String getPayload() {
         String payL = getElement(TAG_MSG_PAYLOAD);
-        
-        
-        String testStr;
-        int payLen = payL.length();
-        if (payLen > MAX_LENGTH_TEST) {
-            testStr = payL.substring(payLen - MAX_LENGTH_TEST, payLen).trim();
-        } else {
-            testStr = payL.trim();
-        }
-        
-        if (testStr.endsWith(EMPTY_FORMAT_TAG_END)) {
-            payL = payL.substring(0, payL.lastIndexOf(START_TAG_CHAR));
-        } else if (testStr.endsWith(NON_EMPTY_FORMAT_TAG_END)) {
-            int k = payL.lastIndexOf(START_TAG_CHAR) - 1;
-            while (payL.charAt(k) != START_TAG_CHAR && k > 0) {
-                k--;
+
+        if (payL != null) {
+
+            String testStr;
+            int payLen = payL.length();
+            if (payLen > MAX_LENGTH_TEST) {
+                testStr = payL.substring(payLen - MAX_LENGTH_TEST, payLen).trim();
+            } else {
+                testStr = payL.trim();
             }
-            
-            payL = payL.substring(0, k);
+
+            if (testStr.endsWith(EMPTY_FORMAT_TAG_END)) {
+                payL = payL.substring(0, payL.lastIndexOf(START_TAG_CHAR));
+            } else if (testStr.endsWith(NON_EMPTY_FORMAT_TAG_END)) {
+                int k = payL.lastIndexOf(START_TAG_CHAR) - 1;
+                while (payL.charAt(k) != START_TAG_CHAR && k > 0) {
+                    k--;
+                }
+
+                payL = payL.substring(0, k);
+            }
         }
-      
+
         return payL;
     }
-    
+
     /**
      * Returns this message Fault as a Fault object.  
      * @return <code>null</code> if the message is empty or if it is not a Fault message. A <code>MsgFaultMsg</code>
@@ -203,25 +210,26 @@ public final class StringBuilderMessage {
      */
     public MsgFaultMsg getFault() {
         MsgFaultMsg retValue = null;
-        
+
         if (messageStr != null) {
-            try {                
+            try {
                 FaultMessage fm = (FaultMessage) XMLElementUtil.element2Obj(XMLElementUtil.string2Element(XMLUtil.getNodeValue(TAG_MSG_FAULT, messageStr)), FaultMessage.class);
-                
+
                 String msg = XMLUtil.getNodeValue(TAG_DETAILS_FAULT, messageStr);
                 if (msg == null) {
-                    msg = "";
+                    msg = ""; //$NON-NLS-1$
                 }
-                
+
                 retValue = new MsgFaultMsg(msg, fm);
-            } catch (JAXBException | ParserConfigurationException | SAXException | IOException e) {
                 
+            } catch (JAXBException | ParserConfigurationException | SAXException | IOException e) { // NOSONAR If the current document is not a Fault we don't mind the exception
+
                 /* The current document is not a Fault. */
                 retValue = null;
             }
         }
-        
-        return retValue;        
+
+        return retValue;
     }
 
     /**
@@ -229,14 +237,14 @@ public final class StringBuilderMessage {
      * @return This message's status value. <code>null</code> if the message is empty or has no status.
      */
     public EnumMessageStatus getStatus() {
-                
+
         EnumMessageStatus retValue = null;
         String result = getElement(EnumMessageStatus.ELEMENT_RESULT);
         if (result != null) {
             retValue = EnumMessageStatus.fromString(result);
         }
 
-        return retValue;        
+        return retValue;
     }
- 
+
 }

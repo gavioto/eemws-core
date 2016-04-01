@@ -31,7 +31,7 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import es.ree.eemws.core.utils.messages.Messages;
+import es.ree.eemws.core.utils.i18n.Messages;
 
 /**
  * Representation for W3C XML Schema 1.0 date/time datatypes.
@@ -45,7 +45,7 @@ public final class XMLGregorianCalendarFactory {
     private static final String ERR_MSG = Messages.getString("XML_GREGORIAN_CALENDAR"); //$NON-NLS-1$
     
     /** Date format for string date values. */
-    private static final String Z_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    private static final String Z_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"; //$NON-NLS-1$
     
     /**
      * Constructor.
@@ -92,6 +92,7 @@ public final class XMLGregorianCalendarFactory {
      * Gets an instance of a XMLGregorianCalendar with date values given by the string parameter.
      * @param date String with the format yyyy-MM-dd'T'HH:mm:ss'Z'
      * @return XMLGregorianCalendar with date values given by the parameter.
+     * @throws ParseException if the given string does not prepresent a valid date (has an invalid format).
      */
     public static XMLGregorianCalendar getInstance(final String date) throws ParseException {
         

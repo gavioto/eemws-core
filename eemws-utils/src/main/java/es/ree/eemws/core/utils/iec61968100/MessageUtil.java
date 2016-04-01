@@ -56,7 +56,7 @@ import ch.iec.tc57._2011.schema.message.RequestType;
 import ch.iec.tc57._2011.schema.message.RequestType.ID;
 import ch.iec.tc57._2011.schema.message.ResponseMessage;
 import es.ree.eemws.core.utils.file.GZIPUtil;
-import es.ree.eemws.core.utils.messages.Messages;
+import es.ree.eemws.core.utils.i18n.Messages;
 import es.ree.eemws.core.utils.xml.XMLElementUtil;
 import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
 
@@ -69,7 +69,7 @@ import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
 public final class MessageUtil {
 
     /** IEC 61968-100 schema file (it's included in <code>core.jar</code>. */
-    private static final String IEC_61968_100_SCHEMA_FILE = "http-iec-ch-TC57-2011-schema-message.xsd";
+    private static final String IEC_61968_100_SCHEMA_FILE = "http-iec-ch-TC57-2011-schema-message.xsd"; //$NON-NLS-1$
 
     /**
      * Constructor. Utility classes should not have a public constructor.
@@ -80,8 +80,8 @@ public final class MessageUtil {
     }
 
     /**
-     * This method creates a request message with the given options.
-     * @param verb Rquest verb
+     * Creates a request message with the given options.
+     * @param verb Request verb
      * @param noun Request noun
      * @param options Options to be included in the request.
      * @return Request message.
@@ -91,8 +91,8 @@ public final class MessageUtil {
     }
 
     /**
-     * This method creates a request message with the given options.
-     * @param verb Rquest verb
+     * Creates a request message with the given options.
+     * @param verb Request verb
      * @param noun Request noun
      * @param options Options to be included in the request.
      * @return Request message.
@@ -164,66 +164,81 @@ public final class MessageUtil {
      */
     private static Map<String, Object> getInternalRequestMessageOptions(final RequestMessage message, final boolean allowInvalidValues) {
 
+        Map<String, Object> retValue = new HashMap<>();
+
         boolean stopIfError = !allowInvalidValues;
-        List<OptionType> requestOption = message.getRequest().getOptions();
-        Map<String, Object> map = new HashMap<String, Object>();
 
-        XMLGregorianCalendar time;
+        RequestType msgRequest = message.getRequest();
 
-        String startElementStr = EnumFilterElement.START_TIME.toString();
-        String endElementStr = EnumFilterElement.END_TIME.toString();
+        if (msgRequest == null) {
+            if (stopIfError) {
+                throw new IllegalArgumentException(Messages.getString("REQUEST_MESSAGE_HAS_NO_REQUEST")); //$NON-NLS-1$
+            }
+        } else {
 
-        time = message.getRequest().getStartTime();
-        if (time != null) {
-            map.put(startElementStr, time);
-        }
+            XMLGregorianCalendar time;
 
-        time = message.getRequest().getEndTime();
-        if (time != null) {
-            map.put(endElementStr, time);
-        }
+            String startElementStr = EnumFilterElement.START_TIME.toString();
+            String endElementStr = EnumFilterElement.END_TIME.toString();
 
-        for (OptionType optionType : requestOption) {
+            time = msgRequest.getStartTime();
+            if (time != null) {
+                retValue.put(startElementStr, time);
+            }
 
-            String optName = optionType.getName();
-            Object optValue = optionType.getValue();
-            Object obj = null;
+            time = msgRequest.getEndTime();
+            if (time != null) {
+                retValue.put(endElementStr, time);
+            }
 
-            /*
-             * It's recommended to use the IEC 61968-100 elements where posible. Here we are giving a facility to the
-             * user that could use StartTime and EndTime as Option instead of elements.
-             */
-            if (optName.equals(startElementStr) || optName.equals(endElementStr)) {
-                try {
-                    optValue = XMLGregorianCalendarFactory.getInstance((String) optValue);
-                } catch (ParseException e) {
-                    if (stopIfError) {
-                        throw new IllegalArgumentException(Messages.getString("INVALID_DATE_PARAMETER_VALUE", optName));
+            List<OptionType> msgOptions = msgRequest.getOptions();
+
+            if (msgOptions != null) {
+                for (OptionType optionType : msgOptions) {
+
+                    String optName = optionType.getName();
+                    Object optValue = optionType.getValue();
+                    Object obj = null;
+
+                    /*
+                     * It's recommended to use the IEC 61968-100 elements where posible. Here we are giving a facility
+                     * to the user that could use StartTime and EndTime as Option instead of elements.
+                     */
+                    if (optName.equals(startElementStr) || optName.equals(endElementStr)) {
+                        try {
+                            optValue = XMLGregorianCalendarFactory.getInstance((String) optValue);
+                        } catch (ParseException e) {
+                            if (stopIfError) {
+                                throw new IllegalArgumentException(Messages.getString("INVALID_DATE_PARAMETER_VALUE", optName)); //$NON-NLS-1$
+                            }
+                        }
+                    }
+
+                    obj = retValue.put(optName, optValue);
+
+                    /* If obj is not null, the parameter was already in the map. */
+                    if (obj != null) {
+                        if (stopIfError) {
+                            throw new IllegalArgumentException(Messages.getString("INVALID_PARAMETER_TWICE", optName)); //$NON-NLS-1$
+                        }
+
+                        /* Add repeated option to the output in order to trace the request. */
+                        int cont = 1;
+                        StringBuilder key = new StringBuilder();
+                        key.append(optName).append("(").append(cont).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+                        while (retValue.containsKey(key.toString())) {
+                            cont++;
+                            key.setLength(0);
+                            key.append(optName).append("(").append(cont).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+
+                        retValue.put(key.toString(), obj);
                     }
                 }
             }
-
-            obj = map.put(optName, optValue);
-
-            /* If obj is not null, the parameter was already in the map. */
-            if (obj != null) {
-                if (stopIfError) {
-                    throw new IllegalArgumentException(Messages.getString("INVALID_PARAMETER_TWICE", optName));
-                } else {
-                    int cont = 1;
-                    StringBuilder key = new StringBuilder();
-                    key.append(optName).append("(").append(cont).append(")");
-                    while (map.containsKey(key.toString())) {
-                        cont++;
-                        key.setLength(0);
-                        key.append(optName).append("(").append(cont).append(")");
-                    }
-                    map.put(key.toString(), obj);
-                }
-            }
         }
 
-        return map;
+        return retValue;
     }
 
     /**
@@ -269,7 +284,8 @@ public final class MessageUtil {
      * @throws SAXException If the given payload is not well formed.
      * @throws IOException If it is not possible to read the given xml payload.
      */
-    public static RequestMessage createRequestWithPayload(final String verb, final String noun, final StringBuilder xmlMessage) throws ParserConfigurationException, SAXException, IOException {
+    public static RequestMessage createRequestWithPayload(final String verb, final String noun,
+            final StringBuilder xmlMessage) throws ParserConfigurationException, SAXException, IOException {
 
         RequestMessage message = new RequestMessage();
 
@@ -282,8 +298,8 @@ public final class MessageUtil {
 
         return message;
 
-    }    
-    
+    }
+
     /**
      * Creates a request message with compressed xml message.
      * @param xmlMessage Xml document (payload) to be transmited.
@@ -292,7 +308,7 @@ public final class MessageUtil {
      */
     public static RequestMessage createRequestWithCompressedXmlPayload(final StringBuilder xmlMessage) throws IOException {
         byte[] compressedPayload = GZIPUtil.compress(xmlMessage.toString().getBytes(StandardCharsets.UTF_8));
-        
+
         return createRequestWithBinaryPayload(null, compressedPayload, EnumMessageFormat.XML);
     }
 
@@ -351,29 +367,27 @@ public final class MessageUtil {
 
     /**
      * Creates a <code>ResponseMessage</code> with the given parameters and payload.
-     * @param verb Header verb.
      * @param noun Header noun.
      * @param status Header status
      * @param msgPayload Message payload
      * @return a Response message with payload.
      */
-    public static ResponseMessage createResponseWithPayload(final EnumVerb verb, final EnumNoun noun, final EnumMessageStatus status, final Element msgPayload) {
+    public static ResponseMessage createResponseWithPayload(final EnumNoun noun, final EnumMessageStatus status, final Element msgPayload) {
 
-        return createResponseWithPayload(verb.toString(), noun.toString(), status, msgPayload);
+        return createResponseWithPayload(noun.toString(), status, msgPayload);
     }
 
     /**
      * Creates a <code>ResponseMessage</code> with the given parameters and payload.
-     * @param verb Header verb.
      * @param noun Header noun.
      * @param status Header status
      * @param msgPayload Message payload
      * @return a Response message with payload.
      */
-    public static ResponseMessage createResponseWithPayload(final String verb, final String noun, final EnumMessageStatus status, final Element msgPayload) {
+    public static ResponseMessage createResponseWithPayload(final String noun, final EnumMessageStatus status, final Element msgPayload) {
         ResponseMessage response = new ResponseMessage();
 
-        response.setHeader(createHeader(verb, noun));
+        response.setHeader(createHeader(EnumVerb.REPLY.toString(), noun));
 
         ReplyType reply = new ReplyType();
 
@@ -383,6 +397,29 @@ public final class MessageUtil {
         response.setPayload(payLoad);
 
         payLoad.getAnies().add(msgPayload);
+
+        return response;
+    }
+    
+    /**
+     * Creates an empty response (with no payload).
+     * This method is usefull to send back responses to the client when:
+     * <li>No response is expected: For instance, if the user has send an acknowledgement.
+     * <li>Server works in asynchronous mode, sending back a response as soon as it receives a message. 
+     * @param status Response's status OK / FAILED.
+     * @return An empty resopnse.
+     */
+    public static ResponseMessage createResponseWithNoPayload(final EnumMessageStatus status) {
+        ResponseMessage response = new ResponseMessage();
+
+        response.setHeader(createHeader(EnumVerb.REPLY.toString(), EnumNoun.EMPTY.toString()));
+
+        ReplyType reply = new ReplyType();
+
+        reply.setResult(status.getStatus());
+        response.setReply(reply);
+        PayloadType payLoad = new PayloadType();
+        response.setPayload(payLoad);
 
         return response;
     }
@@ -408,7 +445,8 @@ public final class MessageUtil {
      * @param format Binary format. if <code>null</code> EnumMessageFormat.XML is set.
      * @return ResponseMessage with binary content.
      */
-    public static ResponseMessage createResponseWithBinaryPayload(final EnumMessageStatus status, final String name, final StringBuilder binaryB64, final EnumMessageFormat format) {
+    public static ResponseMessage createResponseWithBinaryPayload(final EnumMessageStatus status, final String name, 
+            final StringBuilder binaryB64, final EnumMessageFormat format) {
 
         ResponseMessage response = new ResponseMessage();
 
@@ -468,7 +506,8 @@ public final class MessageUtil {
         } catch (IOException | NullPointerException e) {
 
             /* Ignore IOException. */
-            Logger.getLogger(".").log(Level.FINE, "Unable to read message", e);
+            Logger.getLogger(".").log(Level.FINE, "Unable to read message", e); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
+    
 }

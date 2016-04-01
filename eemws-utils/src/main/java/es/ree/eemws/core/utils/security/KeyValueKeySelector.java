@@ -37,7 +37,7 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import javax.xml.crypto.dsig.keyinfo.X509Data;
 
-import es.ree.eemws.core.utils.messages.Messages;
+import es.ree.eemws.core.utils.i18n.Messages;
 
 /**
  * Finds and returns a key used in the signature <code>KeyInfo</code> object.

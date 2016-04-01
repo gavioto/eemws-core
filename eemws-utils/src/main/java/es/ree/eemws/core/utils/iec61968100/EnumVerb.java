@@ -29,9 +29,16 @@ package es.ree.eemws.core.utils.iec61968100;
  */
 public enum EnumVerb {
 
+    /** Modify verb for put operation. */
     MODIFY("modify"),  //$NON-NLS-1$
+    
+    /** Create verb for put operation. */
     CREATE("create"),  //$NON-NLS-1$
+    
+    /** Get verb for list, querydata and get operations. */
     GET("get"),  //$NON-NLS-1$
+    
+    /** Reply verb for server's replies. */
     REPLY("reply");   //$NON-NLS-1$
 
     /** Verb text. */

@@ -18,7 +18,7 @@
  * reference to Red Eléctrica de España, S.A.U. as the copyright owner of
  * the program.
  */
-package es.ree.eemws.core.utils.messages;
+package es.ree.eemws.core.utils.i18n;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -62,7 +62,7 @@ public abstract class AbstractMessages {
 
             retValue = reBundle.getString(key);
 
-        } catch (MissingResourceException e) {
+        } catch (MissingResourceException e) { // NOSONAR Ignore the exception use default text
 
             retValue = NO_KEY_INFORMATION_TOKEN + key + NO_KEY_INFORMATION_TOKEN;
         }

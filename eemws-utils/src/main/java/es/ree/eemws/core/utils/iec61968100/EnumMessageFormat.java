@@ -30,9 +30,11 @@ package es.ree.eemws.core.utils.iec61968100;
 
 public enum EnumMessageFormat {
     
-    XML("XML"), 
-    BINARY("BINARY");
-
+    /** XML message format (default). */
+    XML("XML"),  //$NON-NLS-1$
+    
+    /** Binary message format. */
+    BINARY("BINARY"); //$NON-NLS-1$
         
     /** String used to separate values in the list view. */
     private static final String LIST_SEPARATOR = ", "; //$NON-NLS-1$
