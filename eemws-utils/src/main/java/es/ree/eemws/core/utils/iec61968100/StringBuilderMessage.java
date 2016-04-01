@@ -31,9 +31,8 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.xml.sax.SAXException;
 
 import _504.iec62325.wss._1._0.MsgFaultMsg;
-import ch.iec.tc57._2011.schema.message.FaultMessage; 
-import es.ree.eemws.core.utils.messages.Messages;
-import es.ree.eemws.core.utils.soap.SOAPUtil;
+import ch.iec.tc57._2011.schema.message.FaultMessage;
+import es.ree.eemws.core.utils.i18n.Messages;
 import es.ree.eemws.core.utils.xml.XMLElementUtil;
 import es.ree.eemws.core.utils.xml.XMLUtil;
 

@@ -68,7 +68,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import es.ree.eemws.core.utils.messages.Messages;
+import es.ree.eemws.core.utils.i18n.Messages;
 import es.ree.eemws.core.utils.security.SignatureVerificationException.SignatureVerificationExceptionDetails;
 import es.ree.eemws.core.utils.xml.XMLUtil;
 

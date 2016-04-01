@@ -18,7 +18,7 @@
  * reference to Red Eléctrica de España, S.A.U. as the copyright owner of
  * the program.
  */
-package es.ree.eemws.core.utils.messages;
+package es.ree.eemws.core.utils.i18n;
 
 import java.util.ResourceBundle;
 

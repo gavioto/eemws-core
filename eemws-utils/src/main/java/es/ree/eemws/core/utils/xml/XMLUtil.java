@@ -38,6 +38,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import es.ree.eemws.core.utils.i18n.Messages;
+
 /**
  * Class that contains utilities for XML messages.
  *
