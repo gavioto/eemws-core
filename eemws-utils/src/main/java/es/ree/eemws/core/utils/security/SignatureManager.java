@@ -147,9 +147,10 @@ public final class SignatureManager {
      * @param msgAsString The document to be validated.
      * @return X509 Key used in signature. <code>null</code> if other kind of certificate was used (RSA, DSA).
      * @throws SignatureVerificationException If the document cannot be validated or if its signature is invalid.
+     * @throws SignatureSyntaxException If the given signature has an invalid structure (syntaxis)
      * @see #verifyString(StringBuilder)
      */
-    public static X509Certificate verifyString(final StringBuilder msgAsString) throws SignatureVerificationException {
+    public static X509Certificate verifyString(final StringBuilder msgAsString) throws SignatureVerificationException, SignatureSyntaxException {
 
         try {
 
@@ -166,9 +167,10 @@ public final class SignatureManager {
      * @param msgAsDocument The document to be validated.
      * @return X509 Key used in signature. <code>null</code> if other kind of certificate was used (RSA, DSA).
      * @throws SignatureVerificationException If the document cannot be validated or if its signature is invalid.
+     * @throws SignatureSyntaxException If the given signature has an invalid structure (syntaxis)
      * @see #verifyString(StringBuilder)
      */
-    public static X509Certificate verifyDocument(final Document msgAsDocument) throws SignatureVerificationException {
+    public static X509Certificate verifyDocument(final Document msgAsDocument) throws SignatureVerificationException, SignatureSyntaxException {
 
         X509Certificate x509 = null;
         try {
@@ -234,10 +236,15 @@ public final class SignatureManager {
                 throw sve;
             }
 
-        } catch (XMLSignatureException | MarshalException | NumberFormatException e) {
-
+        } catch (XMLSignatureException e) {
+            
             throw new SignatureVerificationException(Messages.getString("SECURITY_UNABLE_TO_VERIFY"), e); //$NON-NLS-1$
-        } 
+        
+        } catch (MarshalException | NumberFormatException e) {
+
+            throw new SignatureSyntaxException(Messages.getString("SECURITY_SIGNATURE_SYNTAX_ERROR"), e); //$NON-NLS-1$
+        }
+        
 
         return x509;
     }
