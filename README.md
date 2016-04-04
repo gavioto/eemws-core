@@ -7,7 +7,7 @@ This is a core implementation of IEC 62325-504 technical specification.
 
 * **eemws-core** includes schemas, wsdl, and compiled classes necessary for the eem web services
 * **eemws-utils** includes several useful classes to manage xml messages and their digital signatures
-* Version **1.0-m10**
+* Version **1.0-m11**
 
 Please use maven 3.x and java 7.x in order to compile.
 
