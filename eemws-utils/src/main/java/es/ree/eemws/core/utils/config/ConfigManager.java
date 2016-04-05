@@ -110,8 +110,7 @@ public final class ConfigManager {
             }
             config = new Properties();
             config.load(isProps);
-            isProps.close();
-
+            
             boolean shouldCypherFile = clearPasswords();
             loadAndCheckSecurityConfig();
             setSystem();
