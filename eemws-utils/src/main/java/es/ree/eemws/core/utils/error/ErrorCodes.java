@@ -305,5 +305,11 @@ interface ErrorCodes {
 
     /** Server seems to be shutdown has rejected your request. Check URL, check internet connection, check firewalls configuretion.  */
     String HAND_020 = "HAND-020"; //$NON-NLS-1$
+    
+    /** The server has rejected the request because it is incorrect. */
+    String HAND_021 = "HAND-021"; //$NON-NLS-1$
+    
+    /** Runtime exception. */
+    String HAND_022 = "HAND-022"; //$NON-NLS-1$
 
 }

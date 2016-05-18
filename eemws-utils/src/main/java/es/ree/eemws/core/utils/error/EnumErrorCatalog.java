@@ -54,6 +54,8 @@ public enum EnumErrorCatalog implements ErrorCodes {
     ERR_HAND_018(HAND_018, Messages.getString(HAND_018)),
     ERR_HAND_019(HAND_019, Messages.getString(HAND_019)),
     ERR_HAND_020(HAND_020, Messages.getString(HAND_020)),
+    ERR_HAND_021(HAND_021, Messages.getString(HAND_021)),
+    ERR_HAND_022(HAND_022, Messages.getString(HAND_022)),
         
     ERR_LST_001(LST_001, Messages.getString(LST_001)),
     ERR_LST_002(LST_002, Messages.getString(LST_002)),

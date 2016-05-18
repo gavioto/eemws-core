@@ -110,8 +110,7 @@ public final class ConfigManager {
             }
             config = new Properties();
             config.load(isProps);
-            isProps.close();
-
+            
             boolean shouldCypherFile = clearPasswords();
             loadAndCheckSecurityConfig();
             setSystem();
@@ -176,13 +175,14 @@ public final class ConfigManager {
 
                     String[] pair = line.split(EQUALS);
                     String key = pair[0];
-                    if (config.containsKey(key)) {
+                    
+                    /* Ciphers only values which its key has the word "password". Does not cipher keys which its value has the word "password". */
+                    if (key.toUpperCase().indexOf(PASSWORD_TOKEN) != -1 && config.containsKey(key)) {
 
                         String value = pair[1].trim();
                         String configValue = config.getProperty(key);
 
                         if (configValue.equals(value)) {
-
                             failedKey = key;
                             value = CryptoManager.encrypt(value);
                             line = key + EQUALS + value;
