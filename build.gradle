@@ -1,23 +1,28 @@
+plugins {
+     id 'nebula.nebula-release' version '4.0.1'
+}
+
+description = 'eemws-core-parent'
+
 allprojects  {
   apply plugin: 'maven'
 
   group = 'eemws'
-version = '1.0-m13-SNAPSHOT'
+  //version = '1.0-m13-SNAPSHOT'
 }
 
 subprojects {
   apply plugin: 'java'
-  sourceCompatibility = 1.5
-  targetCompatibility = 1.5
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
 
-  
   repositories {
     mavenLocal()
-    
+
     maven { url "http://repo.maven.apache.org/maven2" }
   }
-
-  
-  
-  
 }
+
+println "-----------------------------------------" + '-' * version.toString().length()
+println " IEC62325-504 core libraries - version: $version "
+println "-----------------------------------------" + '-' * version.toString().length()
