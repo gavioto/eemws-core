@@ -1,8 +1,32 @@
 plugins {
-     id 'nebula.nebula-release' version '4.0.1'
+    id 'pl.allegro.tech.build.axion-release' version '1.3.4'
 }
 
 description = 'eemws-core-parent'
+
+scmVersion {
+    tag {
+        prefix = ''
+    }
+
+    // Incrementing policy
+    versionIncrementer 'incrementMinor'  //default
+    branchVersionIncrementer = [
+       'master': 'incrementPrerelease',
+       'release/.*': 'incrementPrerelease',
+       'hotfix/.*': 'incrementPrerelease'
+    ]
+
+    // Decorators
+    versionCreator 'simple'
+    branchVersionCreator = [
+       'feature/.*': 'versionWithBranch'
+    ]
+
+    localOnly = true  //no pushing to remote
+}
+
+project.version = scmVersion.version
 
 allprojects  {
   apply plugin: 'maven'
