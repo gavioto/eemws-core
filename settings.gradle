@@ -1,0 +1,3 @@
+rootProject.name = 'eemws-core-parent'
+include "eemws-core"
+include "eemws-utils"
