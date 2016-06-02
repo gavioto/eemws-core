@@ -10,7 +10,7 @@ scmVersion {
     }
 
     // Incrementing policy
-    versionIncrementer 'incrementMinor'  //default
+    versionIncrementer 'incrementMinor'  // default
     branchVersionIncrementer = [
        'master': 'incrementPrerelease',
        'release/.*': 'incrementPrerelease',
@@ -23,7 +23,9 @@ scmVersion {
     //   'feature/.*': 'versionWithBranch'
     //]
 
-    localOnly = true  //no pushing to remote
+    localOnly = true  // no pushing to remote
+
+    ignoreUncommittedChanges = false  // add -SNAPSHOT if uncommited changes
 }
 
 allprojects  {
