@@ -32,3 +32,10 @@ sourceSets{
     main.java.srcDirs +=[wsdl2java.generatedWsdlDir]
     main.resources.srcDirs += ["$projectDir/src/wsdl", "$projectDir/src/xsd"]
 }
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': project.description,
+                   'Implementation-Version': version
+    }
+}
