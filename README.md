@@ -7,14 +7,15 @@ This is a core implementation of IEC 62325-504 technical specification.
 
 * **eemws-core** includes schemas, wsdl, and compiled classes necessary for the eem web services
 * **eemws-utils** includes several useful classes to manage xml messages and their digital signatures
-* Version **1.0-m12**
+* Version **1.0.0**
 
-Please use maven 3.x and java 7.x in order to compile.
+Please use `./gradlew build` and java 7.x in order to compile.
 
 ----
 
 **News**
 
+* **02-06-2016**: Version 1.0.0! Now compiled with gradle (no need to install it, just use the included wrapper)
 * **18-04-2016**: New connection kit version (1.0-m12) [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0-m12.jar). Magic Folder now can deal with several servers for sending / receiving messages. Added a new program for sending xml documents or binary files using a simple graphical application.
 * **04-05-2016**: Windows service wrapper (by Tanuki Software) updated to version 3.5.29
 * **01-04-2016**: New connection kit version (1.0-m11) available. Magic Folder now can deal with several input / output folders and can execute scripts / programs as well.
@@ -30,7 +31,7 @@ Please use maven 3.x and java 7.x in order to compile.
 * **12-05-2015**: Added an utility pack to use Magic Folder as a Windows Service see Downloads section.
 * **18-03-2015**: New connection kit version (1.0-m7) with binary support available (see Downloads section).
 * **29-01-2015**: First user's manual version (no draft) available (see Downloads section)
-* **29-01-2015**: New connection kit version (1.0-m6) with improvements and fixes available (see Downloads section). The application is now available in Spanish and English. 
+* **29-01-2015**: New connection kit version (1.0-m6) with improvements and fixes available (see Downloads section). The application is now available in Spanish and English.
 * **17-11-2014**: The first draft of the user's manual is available
 
 ### Who do I talk to? ###
