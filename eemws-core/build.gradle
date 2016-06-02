@@ -1,0 +1,41 @@
+// see https://github.com/nilsmagnus/wsdl2java
+buildscript{
+    repositories{
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'no.nils:wsdl2java:0.10'
+    }
+}
+apply plugin: 'no.nils.wsdl2java'
+
+description = """eemws-core"""
+
+wsdl2java {
+    generatedWsdlDir = file("$projectDir/generated-sources")  // target directory for generated source coude
+    wsdlDir = file("$projectDir/src/wsdl") // define to support incremental build
+    wsdlsToGenerate = [   //  2d-array of wsdls and cxf-parameters
+                ['-wsdlLocation', 'file://urn-iec62325-504-wss-1-0.wsdl',
+                 '-b',"$projectDir/src/jaxws/bindings.xjc",
+                 "$projectDir/src/wsdl/urn-iec62325-504-wss-1-0.wsdl"]
+        ]
+    locale = Locale.ENGLISH
+}
+
+wsdl2javaExt {
+    deleteGeneratedSourcesOnClean = true
+    cxfVersion = "3.1.6"  // remove to use the latest version
+}
+
+sourceSets{
+    main.java.srcDirs +=[wsdl2java.generatedWsdlDir]
+    main.resources.srcDirs += ["$projectDir/src/wsdl", "$projectDir/src/xsd"]
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': project.description,
+                   'Implementation-Version': version
+    }
+}
