@@ -19,20 +19,18 @@ scmVersion {
 
     // Decorators
     versionCreator 'simple'
-    branchVersionCreator = [
-       'feature/.*': 'versionWithBranch'
-    ]
+    //branchVersionCreator = [
+    //   'feature/.*': 'versionWithBranch'
+    //]
 
     localOnly = true  //no pushing to remote
 }
-
-project.version = scmVersion.version
 
 allprojects  {
   apply plugin: 'maven'
 
   group = 'eemws'
-  //version = '1.0-m13-SNAPSHOT'
+  version = scmVersion.version
 }
 
 subprojects {
@@ -44,6 +42,10 @@ subprojects {
     mavenLocal()
 
     maven { url "http://repo.maven.apache.org/maven2" }
+  }
+
+  tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
   }
 }
 
