@@ -9,7 +9,7 @@ This is a core implementation of IEC 62325-504 technical specification.
 * **eemws-utils** includes several useful classes to manage xml messages and their digital signatures
 * Version **1.0.0**
 
-Please use `./gradlew build` and java 7.x in order to compile.
+Please use `./gradlew install` and java 7.x in order to compile.
 
 ----
 
