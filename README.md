@@ -7,7 +7,7 @@ This is a core implementation of IEC 62325-504 technical specification.
 
 * **eemws-core** includes schemas, wsdl, and compiled classes necessary for the eem web services
 * **eemws-utils** includes several useful classes to manage xml messages and their digital signatures
-* Version **1.0.0**
+* Version **1.0.1**
 
 Please use `./gradlew install` and java 7.x in order to compile.
 
@@ -15,7 +15,8 @@ Please use `./gradlew install` and java 7.x in order to compile.
 
 **News**
 
-* **02-06-2016**: Version 1.0.0! Now compiled with gradle (no need to install it, just use the included wrapper)
+* **08-06-2016**: Version 1.0.1. Small fix to gitignore.
+* **02-06-2016**: **Version 1.0.0!** Now compiled with gradle (no need to install it, just use the included wrapper)
 * **18-04-2016**: New connection kit version (1.0-m12) [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0-m12.jar). Magic Folder now can deal with several servers for sending / receiving messages. Added a new program for sending xml documents or binary files using a simple graphical application.
 * **04-05-2016**: Windows service wrapper (by Tanuki Software) updated to version 3.5.29
 * **01-04-2016**: New connection kit version (1.0-m11) available. Magic Folder now can deal with several input / output folders and can execute scripts / programs as well.
@@ -37,3 +38,39 @@ Please use `./gradlew install` and java 7.x in order to compile.
 ### Who do I talk to? ###
 
 * If you have questions please contact soportesios@ree.es
+
+### How do I compile the project? ###
+
+As stated above, you simply need to use the gradle wrapper included in the root of the repository:
+
+```shell
+$ ./gradlew install
+```
+
+This will take care of downloading gradle itself and all the project's dependencies.
+
+The `install` task is similar to maven's one. The project artifacts will be installed in your local Maven repository.
+
+The version of the project will be calculated automatically depending on the state of the repository and the working area.
+
+* If there is a tag in your current commit, that tag will be used as version base
+* If there isn't a tag in your current commit, the nearest tag (git describe), automatically incremented, will be used as version base
+* If there isn't a tag in your current commit or the working dir is dirty, `-SNAPSHOT` will be added to the version
+* The auto-increment will use next-minor-version for all branches except `master` and `release/x.y.z`; for these last two, next-patch-version will be used.
+
+For more information, see the [build file](./build.gradle) and the [axion-release-plugin](https://github.com/allegro/axion-release-plugin).
+
+### How do I compile version x.y.z? ###
+
+In order to compile a specific version, you may checkout said version and compile with gradle:
+
+```shell
+$ git checkout x.y.z
+$ ./gradlew install
+```
+
+If in the previous case you get a `-SNAPSHOT` version due to a dirty repository, but you really want to build the version without the snapshot indicator, first check that the modifications in the repository are correct and then you may use a specific property to ignore uncommited changes when generating the version:
+
+```shell
+$ ./gradlew install -Prelease.ignoreUncommittedChanges=true
+```
