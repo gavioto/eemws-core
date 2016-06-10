@@ -15,9 +15,9 @@ Please use `./gradlew install` and java 7.x in order to compile.
 
 **News**
 
-* **08-06-2016**: Version 1.0.1. Small fix to gitignore.
+* **08-06-2016**: Version 1.0.1 [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0.1-installer.jar). Small fix to gitignore.
 * **02-06-2016**: **Version 1.0.0!** Now compiled with gradle (no need to install it, just use the included wrapper)
-* **18-04-2016**: New connection kit version (1.0-m12) [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0-m12.jar). Magic Folder now can deal with several servers for sending / receiving messages. Added a new program for sending xml documents or binary files using a simple graphical application.
+* **18-04-2016**: New connection kit version (1.0-m12). Magic Folder now can deal with several servers for sending / receiving messages. Added a new program for sending xml documents or binary files using a simple graphical application.
 * **04-05-2016**: Windows service wrapper (by Tanuki Software) updated to version 3.5.29
 * **01-04-2016**: New connection kit version (1.0-m11) available. Magic Folder now can deal with several input / output folders and can execute scripts / programs as well.
 * **28-03-2016**: Check any IEC 62325-504 implementation with [this SoapUI project](https://bitbucket.org/smree/eemws-core/downloads/IEC-62535-504-soapui-project.xml) and [this document guide!](https://bitbucket.org/smree/eemws-core/downloads/IEC%2062325-504%20Test%20Cases.pdf)
