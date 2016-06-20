@@ -1,5 +1,6 @@
 # IEC 62325-504 core #
 
+[![Build Status](https://drone.io/bitbucket.org/smree/eemws-core/status.png)](https://drone.io/bitbucket.org/smree/eemws-core/latest)
 
 ### What is this repository for? ###
 
