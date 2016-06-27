@@ -32,7 +32,7 @@ scmVersion {
 allprojects  {
   apply plugin: 'maven'
 
-  group = 'eemws'
+  group = 'es.ree.eemws'
   version = scmVersion.version
 }
 
