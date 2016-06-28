@@ -31,17 +31,18 @@ scmVersion {
 }
 
 allprojects  {
-  apply plugin: 'maven'
+    version = scmVersion.version
 
-  group = 'es.ree.eemws'
-  version = scmVersion.version
 }
 
 subprojects {
   apply plugin: 'java'
   apply plugin: 'jacoco'
+  //apply plugin: 'maven'
 
   apply plugin: 'com.bmuschko.nexus'
+
+  group = 'es.ree.eemws'
 
   sourceCompatibility = 1.7
   targetCompatibility = 1.7
@@ -54,6 +55,42 @@ subprojects {
 
   tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+  }
+
+  modifyPom {
+    project {
+         //name 'eemws-core-parent'
+         //description 'eemws-core libraries'
+         url 'https://bitbucket.org/smree/eemws-core'
+         inceptionYear '2014'
+
+         scm {
+             url 'https://bitbucket.org/smree/eemws-core'
+             connection 'scm:https://bitbucket.org/smree/eemws-core.git'
+             developerConnection 'scm:git://bitbucket.org:smree/eemws-core.git'
+         }
+
+         licenses {
+             license {
+                 name 'GNU General Lesser Public License (LGPL) version 3.0'
+                 url 'https://www.gnu.org/licenses/lgpl-3.0.txt'
+                 distribution 'repo'
+             }
+         }
+
+         developers {
+             developer {
+                 id 'e-jimenez'
+                 name 'Enrique Jiménez Raya'
+                 email 'ejimenez@ree.es'
+             }
+             developer {
+                 id 'agusmba'
+                 name 'Agustín Martín Barbero'
+                 email 'ambarbero@ree.es'
+             }
+         }
+     }
   }
 }
 

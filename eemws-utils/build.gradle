@@ -1,4 +1,4 @@
-description = """eemws-utils"""
+description = "Core implementation of IEC 62325-504 technical specification. eemws-utils includes several useful classes to manage xml messages and their digital signatures"
 
 dependencies {
   compile(
@@ -18,3 +18,10 @@ jar {
                    'Implementation-Version': version
     }
 }
+
+ modifyPom {
+    project {
+         name project.name
+         description project.description
+     }
+  }
