@@ -10,7 +10,7 @@ buildscript{
 }
 apply plugin: 'no.nils.wsdl2java'
 
-description = """eemws-core"""
+description = "Core implementation of IEC 62325-504 technical specification. eemws-core includes schemas, wsdl, and compiled classes necessary for the eem web services"
 
 wsdl2java {
     generatedWsdlDir = file("$projectDir/generated-sources")  // target directory for generated source coude
@@ -39,3 +39,10 @@ jar {
                    'Implementation-Version': version
     }
 }
+
+ modifyPom {
+    project {
+         name project.name
+         description project.description
+     }
+  }

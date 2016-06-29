@@ -8,7 +8,7 @@ This is a core implementation of IEC 62325-504 technical specification.
 
 * **eemws-core** includes schemas, wsdl, and compiled classes necessary for the eem web services
 * **eemws-utils** includes several useful classes to manage xml messages and their digital signatures
-* Version **1.0.1**
+* Version **1.1.0**
 
 Please use `./gradlew install` and java 7.x in order to compile.
 
@@ -16,7 +16,8 @@ Please use `./gradlew install` and java 7.x in order to compile.
 
 **News**
 
-* **08-06-2016**: Version 1.0.1 [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-1.0.1-installer.jar). Small fix to gitignore.
+* **29-06-2016**: Version 1.1.0 [available](https://bitbucket.org/smree/eemws-core/downloads/eemws-kit-installer-1.1.0.jar). Libraries published on Maven Central! Please, note the change in the groupId coordinates.
+* **08-06-2016**: Version 1.0.1 available. Small fix to gitignore.
 * **02-06-2016**: **Version 1.0.0!** Now compiled with gradle (no need to install it, just use the included wrapper)
 * **18-04-2016**: New connection kit version (1.0-m12). Magic Folder now can deal with several servers for sending / receiving messages. Added a new program for sending xml documents or binary files using a simple graphical application.
 * **04-05-2016**: Windows service wrapper (by Tanuki Software) updated to version 3.5.29
