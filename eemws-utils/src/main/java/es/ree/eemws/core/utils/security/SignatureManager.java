@@ -255,7 +255,7 @@ public final class SignatureManager {
      * @param privateKey The private key to be used for signature.
      * @param cert The certificate to be used for signature.
      * @throws SignatureManagerException If it's impossible to sign the document.
-     * @see #signString(StringBuilder, RSAPrivateKey, X509Certificate)
+     * @see #signString(StringBuilder, PrivateKey, X509Certificate)
      */
     public static void signDocument(final Document msgAsDocument, final RSAPrivateKey privateKey, final X509Certificate cert) throws SignatureManagerException {
         signDocument(msgAsDocument, (PrivateKey) privateKey, cert);
@@ -409,7 +409,7 @@ public final class SignatureManager {
      * @param privateKey The private key to be used for signature.
      * @param cert The certificate to be used for signature.
      * @throws SignatureManagerException If it's impossible to sign the document.
-     * @see #signString(StringBuilder, RSAPrivateKey, X509Certificate)
+     * @see #signString(StringBuilder, PrivateKey, X509Certificate)
      */
     public static void signDocument(final Document msgAsDocument, final PrivateKey privateKey, final X509Certificate cert) throws SignatureManagerException {
 

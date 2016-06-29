@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Eléctrica de España, S.A.U.
+ * Copyright 2016 Red Eléctrica de España, S.A.U.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -39,6 +39,7 @@ import javax.xml.XMLConstants;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -61,10 +62,10 @@ import es.ree.eemws.core.utils.xml.XMLElementUtil;
 import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
 
 /**
- * Miscellaneous utilities to handle message.
+ * Miscellaneous utilities to handle messages.
  *
  * @author Red Eléctrica de España S.A.U.
- * @version 1.0 13/02/2014
+ * @version 1.1 17/06/2016
  */
 public final class MessageUtil {
 
@@ -508,6 +509,30 @@ public final class MessageUtil {
             /* Ignore IOException. */
             Logger.getLogger(".").log(Level.FINE, "Unable to read message", e); //$NON-NLS-1$ //$NON-NLS-2$
         }
+    }
+    
+    /**
+     * Returns the operation response's payload content as a String.
+     * @param responseMessage Response message received from server.
+     * @return Operation response payload as string. 
+     * If the servers has returned no payload (for asynchronous communication) <code>null</code> is returned. 
+     * @throws TransformerException If the response cannot be transformed as an String.
+     * @throws ParserConfigurationException If the response cannot be transformed as an string.
+     */
+    public static String responsePayload2String(final ResponseMessage responseMessage) throws TransformerException, ParserConfigurationException {
+        String retValue = null;
+        
+        PayloadType payload = responseMessage.getPayload();
+
+        List<Element> anies = payload.getAnies();
+        
+        if (!anies.isEmpty()) { 
+        
+            retValue = XMLElementUtil.element2String(payload.getAnies().get(0));
+            
+        }
+
+        return retValue;
     }
     
 }
