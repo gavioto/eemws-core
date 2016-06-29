@@ -311,5 +311,8 @@ interface ErrorCodes {
     
     /** Runtime exception. */
     String HAND_022 = "HAND-022"; //$NON-NLS-1$
+    
+    /** Server has retured an unrecognized name. Disable SNI extension and retry. */
+    String HAND_023 = "HAND-023"; //$NON-NLS-1$
 
 }

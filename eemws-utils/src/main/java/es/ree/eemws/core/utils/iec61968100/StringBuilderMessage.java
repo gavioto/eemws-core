@@ -148,7 +148,7 @@ public final class StringBuilderMessage {
      * Returns the current IEC-61968-100 message without payload.
      * @return Current IEC-61968-100 message without payload. 
      * <code>null</code> if the current message is null.
-     * @see #getStringPayLoad(StringBuilder)
+     * @see #getPayload()
      */
     public String getStringMessageNoPayload() {
         String retValue = null;
