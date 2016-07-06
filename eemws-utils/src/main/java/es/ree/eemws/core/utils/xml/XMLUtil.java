@@ -344,20 +344,24 @@ public final class XMLUtil {
      * This method removes namespace prefixes of a given document with leaving this default namespace.
      * Example:
      * input
-     * <code>
-     *   <n1:Tag xmnls:n1="http...." xmnls:n2="http...." xmnls:n3="http..." >
-     *      <n1:OtherTag>
-     *      ...
-     *   </n1:Tag>
-     * </code>
+     * <pre>
+     * {@code
+     * <n1:Tag xmnls:n1="http...." xmnls:n2="http...." xmnls:n3="http..." >
+     *   <n1:OtherTag>
+     *   ...
+     * </n1:Tag>
+     * }
+     * </pre>
      *
      * output
-     * <code>
-     *   <Tag xmnls="http....">
-     *      <OtherTag>
-     *      ...
-     *   </Tag>
-     * </code>
+     * <pre>
+     * {@code
+     * <Tag xmnls="http....">
+     *    <OtherTag>
+     *    ...
+     * </Tag>
+     * }
+     * </pre>
      *
      * @param xml XML document to remove references to prefixes of namespaces.
      * @return XML document without namespaces.
@@ -487,10 +491,12 @@ public final class XMLUtil {
      * Searches a XML document root tag value given the document as a string.
      * We search from the end to the top (The last tag is also the root tag!)
      * There are serveral cases:
-     * <li>(1) Simple end tag:  </etiqueta>
-     * <li>(2) End tag with namespace prefix: </n1:etiqueta>
-     * <li>(3) Empty document: <etiqueta/>
-     * <li>(4) Empty document with namespace prefix: <n1:etiqueta xmnls:n1="abde"/>
+     * <ul>
+     * <li>(1) Simple end tag: {@code </etiqueta>}
+     * <li>(2) End tag with namespace prefix: {@code </n1:etiqueta>}
+     * <li>(3) Empty document: {@code <etiqueta/>}
+     * <li>(4) Empty document with namespace prefix: {@code <n1:etiqueta xmnls:n1="abde"/>}
+     * </ul>
      * @param strXml document as a string.
      * @return Xml's root tag as a String <code>null</code> if the given xml is not well formed (cannot find root tag).
      */
