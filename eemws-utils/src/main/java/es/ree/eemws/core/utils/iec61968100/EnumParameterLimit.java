@@ -65,8 +65,8 @@ public enum EnumParameterLimit {
     MAX_MESSAGE_AGE_IN_DAYS("MaxMessageAgeInDays"), //$NON-NLS-1$
     
     /**
-     * If set, the server will reject messages that do not meet the following criteria: CT - ST + MD >= 0 Being CT the
-     * current server time, ST the msg:serverTimestamp indicated in the request message and MD this parameter value.
+     * If set, the server will reject messages that do not meet the following criteria: {@literal CT - ST + MD >= 0}.
+     * Being CT the current server time, ST the msg:serverTimestamp indicated in the request message and MD this parameter value.
      */
     MAX_DIFF_SERVER_TIMESTAMP_IN_SECONDS("MaxDiffServerTimestampInSeconds"), //$NON-NLS-1$
     

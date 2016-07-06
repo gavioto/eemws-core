@@ -405,8 +405,10 @@ public final class MessageUtil {
     /**
      * Creates an empty response (with no payload).
      * This method is usefull to send back responses to the client when:
+     * <ul>
      * <li>No response is expected: For instance, if the user has send an acknowledgement.
-     * <li>Server works in asynchronous mode, sending back a response as soon as it receives a message. 
+     * <li>Server works in asynchronous mode, sending back a response as soon as it receives a message.
+     * </ul> 
      * @param status Response's status OK / FAILED.
      * @return An empty resopnse.
      */
