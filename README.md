@@ -16,6 +16,7 @@ Please use `./gradlew install` and java 7.x in order to compile.
 
 **News**
 
+* **16-07-2016**: Fixed a bug in Windows service wrapper distribution installer.
 * **06-07-2016**: Version 1.1.2 [available](https://bitbucket.org/smree/eemws-core/downloads/). Javadoc corrections, xsd and wsdl location fixes within the jar file. Thanks Emanuel for the contribution! 
 * **29-06-2016**: Version 1.1.0 available. Libraries published on Maven Central! Please, note the change in the groupId coordinates.
 * **08-06-2016**: Version 1.0.1 available. Small fix to gitignore.
