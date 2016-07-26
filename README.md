@@ -1,6 +1,6 @@
 # IEC 62325-504 core #
 
-[![Build Status](https://drone.io/bitbucket.org/smree/eemws-core/status.png)](https://drone.io/bitbucket.org/smree/eemws-core/latest)
+[![Build Status](https://drone.io/bitbucket.org/smree/eemws-core/status.png)](https://drone.io/bitbucket.org/smree/eemws-core/latest) [![eemws-core](https://maven-badges.herokuapp.com/maven-central/es.ree.eemws/eemws-core/badge.svg?style=flat&subject=eemws-core)](https://maven-badges.herokuapp.com/maven-central/es.ree.eemws/eemws-core) [![eemws-utils](https://maven-badges.herokuapp.com/maven-central/es.ree.eemws/eemws-utils/badge.svg?style=flat&subject=eemws-utils)](https://maven-badges.herokuapp.com/maven-central/es.ree.eemws/eemws-utils)
 
 ### What is this repository for? ###
 
@@ -8,16 +8,19 @@ This is a core implementation of IEC 62325-504 technical specification.
 
 * **eemws-core** includes schemas, wsdl, and compiled classes necessary for the eem web services
 * **eemws-utils** includes several useful classes to manage xml messages and their digital signatures
-* Version **1.1.2**
 
 Please use `./gradlew install` and java 7.x in order to compile.
+
+Libraries are available in [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22es.ree.eemws%22)
+
+App installer is available in the [download section.](https://bitbucket.org/smree/eemws-core/downloads/)
 
 ----
 
 **News**
 
 * **16-07-2016**: Fixed a bug in Windows service wrapper distribution installer.
-* **06-07-2016**: Version 1.1.2 [available](https://bitbucket.org/smree/eemws-core/downloads/). Javadoc corrections, xsd and wsdl location fixes within the jar file. Thanks Emanuel for the contribution! 
+* **06-07-2016**: Version 1.1.2 available. Javadoc corrections, xsd and wsdl location fixes within the jar file. Thanks Emanuel for the contribution! 
 * **29-06-2016**: Version 1.1.0 available. Libraries published on Maven Central! Please, note the change in the groupId coordinates.
 * **08-06-2016**: Version 1.0.1 available. Small fix to gitignore.
 * **02-06-2016**: **Version 1.0.0!** Now compiled with gradle (no need to install it, just use the included wrapper)
