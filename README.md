@@ -19,6 +19,7 @@ App installer is available in the [download section.](https://bitbucket.org/smre
 
 **News**
 
+* **04-11-2016**: Version 1.1.3 available. New Magic Folder features and small fixes.
 * **16-07-2016**: Fixed a bug in Windows service wrapper distribution installer.
 * **06-07-2016**: Version 1.1.2 available. Javadoc corrections, xsd and wsdl location fixes within the jar file. Thanks Emanuel for the contribution! 
 * **29-06-2016**: Version 1.1.0 available. Libraries published on Maven Central! Please, note the change in the groupId coordinates.
