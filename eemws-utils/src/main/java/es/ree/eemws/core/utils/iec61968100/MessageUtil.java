@@ -60,18 +60,25 @@ import es.ree.eemws.core.utils.file.GZIPUtil;
 import es.ree.eemws.core.utils.i18n.Messages;
 import es.ree.eemws.core.utils.xml.XMLElementUtil;
 import es.ree.eemws.core.utils.xml.XMLGregorianCalendarFactory;
+import es.ree.eemws.core.utils.xml.XMLUtil;
 
 /**
  * Miscellaneous utilities to handle messages.
  *
  * @author Red Eléctrica de España S.A.U.
- * @version 1.1 17/06/2016
+ * @version 1.2 11/08/2016
  */
 public final class MessageUtil {
 
     /** IEC 61968-100 schema file (it's included in <code>core.jar</code>. */
     private static final String IEC_61968_100_SCHEMA_FILE = "http-iec-ch-TC57-2011-schema-message.xsd"; //$NON-NLS-1$
 
+    /** System properties to activate pretty print xml message output. */
+    private static final String USE_PRETTY_PRINT_OUTPUT_FLAG = "USE_PRETTY_PRINT_OUTPUT";
+    
+    /** Flag to check if pretty print is active. */
+    private static final boolean PRETTY_PRINT_OUTPUT =  System.getProperty(USE_PRETTY_PRINT_OUTPUT_FLAG) != null;
+    
     /**
      * Constructor. Utility classes should not have a public constructor.
      */
@@ -515,6 +522,7 @@ public final class MessageUtil {
     
     /**
      * Returns the operation response's payload content as a String.
+     * If the System property <code>USE_PRETTY_PRINT_OUTPUT</code> is set, the output will be pretty printed.
      * @param responseMessage Response message received from server.
      * @return Operation response payload as string. 
      * If the servers has returned no payload (for asynchronous communication) <code>null</code> is returned. 
@@ -531,6 +539,10 @@ public final class MessageUtil {
         if (!anies.isEmpty()) { 
         
             retValue = XMLElementUtil.element2String(payload.getAnies().get(0));
+            
+            if (PRETTY_PRINT_OUTPUT) {                
+                retValue = XMLUtil.prettyPrint(XMLUtil.removeNameSpaces(retValue).toString()).toString();
+            } 
             
         }
 
